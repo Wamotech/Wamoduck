@@ -1,0 +1,704 @@
+{
+  "schema_version": 1,
+  "prepared_on": "2026-09-12",
+  "scope": "Selected source assets only; does not hash documentation or this manifest",
+  "sources": {
+    "simplified_design": "Maintainer-supplied simplified mechanical design set",
+    "robot_description": "Selected files from the maintainer-supplied wmduck_urdf export"
+  },
+  "assets": [
+    {
+      "path": "assets/wamoduck-model.png",
+      "source_set": "robot_description",
+      "source_file": "preview.png",
+      "bytes": 111826,
+      "sha256": "4d9a970e3f556508e41d1a0fbd12dea6c247b7a37488f1078b56bca8b95d7b18",
+      "source_sha256": "4d9a970e3f556508e41d1a0fbd12dea6c247b7a37488f1078b56bca8b95d7b18",
+      "transformation": "none"
+    },
+    {
+      "path": "hardware/solidworks/Battery_6s18650_24V.SLDPRT",
+      "source_set": "simplified_design",
+      "source_file": "Battery_6s18650_24V.SLDPRT",
+      "bytes": 140661,
+      "sha256": "d1bcd6b5b430f9c55f97ef03f19f0a1833229052ffff91b51ec670904bc39b21",
+      "source_sha256": "d1bcd6b5b430f9c55f97ef03f19f0a1833229052ffff91b51ec670904bc39b21",
+      "transformation": "none"
+    },
+    {
+      "path": "hardware/solidworks/Bearing_20_27_4.SLDPRT",
+      "source_set": "simplified_design",
+      "source_file": "Bearing_20_27_4.SLDPRT",
+      "bytes": 143079,
+      "sha256": "95f21e338edc3d3f3c75074763aa9fbec9582222fba4592a24e523a5c1e973d8",
+      "source_sha256": "95f21e338edc3d3f3c75074763aa9fbec9582222fba4592a24e523a5c1e973d8",
+      "transformation": "none"
+    },
+    {
+      "path": "hardware/solidworks/Body.SLDASM",
+      "source_set": "simplified_design",
+      "source_file": "Body.SLDASM",
+      "bytes": 636455,
+      "sha256": "a403d009e5791378e5ad9a3dd2d48e096c95ff166afdd13c5fe498ea85ac9ad6",
+      "source_sha256": "a403d009e5791378e5ad9a3dd2d48e096c95ff166afdd13c5fe498ea85ac9ad6",
+      "transformation": "none"
+    },
+    {
+      "path": "hardware/solidworks/Body_Frame.SLDPRT",
+      "source_set": "simplified_design",
+      "source_file": "Body_Frame.SLDPRT",
+      "bytes": 827699,
+      "sha256": "9e732776ca40d6c7dd6bb6a63bc672aa1959053dbcd5533fb647036ed8748e5d",
+      "source_sha256": "9e732776ca40d6c7dd6bb6a63bc672aa1959053dbcd5533fb647036ed8748e5d",
+      "transformation": "none"
+    },
+    {
+      "path": "hardware/solidworks/Control_Borad_AT32.SLDPRT",
+      "source_set": "simplified_design",
+      "source_file": "Control_Borad_AT32.SLDPRT",
+      "bytes": 135740,
+      "sha256": "6f6175d15b135a00fb83f6bbd9a8f9463959f0a6d55cdd2f0b0f69a4bd854149",
+      "source_sha256": "6f6175d15b135a00fb83f6bbd9a8f9463959f0a6d55cdd2f0b0f69a4bd854149",
+      "transformation": "none"
+    },
+    {
+      "path": "hardware/solidworks/Full_wmduck.SLDASM",
+      "source_set": "simplified_design",
+      "source_file": "Full_wmduck.SLDASM",
+      "bytes": 4560904,
+      "sha256": "3b649058d556a717c160bbc76cc95d70b8b6ff9f81a35f56c8661980820fcda7",
+      "source_sha256": "3b649058d556a717c160bbc76cc95d70b8b6ff9f81a35f56c8661980820fcda7",
+      "transformation": "none"
+    },
+    {
+      "path": "hardware/solidworks/Head.SLDPRT",
+      "source_set": "simplified_design",
+      "source_file": "Head.SLDPRT",
+      "bytes": 5906626,
+      "sha256": "042319667c163bb3fadd7eac6a2c5ec280a12d997d9619e1de7b488e3232ee94",
+      "source_sha256": "042319667c163bb3fadd7eac6a2c5ec280a12d997d9619e1de7b488e3232ee94",
+      "transformation": "none"
+    },
+    {
+      "path": "hardware/solidworks/Head_pitch.SLDPRT",
+      "source_set": "simplified_design",
+      "source_file": "Head_pitch.SLDPRT",
+      "bytes": 318927,
+      "sha256": "883a158b8a7d3d3bbbc582053b337ba57b3452e87424f67c241ab3433e7b007e",
+      "source_sha256": "883a158b8a7d3d3bbbc582053b337ba57b3452e87424f67c241ab3433e7b007e",
+      "transformation": "none"
+    },
+    {
+      "path": "hardware/solidworks/Head_roll.SLDASM",
+      "source_set": "simplified_design",
+      "source_file": "Head_roll.SLDASM",
+      "bytes": 3242058,
+      "sha256": "b1410ad48b35747fc62aa863a69da59605660ad7f301bad2cbd343a1df14c463",
+      "source_sha256": "b1410ad48b35747fc62aa863a69da59605660ad7f301bad2cbd343a1df14c463",
+      "transformation": "none"
+    },
+    {
+      "path": "hardware/solidworks/Head_yaw.SLDASM",
+      "source_set": "simplified_design",
+      "source_file": "Head_yaw.SLDASM",
+      "bytes": 181411,
+      "sha256": "5b16bab44e9a56bd4041863e10f1ed68dd2aab9a848d1e4b3e34ee5aa72e3b4a",
+      "source_sha256": "5b16bab44e9a56bd4041863e10f1ed68dd2aab9a848d1e4b3e34ee5aa72e3b4a",
+      "transformation": "none"
+    },
+    {
+      "path": "hardware/solidworks/IMU_YB-MRA02.SLDPRT",
+      "source_set": "simplified_design",
+      "source_file": "IMU_YB-MRA02.SLDPRT",
+      "bytes": 272475,
+      "sha256": "f2b4fde7476ab5d3f3ed0aebe07f7f022c2c8c13c8760f28471f832334505b4a",
+      "source_sha256": "f2b4fde7476ab5d3f3ed0aebe07f7f022c2c8c13c8760f28471f832334505b4a",
+      "transformation": "none"
+    },
+    {
+      "path": "hardware/solidworks/Left_ankle.SLDASM",
+      "source_set": "simplified_design",
+      "source_file": "Left_ankle.SLDASM",
+      "bytes": 281319,
+      "sha256": "bae2dc83250b71782f36d72f0a811bfbca9683e02bd058244e70cea1828ecb29",
+      "source_sha256": "bae2dc83250b71782f36d72f0a811bfbca9683e02bd058244e70cea1828ecb29",
+      "transformation": "none"
+    },
+    {
+      "path": "hardware/solidworks/Left_feet.SLDPRT",
+      "source_set": "simplified_design",
+      "source_file": "Left_feet.SLDPRT",
+      "bytes": 315534,
+      "sha256": "4134e3490f12a3d639b6d5bee37353ba56367cbf670519583a804ec2e97d0366",
+      "source_sha256": "4134e3490f12a3d639b6d5bee37353ba56367cbf670519583a804ec2e97d0366",
+      "transformation": "none"
+    },
+    {
+      "path": "hardware/solidworks/Left_hip_pitch.SLDASM",
+      "source_set": "simplified_design",
+      "source_file": "Left_hip_pitch.SLDASM",
+      "bytes": 259281,
+      "sha256": "69406d35ce395ad927cca1230676ba59638b294ea70093aa4d37604725c18999",
+      "source_sha256": "69406d35ce395ad927cca1230676ba59638b294ea70093aa4d37604725c18999",
+      "transformation": "none"
+    },
+    {
+      "path": "hardware/solidworks/Left_hip_roll.SLDPRT",
+      "source_set": "simplified_design",
+      "source_file": "Left_hip_roll.SLDPRT",
+      "bytes": 163759,
+      "sha256": "46ae073947093e113754e27eba8127052574c47fff3f2d9b92bad9358d3c221d",
+      "source_sha256": "46ae073947093e113754e27eba8127052574c47fff3f2d9b92bad9358d3c221d",
+      "transformation": "none"
+    },
+    {
+      "path": "hardware/solidworks/Left_hip_yaw.SLDASM",
+      "source_set": "simplified_design",
+      "source_file": "Left_hip_yaw.SLDASM",
+      "bytes": 197684,
+      "sha256": "88182554bb1c58a9a9e510461a596f941d96bb8b35bc9e4b164abd6278de3234",
+      "source_sha256": "88182554bb1c58a9a9e510461a596f941d96bb8b35bc9e4b164abd6278de3234",
+      "transformation": "none"
+    },
+    {
+      "path": "hardware/solidworks/Left_knee.SLDPRT",
+      "source_set": "simplified_design",
+      "source_file": "Left_knee.SLDPRT",
+      "bytes": 132502,
+      "sha256": "e46b7dd9b0dddd761a87d255076d3b34a81d16c7de1f56ff56e853219220ae0d",
+      "source_sha256": "e46b7dd9b0dddd761a87d255076d3b34a81d16c7de1f56ff56e853219220ae0d",
+      "transformation": "none"
+    },
+    {
+      "path": "hardware/solidworks/Motor_HTDW3532.SLDPRT",
+      "source_set": "simplified_design",
+      "source_file": "Motor_HTDW3532.SLDPRT",
+      "bytes": 152371,
+      "sha256": "0b539de5392bde2d4bf9996c0374694f853e62c41b80ff924a7c722a41de134d",
+      "source_sha256": "0b539de5392bde2d4bf9996c0374694f853e62c41b80ff924a7c722a41de134d",
+      "transformation": "none"
+    },
+    {
+      "path": "hardware/solidworks/Mouth.SLDPRT",
+      "source_set": "simplified_design",
+      "source_file": "Mouth.SLDPRT",
+      "bytes": 176210,
+      "sha256": "188021e450132cb037128c268fc08d34bb6588c5418897df05519de7752a2410",
+      "source_sha256": "188021e450132cb037128c268fc08d34bb6588c5418897df05519de7752a2410",
+      "transformation": "none"
+    },
+    {
+      "path": "hardware/solidworks/Neck_pitch.SLDASM",
+      "source_set": "simplified_design",
+      "source_file": "Neck_pitch.SLDASM",
+      "bytes": 311555,
+      "sha256": "f7c92dcbf156daabefb83d61fc5d40be1fbe674a84ad5e0c327807f4283e1d74",
+      "source_sha256": "f7c92dcbf156daabefb83d61fc5d40be1fbe674a84ad5e0c327807f4283e1d74",
+      "transformation": "none"
+    },
+    {
+      "path": "hardware/solidworks/Right_ankle.SLDASM",
+      "source_set": "simplified_design",
+      "source_file": "Right_ankle.SLDASM",
+      "bytes": 278269,
+      "sha256": "a9943c1a822657440807deaa3bd1856cb14e3e78deaf3d1a909fdc8b464687eb",
+      "source_sha256": "a9943c1a822657440807deaa3bd1856cb14e3e78deaf3d1a909fdc8b464687eb",
+      "transformation": "none"
+    },
+    {
+      "path": "hardware/solidworks/Right_feet.SLDPRT",
+      "source_set": "simplified_design",
+      "source_file": "Right_feet.SLDPRT",
+      "bytes": 301351,
+      "sha256": "378a6537bf8a4bd3730d30ca189a5885385c7155db15ac0eb91c5215ff71751d",
+      "source_sha256": "378a6537bf8a4bd3730d30ca189a5885385c7155db15ac0eb91c5215ff71751d",
+      "transformation": "none"
+    },
+    {
+      "path": "hardware/solidworks/Right_hip_roll.SLDPRT",
+      "source_set": "simplified_design",
+      "source_file": "Right_hip_roll.SLDPRT",
+      "bytes": 153373,
+      "sha256": "fd67a8d494cfe2c8b4fafe37600115d1e6cd5d4370a7a318f547a52df26ff71f",
+      "source_sha256": "fd67a8d494cfe2c8b4fafe37600115d1e6cd5d4370a7a318f547a52df26ff71f",
+      "transformation": "none"
+    },
+    {
+      "path": "hardware/solidworks/Right_hip_yaw.SLDASM",
+      "source_set": "simplified_design",
+      "source_file": "Right_hip_yaw.SLDASM",
+      "bytes": 197792,
+      "sha256": "a83cbd3a0c712eea6a5a597968603d1df41281d1a71f687ed0ec2684509df83e",
+      "source_sha256": "a83cbd3a0c712eea6a5a597968603d1df41281d1a71f687ed0ec2684509df83e",
+      "transformation": "none"
+    },
+    {
+      "path": "hardware/solidworks/Right_knee.SLDPRT",
+      "source_set": "simplified_design",
+      "source_file": "Right_knee.SLDPRT",
+      "bytes": 135824,
+      "sha256": "37970388661907c51b507c3a5ee86b4306c370b3b2f80d81b21f63f7901ef6d9",
+      "source_sha256": "37970388661907c51b507c3a5ee86b4306c370b3b2f80d81b21f63f7901ef6d9",
+      "transformation": "none"
+    },
+    {
+      "path": "hardware/solidworks/Rightt_hip_pitch.SLDASM",
+      "source_set": "simplified_design",
+      "source_file": "Rightt_hip_pitch.SLDASM",
+      "bytes": 255131,
+      "sha256": "13feb471d9bc7b6f0ca7acfc40daf4ea906019d0f01cf829fa176fcff75c9196",
+      "source_sha256": "13feb471d9bc7b6f0ca7acfc40daf4ea906019d0f01cf829fa176fcff75c9196",
+      "transformation": "none"
+    },
+    {
+      "path": "hardware/solidworks/WMD1005.SLDPRT",
+      "source_set": "simplified_design",
+      "source_file": "WMD1005.SLDPRT",
+      "bytes": 200864,
+      "sha256": "865b7ddb05851f3ca29d8350a9c3f546fdbcec0bd675472a75b51869ecbb1a46",
+      "source_sha256": "865b7ddb05851f3ca29d8350a9c3f546fdbcec0bd675472a75b51869ecbb1a46",
+      "transformation": "none"
+    },
+    {
+      "path": "hardware/solidworks/WMD1007.SLDPRT",
+      "source_set": "simplified_design",
+      "source_file": "WMD1007.SLDPRT",
+      "bytes": 205161,
+      "sha256": "7d94d69c1d4ffffb4fb259d60920656a4b6df99db4732322b8bf0aa640abc4df",
+      "source_sha256": "7d94d69c1d4ffffb4fb259d60920656a4b6df99db4732322b8bf0aa640abc4df",
+      "transformation": "none"
+    },
+    {
+      "path": "hardware/solidworks/WMD1008.SLDPRT",
+      "source_set": "simplified_design",
+      "source_file": "WMD1008.SLDPRT",
+      "bytes": 173719,
+      "sha256": "50e02199050518a58d401401ab4606e03e2bb57b34a5c58bf0a9bf09eca971f3",
+      "source_sha256": "50e02199050518a58d401401ab4606e03e2bb57b34a5c58bf0a9bf09eca971f3",
+      "transformation": "none"
+    },
+    {
+      "path": "hardware/solidworks/WMD1012.SLDPRT",
+      "source_set": "simplified_design",
+      "source_file": "WMD1012.SLDPRT",
+      "bytes": 237262,
+      "sha256": "fbb8a3cc6c5e679d86446937556d8d85e2bcf1880e74f1fbbc9da55b75081d87",
+      "source_sha256": "fbb8a3cc6c5e679d86446937556d8d85e2bcf1880e74f1fbbc9da55b75081d87",
+      "transformation": "none"
+    },
+    {
+      "path": "hardware/solidworks/WMD1018.SLDPRT",
+      "source_set": "simplified_design",
+      "source_file": "WMD1018.SLDPRT",
+      "bytes": 161535,
+      "sha256": "4f91b532e6ce8af56e1dad2097ffa346de117f7bc68bcd940680fa2858824587",
+      "source_sha256": "4f91b532e6ce8af56e1dad2097ffa346de117f7bc68bcd940680fa2858824587",
+      "transformation": "none"
+    },
+    {
+      "path": "hardware/step/Battery_6s18650_24V.stp",
+      "source_set": "simplified_design",
+      "source_file": "Battery_6s18650_24V.stp",
+      "bytes": 64298,
+      "sha256": "33817e13210c4ba2ca254c3b63bd5aa03cee60db3b3c0da0322d40aa0a4d6e1a",
+      "source_sha256": "33817e13210c4ba2ca254c3b63bd5aa03cee60db3b3c0da0322d40aa0a4d6e1a",
+      "transformation": "none"
+    },
+    {
+      "path": "hardware/step/Bearing_20_27_4.stp",
+      "source_set": "simplified_design",
+      "source_file": "Bearing_20_27_4.stp",
+      "bytes": 17073,
+      "sha256": "3e42e7bd24805a6a7fd005f73742213178e22670f3b85940361bb2ff4f78ce13",
+      "source_sha256": "3e42e7bd24805a6a7fd005f73742213178e22670f3b85940361bb2ff4f78ce13",
+      "transformation": "none"
+    },
+    {
+      "path": "hardware/step/Body_Frame.stp",
+      "source_set": "simplified_design",
+      "source_file": "Body_Frame.stp",
+      "bytes": 758309,
+      "sha256": "8ddc5beea7232e49ee39d5298c339c0fe4bcad113d30166fbe4df8a1bac36f8d",
+      "source_sha256": "8ddc5beea7232e49ee39d5298c339c0fe4bcad113d30166fbe4df8a1bac36f8d",
+      "transformation": "none"
+    },
+    {
+      "path": "hardware/step/Control_Borad_AT32.stp",
+      "source_set": "simplified_design",
+      "source_file": "Control_Borad_AT32.stp",
+      "bytes": 75139,
+      "sha256": "9d2ec41a377fb2d23ba9a5bd24ed06d15e0d6b158571dd33fccb36e92bbbda56",
+      "source_sha256": "9d2ec41a377fb2d23ba9a5bd24ed06d15e0d6b158571dd33fccb36e92bbbda56",
+      "transformation": "none"
+    },
+    {
+      "path": "hardware/step/Head.stp",
+      "source_set": "simplified_design",
+      "source_file": "Head.stp",
+      "bytes": 6859560,
+      "sha256": "632c3c46de9b1916ce415c2de6033d98336ca9124d19eb5c662ce4a885ca4082",
+      "source_sha256": "632c3c46de9b1916ce415c2de6033d98336ca9124d19eb5c662ce4a885ca4082",
+      "transformation": "none"
+    },
+    {
+      "path": "hardware/step/Head_pitch.stp",
+      "source_set": "simplified_design",
+      "source_file": "Head_pitch.stp",
+      "bytes": 138272,
+      "sha256": "51280af8c1bf529a66dd8cf8b609babe4894c62e617e092f2df4da92ec340593",
+      "source_sha256": "51280af8c1bf529a66dd8cf8b609babe4894c62e617e092f2df4da92ec340593",
+      "transformation": "none"
+    },
+    {
+      "path": "hardware/step/IMU_YB-MRA02.stp",
+      "source_set": "simplified_design",
+      "source_file": "IMU_YB-MRA02.stp",
+      "bytes": 173785,
+      "sha256": "ccae0a8be03a4f347db28b78338666d23dc0e170c8fcea792f54759db0fd2e5c",
+      "source_sha256": "ccae0a8be03a4f347db28b78338666d23dc0e170c8fcea792f54759db0fd2e5c",
+      "transformation": "none"
+    },
+    {
+      "path": "hardware/step/Left_feet.stp",
+      "source_set": "simplified_design",
+      "source_file": "Left_feet.stp",
+      "bytes": 199310,
+      "sha256": "d3b774ef1b71e3e191dab686eadb0da91d096d6fdcc43f45d642f9fdd14c390a",
+      "source_sha256": "d3b774ef1b71e3e191dab686eadb0da91d096d6fdcc43f45d642f9fdd14c390a",
+      "transformation": "none"
+    },
+    {
+      "path": "hardware/step/Left_hip_roll.stp",
+      "source_set": "simplified_design",
+      "source_file": "Left_hip_roll.stp",
+      "bytes": 50128,
+      "sha256": "ec1a3c5e9daa1a3d3ca144ba4aa05c0a7007fc383dad61a3cac1b6fc0f6efccd",
+      "source_sha256": "ec1a3c5e9daa1a3d3ca144ba4aa05c0a7007fc383dad61a3cac1b6fc0f6efccd",
+      "transformation": "none"
+    },
+    {
+      "path": "hardware/step/Left_knee.stp",
+      "source_set": "simplified_design",
+      "source_file": "Left_knee.stp",
+      "bytes": 37477,
+      "sha256": "f1340631e33ed95632bf96c8942510b736c7db3f8988380c78c71855e55e810a",
+      "source_sha256": "f1340631e33ed95632bf96c8942510b736c7db3f8988380c78c71855e55e810a",
+      "transformation": "none"
+    },
+    {
+      "path": "hardware/step/Motor_HTDW3532.stp",
+      "source_set": "simplified_design",
+      "source_file": "Motor_HTDW3532.stp",
+      "bytes": 52802,
+      "sha256": "0af895fd85a8cff737bf6457a08723a99489d743924f4bbbd6d0b1892ec696fc",
+      "source_sha256": "0af895fd85a8cff737bf6457a08723a99489d743924f4bbbd6d0b1892ec696fc",
+      "transformation": "none"
+    },
+    {
+      "path": "hardware/step/Mouth.stp",
+      "source_set": "simplified_design",
+      "source_file": "Mouth.stp",
+      "bytes": 95751,
+      "sha256": "e057da0abc664c437be18a51ad9f09ac9e41f1c2f566009472ace39ac102a35b",
+      "source_sha256": "e057da0abc664c437be18a51ad9f09ac9e41f1c2f566009472ace39ac102a35b",
+      "transformation": "none"
+    },
+    {
+      "path": "hardware/step/Right_feet.stp",
+      "source_set": "simplified_design",
+      "source_file": "Right_feet.stp",
+      "bytes": 200165,
+      "sha256": "dd125018e74aec9593fb8e07d635eb2310edcafe4d1e65856b4c7abff76b068e",
+      "source_sha256": "dd125018e74aec9593fb8e07d635eb2310edcafe4d1e65856b4c7abff76b068e",
+      "transformation": "none"
+    },
+    {
+      "path": "hardware/step/Right_hip_roll.stp",
+      "source_set": "simplified_design",
+      "source_file": "Right_hip_roll.stp",
+      "bytes": 48255,
+      "sha256": "bc091c61a0ac43e661f0bbdf2951a05e22a6777066636830fa4be15d2c8dd19d",
+      "source_sha256": "bc091c61a0ac43e661f0bbdf2951a05e22a6777066636830fa4be15d2c8dd19d",
+      "transformation": "none"
+    },
+    {
+      "path": "hardware/step/Right_knee.stp",
+      "source_set": "simplified_design",
+      "source_file": "Right_knee.stp",
+      "bytes": 36367,
+      "sha256": "e70b73d076609a89c150ccef3b15a42928375eb21731400a971306c09f0208b5",
+      "source_sha256": "e70b73d076609a89c150ccef3b15a42928375eb21731400a971306c09f0208b5",
+      "transformation": "none"
+    },
+    {
+      "path": "hardware/step/WMD1005.stp",
+      "source_set": "simplified_design",
+      "source_file": "WMD1005.stp",
+      "bytes": 97062,
+      "sha256": "9c77a479cf8108ea8335d07f9b438d246b8642a73d9226078573038ca096211d",
+      "source_sha256": "9c77a479cf8108ea8335d07f9b438d246b8642a73d9226078573038ca096211d",
+      "transformation": "none"
+    },
+    {
+      "path": "hardware/step/WMD1007.stp",
+      "source_set": "simplified_design",
+      "source_file": "WMD1007.stp",
+      "bytes": 87761,
+      "sha256": "544d62ac73e997d7abb3dcce31305485f0a2ad0a2b59ea5f061681c5bd848a92",
+      "source_sha256": "544d62ac73e997d7abb3dcce31305485f0a2ad0a2b59ea5f061681c5bd848a92",
+      "transformation": "none"
+    },
+    {
+      "path": "hardware/step/WMD1008.stp",
+      "source_set": "simplified_design",
+      "source_file": "WMD1008.stp",
+      "bytes": 91407,
+      "sha256": "c297abcadaf220eff089e0fcfd321d12a1c6d7c907412f7492cc07f81de01fa5",
+      "source_sha256": "c297abcadaf220eff089e0fcfd321d12a1c6d7c907412f7492cc07f81de01fa5",
+      "transformation": "none"
+    },
+    {
+      "path": "hardware/step/WMD1012.stp",
+      "source_set": "simplified_design",
+      "source_file": "WMD1012.stp",
+      "bytes": 113664,
+      "sha256": "6717fc231eaa1efb11e20cd1031a574ce519d772c32f1cb0dffecf9f2f127b57",
+      "source_sha256": "6717fc231eaa1efb11e20cd1031a574ce519d772c32f1cb0dffecf9f2f127b57",
+      "transformation": "none"
+    },
+    {
+      "path": "hardware/step/WMD1018.stp",
+      "source_set": "simplified_design",
+      "source_file": "WMD1018.stp",
+      "bytes": 91412,
+      "sha256": "f9a9c085f891ae96cdf4f54c65fad239ccfde3a89dfbce08cf17cfe63957ba4f",
+      "source_sha256": "f9a9c085f891ae96cdf4f54c65fad239ccfde3a89dfbce08cf17cfe63957ba4f",
+      "transformation": "none"
+    },
+    {
+      "path": "models/wmduck/component_mass_audit.csv",
+      "source_set": "robot_description",
+      "source_file": "component_mass_audit.csv",
+      "bytes": 7637,
+      "sha256": "fb84fe72367722bf22242fb458fb487f9da4e45bbaa41ba41861a0c7915da29e",
+      "source_sha256": "07df18118b1464aa8a25b1d69ee55ab7e53d7b4cebf5f5007e96a26b52fb68cb",
+      "transformation": "Normalize text line endings to LF"
+    },
+    {
+      "path": "models/wmduck/joint_limits.csv",
+      "source_set": "robot_description",
+      "source_file": "joint_limits.csv",
+      "bytes": 3590,
+      "sha256": "a7b3b97e085991a3777bb073f81eb0bd7841553e0467dddba68b535d4b9063ee",
+      "source_sha256": "d8d12ab377f15e2ac8e04c1b8e787615331025aa1adca1c8b279d54ed2bde8a1",
+      "transformation": "Normalize text line endings to LF"
+    },
+    {
+      "path": "models/wmduck/joint_parameters.json",
+      "source_set": "robot_description",
+      "source_file": "joint_parameters.json",
+      "bytes": 4152,
+      "sha256": "2216bda4a5e8f3d3c8a547081f3dcf4494491ebcf95889a28e1382171d392c79",
+      "source_sha256": "7198fcbd91fcbc8a33b84e7360d8578a982845b38b06287b49c971c0b13045e8",
+      "transformation": "Documentation references/comments only; model numerical data unchanged"
+    },
+    {
+      "path": "models/wmduck/meshes/Battery_6s18650_24V.stl",
+      "source_set": "robot_description",
+      "source_file": "Battery_6s18650_24V.stl",
+      "bytes": 28684,
+      "sha256": "9038fa1cf956c83ca8aebb24d5153e2f6fb1de017196d916e334fbd97768b56c",
+      "source_sha256": "9038fa1cf956c83ca8aebb24d5153e2f6fb1de017196d916e334fbd97768b56c",
+      "transformation": "none"
+    },
+    {
+      "path": "models/wmduck/meshes/Bearing_20_27_4.stl",
+      "source_set": "robot_description",
+      "source_file": "Bearing_20_27_4.stl",
+      "bytes": 98484,
+      "sha256": "3a34aefcfd024c12baaaed94ebd09953423b0ec3660784364e3fb4ac36310db6",
+      "source_sha256": "3a34aefcfd024c12baaaed94ebd09953423b0ec3660784364e3fb4ac36310db6",
+      "transformation": "none"
+    },
+    {
+      "path": "models/wmduck/meshes/Body_Frame.stl",
+      "source_set": "robot_description",
+      "source_file": "Body_Frame.stl",
+      "bytes": 1361484,
+      "sha256": "5529f400ba24a5af206e2add0d984006175f4da586de361784a2935d936c69c9",
+      "source_sha256": "5529f400ba24a5af206e2add0d984006175f4da586de361784a2935d936c69c9",
+      "transformation": "none"
+    },
+    {
+      "path": "models/wmduck/meshes/Control_Borad_AT32.stl",
+      "source_set": "robot_description",
+      "source_file": "Control_Borad_AT32.stl",
+      "bytes": 182284,
+      "sha256": "d3661d5c1c26ddd1515b6e64411eb5630dbd4eca7a9ff96472657505f8d2e03d",
+      "source_sha256": "d3661d5c1c26ddd1515b6e64411eb5630dbd4eca7a9ff96472657505f8d2e03d",
+      "transformation": "none"
+    },
+    {
+      "path": "models/wmduck/meshes/Head.stl",
+      "source_set": "robot_description",
+      "source_file": "Head.stl",
+      "bytes": 7311934,
+      "sha256": "9165a88bd02d47f022942016cd889e022c2887becc38cbea682b52807b0c471a",
+      "source_sha256": "9165a88bd02d47f022942016cd889e022c2887becc38cbea682b52807b0c471a",
+      "transformation": "none"
+    },
+    {
+      "path": "models/wmduck/meshes/Head_pitch.stl",
+      "source_set": "robot_description",
+      "source_file": "Head_pitch.stl",
+      "bytes": 366284,
+      "sha256": "97a2d0df89eb09b640e58b8a4001e65232db558e7ac8fa763574b87e83749515",
+      "source_sha256": "97a2d0df89eb09b640e58b8a4001e65232db558e7ac8fa763574b87e83749515",
+      "transformation": "none"
+    },
+    {
+      "path": "models/wmduck/meshes/IMU_YB-MRA02.stl",
+      "source_set": "robot_description",
+      "source_file": "IMU_YB-MRA02.stl",
+      "bytes": 167234,
+      "sha256": "3748b99dab4721528d8196e164328351d8313c61de4e1bbb53cbf658866d03b1",
+      "source_sha256": "3748b99dab4721528d8196e164328351d8313c61de4e1bbb53cbf658866d03b1",
+      "transformation": "none"
+    },
+    {
+      "path": "models/wmduck/meshes/Left_feet.stl",
+      "source_set": "robot_description",
+      "source_file": "Left_feet.stl",
+      "bytes": 400484,
+      "sha256": "ce629235822d01da3dd91d26321e2f379367a30273e141cc56d67288e18b2d35",
+      "source_sha256": "ce629235822d01da3dd91d26321e2f379367a30273e141cc56d67288e18b2d35",
+      "transformation": "none"
+    },
+    {
+      "path": "models/wmduck/meshes/Left_hip_roll.stl",
+      "source_set": "robot_description",
+      "source_file": "Left_hip_roll.stl",
+      "bytes": 129284,
+      "sha256": "5d859087861860091965e1e04df52573bd3041baef33a1f4e9bfc40e627fe391",
+      "source_sha256": "5d859087861860091965e1e04df52573bd3041baef33a1f4e9bfc40e627fe391",
+      "transformation": "none"
+    },
+    {
+      "path": "models/wmduck/meshes/Left_knee.stl",
+      "source_set": "robot_description",
+      "source_file": "Left_knee.stl",
+      "bytes": 115384,
+      "sha256": "7173b8f3ab26692276594840ef09c2e1e659f60e5696a2e09e948878537f5de3",
+      "source_sha256": "7173b8f3ab26692276594840ef09c2e1e659f60e5696a2e09e948878537f5de3",
+      "transformation": "none"
+    },
+    {
+      "path": "models/wmduck/meshes/Motor_HTDW3532.stl",
+      "source_set": "robot_description",
+      "source_file": "Motor_HTDW3532.stl",
+      "bytes": 83984,
+      "sha256": "f9b67011972cbf066d9721fed968c1ceddfdcbcf89be085269bd981d30ca46c2",
+      "source_sha256": "f9b67011972cbf066d9721fed968c1ceddfdcbcf89be085269bd981d30ca46c2",
+      "transformation": "none"
+    },
+    {
+      "path": "models/wmduck/meshes/Mouth.stl",
+      "source_set": "robot_description",
+      "source_file": "Mouth.stl",
+      "bytes": 125384,
+      "sha256": "da6ec486be52e8477c4108b42207a914c07578797ad60e6bfbb56da0d64a9a55",
+      "source_sha256": "da6ec486be52e8477c4108b42207a914c07578797ad60e6bfbb56da0d64a9a55",
+      "transformation": "none"
+    },
+    {
+      "path": "models/wmduck/meshes/Right_feet.stl",
+      "source_set": "robot_description",
+      "source_file": "Right_feet.stl",
+      "bytes": 363384,
+      "sha256": "017dc54814cd89e1c622587df0a5e6114d0920ab9c63445ec7b7c132936cee6c",
+      "source_sha256": "017dc54814cd89e1c622587df0a5e6114d0920ab9c63445ec7b7c132936cee6c",
+      "transformation": "none"
+    },
+    {
+      "path": "models/wmduck/meshes/Right_hip_roll.stl",
+      "source_set": "robot_description",
+      "source_file": "Right_hip_roll.stl",
+      "bytes": 129184,
+      "sha256": "baa5e92d3786921056347eb0fe65cbcba95b54fd6af14b1709859e29990c3380",
+      "source_sha256": "baa5e92d3786921056347eb0fe65cbcba95b54fd6af14b1709859e29990c3380",
+      "transformation": "none"
+    },
+    {
+      "path": "models/wmduck/meshes/Right_knee.stl",
+      "source_set": "robot_description",
+      "source_file": "Right_knee.stl",
+      "bytes": 115384,
+      "sha256": "1d05b17c85e0ca4e2c0759d8a813a84cb797586eee48e34cfb13a830a151eb21",
+      "source_sha256": "1d05b17c85e0ca4e2c0759d8a813a84cb797586eee48e34cfb13a830a151eb21",
+      "transformation": "none"
+    },
+    {
+      "path": "models/wmduck/meshes/WMD1005.stl",
+      "source_set": "robot_description",
+      "source_file": "WMD1005.stl",
+      "bytes": 147884,
+      "sha256": "acf028bb9384e8c2e64961778dda18c39c4d7bffacd23074798826d330c29090",
+      "source_sha256": "acf028bb9384e8c2e64961778dda18c39c4d7bffacd23074798826d330c29090",
+      "transformation": "none"
+    },
+    {
+      "path": "models/wmduck/meshes/WMD1007.stl",
+      "source_set": "robot_description",
+      "source_file": "WMD1007.stl",
+      "bytes": 158584,
+      "sha256": "3183ae0bb5d132fb5149b92f7f66ffc801bc488f6099c1a5803a98f0da400fba",
+      "source_sha256": "3183ae0bb5d132fb5149b92f7f66ffc801bc488f6099c1a5803a98f0da400fba",
+      "transformation": "none"
+    },
+    {
+      "path": "models/wmduck/meshes/WMD1008.stl",
+      "source_set": "robot_description",
+      "source_file": "WMD1008.stl",
+      "bytes": 204184,
+      "sha256": "832aada3bac0ca09ab7015e1bb37ce04d7a90c764276a08f8622880d1cd4ab55",
+      "source_sha256": "832aada3bac0ca09ab7015e1bb37ce04d7a90c764276a08f8622880d1cd4ab55",
+      "transformation": "none"
+    },
+    {
+      "path": "models/wmduck/meshes/WMD1012.stl",
+      "source_set": "robot_description",
+      "source_file": "WMD1012.stl",
+      "bytes": 285284,
+      "sha256": "af3da5dd7ccefe088f71d798099c8ac320be3704e8be9dbeaa655047da375fa0",
+      "source_sha256": "af3da5dd7ccefe088f71d798099c8ac320be3704e8be9dbeaa655047da375fa0",
+      "transformation": "none"
+    },
+    {
+      "path": "models/wmduck/meshes/WMD1018.stl",
+      "source_set": "robot_description",
+      "source_file": "WMD1018.stl",
+      "bytes": 116984,
+      "sha256": "0cc53a057dcf85054d8f31cef988302262b4257e6a955bfcd1aaf62271231f3c",
+      "source_sha256": "0cc53a057dcf85054d8f31cef988302262b4257e6a955bfcd1aaf62271231f3c",
+      "transformation": "none"
+    },
+    {
+      "path": "models/wmduck/motor_parameters.json",
+      "source_set": "robot_description",
+      "source_file": "motor_parameters.json",
+      "bytes": 2193,
+      "sha256": "005b63f96a293c2f924f3bd86bc5b94b2ba327035f3bb12fea89aad79d69b07a",
+      "source_sha256": "57ac6189da197dca0bf18fbf17ce7af789f6c502463a56b78d24d0366562ec01",
+      "transformation": "Normalize text line endings to LF"
+    },
+    {
+      "path": "models/wmduck/wmduck.urdf",
+      "source_set": "robot_description",
+      "source_file": "wmduck.urdf",
+      "bytes": 36360,
+      "sha256": "769b80d80f03be5e3ec8587dc878841d782059f812122ee679e12de2a87b88b5",
+      "source_sha256": "491d7078d216c75cebec91b82b1123716c2b2a389dffea1ff6780c44db43897b",
+      "transformation": "Documentation references/comments only; model numerical data unchanged"
+    }
+  ]
+}

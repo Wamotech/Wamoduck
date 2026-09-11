@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "model": "HTDW3532",
+  "source": "User-provided HTDW3532 parameter image, supplied for this wmduck model update.",
+  "cad_part_stem": "Motor_HTDW3532",
+  "expected_instance_count": 15,
+  "mass_kg": 0.15,
+  "gear_ratio": 32,
+  "rated": {
+    "voltage_v": 24.0,
+    "current_a": 0.35,
+    "output_torque_nm": 0.6,
+    "output_speed_rpm": 60.0,
+    "output_power_w": 4.0
+  },
+  "peak_or_stall": {
+    "stall_output_torque_nm": 3.7,
+    "peak_current_a": 10.0,
+    "note": "Peak/stall data are not continuous URDF effort ratings. Allowed duration is not supplied."
+  },
+  "no_load": {
+    "output_speed_rpm": 300.0,
+    "note": "No-load speed is not the continuous rated URDF velocity limit."
+  },
+  "urdf_policy": {
+    "effort": "Use rated output_torque_nm; per-joint values may be more conservative.",
+    "velocity": "Use rated output_speed_rpm * 2*pi/60; these are gearbox output values, so do not apply gear_ratio again."
+  },
+  "mass_override": {
+    "center_of_mass": "Preserve each motor component CAD center of mass.",
+    "inertia": "Estimate each motor inertia tensor about its CAD center of mass by multiplying the CAD tensor by mass_kg / CAD mass. Then aggregate links with the parallel-axis theorem.",
+    "inertia_is_estimated": true,
+    "limitation": "Actual internal mass distribution was not supplied. This uniform-density scaling is an estimate, not a measured motor inertia."
+  },
+  "dimensions_mm": {
+    "length": 35,
+    "width": 35,
+    "height": 36.1
+  },
+  "reducer_accuracy_arcmin": {
+    "backlash_less_than": 10,
+    "repeat_positioning_less_than": 12,
+    "absolute_positioning_less_than": 15
+  },
+  "electrical_and_control": {
+    "voltage_range_v": [
+      12,
+      50.4
+    ],
+    "communication": [
+      "CANFD",
+      "CAN"
+    ],
+    "response_time_us": 140,
+    "high_speed_encoder_bits": 14,
+    "low_speed_encoder_bits": 14,
+    "baud_rate_mbps": 5,
+    "control_frequency_hz": 3000,
+    "control_accuracy_percent_plus_minus": 10,
+    "speed_control_accuracy_percent_plus_minus": 10,
+    "accuracy_note": "Vendor image labels both accuracy rows (Nm/A); percentage values are transcribed without reinterpreting the units."
+  }
+}

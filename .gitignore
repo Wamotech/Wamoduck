@@ -1,0 +1,26 @@
+# Local preparation notes and verification outputs
+.local-review/
+
+# CAD/application caches and lock files
+~$*
+*.sldbak
+*.SLDBAK
+*.bak
+*.tmp
+Thumbs.db
+.DS_Store
+
+# Development environments
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+node_modules/
+.env
+.env.*
+
+# Packaging output; curated CAD files belong in hardware/
+/dist/
+/build/
+*.zip
+*.7z

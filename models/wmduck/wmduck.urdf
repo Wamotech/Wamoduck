@@ -1,0 +1,840 @@
+<?xml version='1.0' encoding='utf-8'?>
+<robot name="wmduck">
+  <!--Source: Full_wmduck.SLDASM. Units: m, kg, kg*m^2, rad. base_link is exactly Body_sys at the IMU.-->
+  <!--Motor mass and continuous effort/velocity use motor_parameters.json. Motor COM is retained from CAD and motor inertia is estimated by mass-ratio scaling. Other masses remain CAD values. All 15 revolute joint ranges are conditional geometric estimates; see ../../docs/model.en.md and joint_limits.csv. IMU sheet geometry has zero CAD mass. See ../../docs/model.en.md.-->
+  <mujoco>
+    <compiler discardvisual="false" fusestatic="false" strippath="false" balanceinertia="false" />
+  </mujoco>
+  <link name="base_link">
+    <inertial>
+      <origin xyz="-0.0302066979872 -0.000121752498645 -0.0249965020002" rpy="0 0 0" />
+      <mass value="0.66864023518" />
+      <inertia ixx="0.000782840292833" ixy="2.46740831557e-06" ixz="-6.28641350518e-05" iyy="0.00088979786359" iyz="3.2207336927e-06" izz="0.000899015281152" />
+    </inertial>
+    <visual name="base_link_visual_0">
+      <origin xyz="-0.00889850082403 -0.0259999999999 -0.00860148" rpy="3.14159265359 0 -3.14159265359" />
+      <geometry>
+        <mesh filename="meshes/Motor_HTDW3532.stl" scale="1 1 1" />
+      </geometry>
+      <material name="base_link_material_0">
+        <color rgba="0.65 0.65 0.69 1" />
+      </material>
+    </visual>
+    <collision name="base_link_collision_0">
+      <origin xyz="-0.00889850082403 -0.0259999999999 -0.00860148" rpy="3.14159265359 0 -3.14159265359" />
+      <geometry>
+        <mesh filename="meshes/Motor_HTDW3532.stl" scale="1 1 1" />
+      </geometry>
+    </collision>
+    <visual name="base_link_visual_1">
+      <origin xyz="-0.00889850082397 0 -0.04360148" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/Body_Frame.stl" scale="1 1 1" />
+      </geometry>
+      <material name="base_link_material_1">
+        <color rgba="0.65 0.65 0.69 1" />
+      </material>
+    </visual>
+    <collision name="base_link_collision_1">
+      <origin xyz="-0.00889850082397 0 -0.04360148" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/Body_Frame.stl" scale="1 1 1" />
+      </geometry>
+    </collision>
+    <visual name="base_link_visual_2">
+      <origin xyz="-0.0977215003967 -0.0955909976959 -0.00160148" rpy="-3.14159265359 0 1.57079632679" />
+      <geometry>
+        <mesh filename="meshes/IMU_YB-MRA02.stl" scale="1 1 1" />
+      </geometry>
+      <material name="base_link_material_2">
+        <color rgba="0.65 0.65 0.69 1" />
+      </material>
+    </visual>
+    <visual name="base_link_visual_3">
+      <origin xyz="-0.083408500824 -0.1 0.08679852" rpy="1.57079632679 0 1.57079632679" />
+      <geometry>
+        <mesh filename="meshes/Control_Borad_AT32.stl" scale="1 1 1" />
+      </geometry>
+      <material name="base_link_material_3">
+        <color rgba="0.65 0.65 0.69 1" />
+      </material>
+    </visual>
+    <collision name="base_link_collision_3">
+      <origin xyz="-0.083408500824 -0.1 0.08679852" rpy="1.57079632679 0 1.57079632679" />
+      <geometry>
+        <mesh filename="meshes/Control_Borad_AT32.stl" scale="1 1 1" />
+      </geometry>
+    </collision>
+    <visual name="base_link_visual_4">
+      <origin xyz="-0.00889850082403 0.0259999999999 -0.00860148" rpy="3.14159265359 0 -1.57079632679" />
+      <geometry>
+        <mesh filename="meshes/Motor_HTDW3532.stl" scale="1 1 1" />
+      </geometry>
+      <material name="base_link_material_4">
+        <color rgba="0.65 0.65 0.69 1" />
+      </material>
+    </visual>
+    <collision name="base_link_collision_4">
+      <origin xyz="-0.00889850082403 0.0259999999999 -0.00860148" rpy="3.14159265359 0 -1.57079632679" />
+      <geometry>
+        <mesh filename="meshes/Motor_HTDW3532.stl" scale="1 1 1" />
+      </geometry>
+    </collision>
+    <visual name="base_link_visual_5">
+      <origin xyz="-0.058898500824 0 -0.02710148" rpy="1.57079632679 -1.57079632679 0" />
+      <geometry>
+        <mesh filename="meshes/Battery_6s18650_24V.stl" scale="1 1 1" />
+      </geometry>
+      <material name="base_link_material_5">
+        <color rgba="0.65 0.65 0.69 1" />
+      </material>
+    </visual>
+    <collision name="base_link_collision_5">
+      <origin xyz="-0.058898500824 0 -0.02710148" rpy="1.57079632679 -1.57079632679 0" />
+      <geometry>
+        <mesh filename="meshes/Battery_6s18650_24V.stl" scale="1 1 1" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="left_hip_yaw_link">
+    <inertial>
+      <origin xyz="-0.00135265367792 -8.4956822341e-09 -0.0258016544879" rpy="0 0 0" />
+      <mass value="0.160466330426" />
+      <inertia ixx="3.46024140059e-05" ixy="0" ixz="-5.00200211719e-07" iyy="3.61304361191e-05" iyz="1.91010585169e-11" izz="3.28841005708e-05" />
+    </inertial>
+    <visual name="left_hip_yaw_link_visual_0">
+      <origin xyz="-0.0195 0 -0.0269" rpy="1.57079632679 0 1.57079632679" />
+      <geometry>
+        <mesh filename="meshes/Motor_HTDW3532.stl" scale="1 1 1" />
+      </geometry>
+      <material name="left_hip_yaw_link_material_0">
+        <color rgba="0.65 0.65 0.69 1" />
+      </material>
+    </visual>
+    <collision name="left_hip_yaw_link_collision_0">
+      <origin xyz="-0.0195 0 -0.0269" rpy="1.57079632679 0 1.57079632679" />
+      <geometry>
+        <mesh filename="meshes/Motor_HTDW3532.stl" scale="1 1 1" />
+      </geometry>
+    </collision>
+    <visual name="left_hip_yaw_link_visual_1">
+      <origin xyz="0 0 -0.0094" rpy="0 0 -1.57079632679" />
+      <geometry>
+        <mesh filename="meshes/WMD1005.stl" scale="1 1 1" />
+      </geometry>
+      <material name="left_hip_yaw_link_material_1">
+        <color rgba="0.65 0.65 0.69 1" />
+      </material>
+    </visual>
+    <collision name="left_hip_yaw_link_collision_1">
+      <origin xyz="0 0 -0.0094" rpy="0 0 -1.57079632679" />
+      <geometry>
+        <mesh filename="meshes/WMD1005.stl" scale="1 1 1" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="right_hip_yaw_link">
+    <inertial>
+      <origin xyz="-0.00135265367792 -8.49568216818e-09 -0.0258016544879" rpy="0 0 0" />
+      <mass value="0.160466330426" />
+      <inertia ixx="3.46024140059e-05" ixy="0" ixz="-5.00200211719e-07" iyy="3.61304361191e-05" iyz="1.91010585169e-11" izz="3.28841005708e-05" />
+    </inertial>
+    <visual name="right_hip_yaw_link_visual_0">
+      <origin xyz="-0.0195 0 -0.0269" rpy="1.57079632679 0 1.57079632679" />
+      <geometry>
+        <mesh filename="meshes/Motor_HTDW3532.stl" scale="1 1 1" />
+      </geometry>
+      <material name="right_hip_yaw_link_material_0">
+        <color rgba="0.65 0.65 0.69 1" />
+      </material>
+    </visual>
+    <collision name="right_hip_yaw_link_collision_0">
+      <origin xyz="-0.0195 0 -0.0269" rpy="1.57079632679 0 1.57079632679" />
+      <geometry>
+        <mesh filename="meshes/Motor_HTDW3532.stl" scale="1 1 1" />
+      </geometry>
+    </collision>
+    <visual name="right_hip_yaw_link_visual_1">
+      <origin xyz="0 0 -0.0094" rpy="0 0 -1.57079632679" />
+      <geometry>
+        <mesh filename="meshes/WMD1005.stl" scale="1 1 1" />
+      </geometry>
+      <material name="right_hip_yaw_link_material_1">
+        <color rgba="0.65 0.65 0.69 1" />
+      </material>
+    </visual>
+    <collision name="right_hip_yaw_link_collision_1">
+      <origin xyz="0 0 -0.0094" rpy="0 0 -1.57079632679" />
+      <geometry>
+        <mesh filename="meshes/WMD1005.stl" scale="1 1 1" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="left_hip_roll_link">
+    <inertial>
+      <origin xyz="-0.00264458890281 0.0195384545424 -3.29347868422e-10" rpy="0 0 0" />
+      <mass value="0.0245500285629" />
+      <inertia ixx="8.84110090163e-06" ixy="3.54264387788e-06" ixz="0" iyy="5.53593458725e-06" iyz="0" izz="1.10010680111e-05" />
+    </inertial>
+    <visual name="left_hip_roll_link_visual_0">
+      <origin xyz="-0.0166 -0.026 0.028" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/Left_hip_roll.stl" scale="1 1 1" />
+      </geometry>
+      <material name="left_hip_roll_link_material_0">
+        <color rgba="0.65 0.65 0.69 1" />
+      </material>
+    </visual>
+    <collision name="left_hip_roll_link_collision_0">
+      <origin xyz="-0.0166 -0.026 0.028" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/Left_hip_roll.stl" scale="1 1 1" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="right_hip_roll_link">
+    <inertial>
+      <origin xyz="-0.00264458890275 -0.0195384545426 -2.77692355222e-10" rpy="0 0 0" />
+      <mass value="0.024550028563" />
+      <inertia ixx="8.84110090145e-06" ixy="-3.54264387783e-06" ixz="0" iyy="5.53593458742e-06" iyz="0" izz="1.10010680107e-05" />
+    </inertial>
+    <visual name="right_hip_roll_link_visual_0">
+      <origin xyz="-0.0166 0.026 0.028" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/Right_hip_roll.stl" scale="1 1 1" />
+      </geometry>
+      <material name="right_hip_roll_link_material_0">
+        <color rgba="0.65 0.65 0.69 1" />
+      </material>
+    </visual>
+    <collision name="right_hip_roll_link_collision_0">
+      <origin xyz="-0.0166 0.026 0.028" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/Right_hip_roll.stl" scale="1 1 1" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="left_hip_pitch_link">
+    <inertial>
+      <origin xyz="-0.0123743686711 0.0187226791793 -0.0123743686708" rpy="0 0 0" />
+      <mass value="0.327377727974" />
+      <inertia ixx="0.000128320910656" ixy="0" ixz="-5.02178579245e-05" iyy="0.000172241521668" iyz="0" izz="0.000128320910542" />
+    </inertial>
+    <visual name="left_hip_pitch_link_visual_0">
+      <origin xyz="-0.0123743686708 0.0011025 -0.0123743686708" rpy="-1.57079632679 0.785398163397 -3.14159265359" />
+      <geometry>
+        <mesh filename="meshes/WMD1007.stl" scale="1 1 1" />
+      </geometry>
+      <material name="left_hip_pitch_link_material_0">
+        <color rgba="0.65 0.65 0.69 1" />
+      </material>
+    </visual>
+    <collision name="left_hip_pitch_link_collision_0">
+      <origin xyz="-0.0123743686708 0.0011025 -0.0123743686708" rpy="-1.57079632679 0.785398163397 -3.14159265359" />
+      <geometry>
+        <mesh filename="meshes/WMD1007.stl" scale="1 1 1" />
+      </geometry>
+    </collision>
+    <visual name="left_hip_pitch_link_visual_1">
+      <origin xyz="0 0.0361025 0" rpy="-1.57079632679 0.785398163397 -3.14159265359" />
+      <geometry>
+        <mesh filename="meshes/Motor_HTDW3532.stl" scale="1 1 1" />
+      </geometry>
+      <material name="left_hip_pitch_link_material_1">
+        <color rgba="0.65 0.65 0.69 1" />
+      </material>
+    </visual>
+    <collision name="left_hip_pitch_link_collision_1">
+      <origin xyz="0 0.0361025 0" rpy="-1.57079632679 0.785398163397 -3.14159265359" />
+      <geometry>
+        <mesh filename="meshes/Motor_HTDW3532.stl" scale="1 1 1" />
+      </geometry>
+    </collision>
+    <visual name="left_hip_pitch_link_visual_2">
+      <origin xyz="-0.0247487373415 0.0361025 -0.0247487373415" rpy="-1.57079632679 0.785398163397 -3.14159265359" />
+      <geometry>
+        <mesh filename="meshes/Motor_HTDW3532.stl" scale="1 1 1" />
+      </geometry>
+      <material name="left_hip_pitch_link_material_2">
+        <color rgba="0.65 0.65 0.69 1" />
+      </material>
+    </visual>
+    <collision name="left_hip_pitch_link_collision_2">
+      <origin xyz="-0.0247487373415 0.0361025 -0.0247487373415" rpy="-1.57079632679 0.785398163397 -3.14159265359" />
+      <geometry>
+        <mesh filename="meshes/Motor_HTDW3532.stl" scale="1 1 1" />
+      </geometry>
+    </collision>
+    <visual name="left_hip_pitch_link_visual_3">
+      <origin xyz="-0.0123743686708 0.0421025 -0.0123743686708" rpy="-1.57079632679 0.785398163397 -3.14159265359" />
+      <geometry>
+        <mesh filename="meshes/WMD1008.stl" scale="1 1 1" />
+      </geometry>
+      <material name="left_hip_pitch_link_material_3">
+        <color rgba="0.65 0.65 0.69 1" />
+      </material>
+    </visual>
+    <collision name="left_hip_pitch_link_collision_3">
+      <origin xyz="-0.0123743686708 0.0421025 -0.0123743686708" rpy="-1.57079632679 0.785398163397 -3.14159265359" />
+      <geometry>
+        <mesh filename="meshes/WMD1008.stl" scale="1 1 1" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="right_hip_pitch_link">
+    <inertial>
+      <origin xyz="-0.0123743686708 -0.0187226791793 -0.0123743686711" rpy="0 0 0" />
+      <mass value="0.327377727974" />
+      <inertia ixx="0.000128320910542" ixy="0" ixz="-5.02178579245e-05" iyy="0.000172241521668" iyz="0" izz="0.000128320910656" />
+    </inertial>
+    <visual name="right_hip_pitch_link_visual_0">
+      <origin xyz="0 -0.0361025 0" rpy="1.57079632679 0.785398163397 3.14159265359" />
+      <geometry>
+        <mesh filename="meshes/Motor_HTDW3532.stl" scale="1 1 1" />
+      </geometry>
+      <material name="right_hip_pitch_link_material_0">
+        <color rgba="0.65 0.65 0.69 1" />
+      </material>
+    </visual>
+    <collision name="right_hip_pitch_link_collision_0">
+      <origin xyz="0 -0.0361025 0" rpy="1.57079632679 0.785398163397 3.14159265359" />
+      <geometry>
+        <mesh filename="meshes/Motor_HTDW3532.stl" scale="1 1 1" />
+      </geometry>
+    </collision>
+    <visual name="right_hip_pitch_link_visual_1">
+      <origin xyz="-0.0247487373415 -0.0361025 -0.0247487373415" rpy="1.57079632679 0.785398163397 3.14159265359" />
+      <geometry>
+        <mesh filename="meshes/Motor_HTDW3532.stl" scale="1 1 1" />
+      </geometry>
+      <material name="right_hip_pitch_link_material_1">
+        <color rgba="0.65 0.65 0.69 1" />
+      </material>
+    </visual>
+    <collision name="right_hip_pitch_link_collision_1">
+      <origin xyz="-0.0247487373415 -0.0361025 -0.0247487373415" rpy="1.57079632679 0.785398163397 3.14159265359" />
+      <geometry>
+        <mesh filename="meshes/Motor_HTDW3532.stl" scale="1 1 1" />
+      </geometry>
+    </collision>
+    <visual name="right_hip_pitch_link_visual_2">
+      <origin xyz="-0.0123743686708 -0.0421025 -0.0123743686708" rpy="1.57079632679 0.785398163397 3.14159265359" />
+      <geometry>
+        <mesh filename="meshes/WMD1008.stl" scale="1 1 1" />
+      </geometry>
+      <material name="right_hip_pitch_link_material_2">
+        <color rgba="0.65 0.65 0.69 1" />
+      </material>
+    </visual>
+    <collision name="right_hip_pitch_link_collision_2">
+      <origin xyz="-0.0123743686708 -0.0421025 -0.0123743686708" rpy="1.57079632679 0.785398163397 3.14159265359" />
+      <geometry>
+        <mesh filename="meshes/WMD1008.stl" scale="1 1 1" />
+      </geometry>
+    </collision>
+    <visual name="right_hip_pitch_link_visual_3">
+      <origin xyz="-0.0123743686708 -0.0011025 -0.0123743686708" rpy="1.57079632679 0.785398163397 3.14159265359" />
+      <geometry>
+        <mesh filename="meshes/WMD1007.stl" scale="1 1 1" />
+      </geometry>
+      <material name="right_hip_pitch_link_material_3">
+        <color rgba="0.65 0.65 0.69 1" />
+      </material>
+    </visual>
+    <collision name="right_hip_pitch_link_collision_3">
+      <origin xyz="-0.0123743686708 -0.0011025 -0.0123743686708" rpy="1.57079632679 0.785398163397 3.14159265359" />
+      <geometry>
+        <mesh filename="meshes/WMD1007.stl" scale="1 1 1" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="left_knee_link">
+    <inertial>
+      <origin xyz="0.0113120991116 -0.00769273462022 -0.0195931304015" rpy="0 0 0" />
+      <mass value="0.0210816115943" />
+      <inertia ixx="9.82413649977e-06" ixy="2.59845188064e-07" ixz="4.68183531871e-06" iyy="1.37899798002e-05" iyz="-4.50065067829e-07" izz="4.41801873665e-06" />
+    </inertial>
+    <visual name="left_knee_link_visual_0">
+      <origin xyz="0.0247487373415 -0.0676 0.0527487373415" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/Left_knee.stl" scale="1 1 1" />
+      </geometry>
+      <material name="left_knee_link_material_0">
+        <color rgba="0.65 0.65 0.69 1" />
+      </material>
+    </visual>
+    <collision name="left_knee_link_collision_0">
+      <origin xyz="0.0247487373415 -0.0676 0.0527487373415" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/Left_knee.stl" scale="1 1 1" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="right_knee_link">
+    <inertial>
+      <origin xyz="0.0113120991116 0.00769273462022 -0.0195931304015" rpy="0 0 0" />
+      <mass value="0.0210816115943" />
+      <inertia ixx="9.82413649977e-06" ixy="-2.59845188064e-07" ixz="4.68183531871e-06" iyy="1.37899798002e-05" iyz="4.50065067829e-07" izz="4.41801873665e-06" />
+    </inertial>
+    <visual name="right_knee_link_visual_0">
+      <origin xyz="0.0247487373415 0.0676 0.0527487373415" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/Right_knee.stl" scale="1 1 1" />
+      </geometry>
+      <material name="right_knee_link_material_0">
+        <color rgba="0.65 0.65 0.69 1" />
+      </material>
+    </visual>
+    <collision name="right_knee_link_collision_0">
+      <origin xyz="0.0247487373415 0.0676 0.0527487373415" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/Right_knee.stl" scale="1 1 1" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="left_ankle_link">
+    <inertial>
+      <origin xyz="0.000605782795348 0.0201590491957 -0.00749046053393" rpy="0 0 0" />
+      <mass value="0.225671675043" />
+      <inertia ixx="8.12676182827e-05" ixy="-1.97342842251e-07" ixz="1.23897668255e-06" iyy="0.000101577343" iyz="2.13890601777e-06" izz="8.56685128663e-05" />
+    </inertial>
+    <visual name="left_ankle_link_visual_0">
+      <origin xyz="-0.00225126265849 -0.0629975 0.0995141091459" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/Left_feet.stl" scale="1 1 1" />
+      </geometry>
+      <material name="left_ankle_link_material_0">
+        <color rgba="0.65 0.65 0.69 1" />
+      </material>
+    </visual>
+    <collision name="left_ankle_link_collision_0">
+      <origin xyz="-0.00225126265849 -0.0629975 0.0995141091459" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/Left_feet.stl" scale="1 1 1" />
+      </geometry>
+    </collision>
+    <visual name="left_ankle_link_visual_1">
+      <origin xyz="0 0.0361025 0" rpy="-1.57079632679 0 -3.14159265359" />
+      <geometry>
+        <mesh filename="meshes/Motor_HTDW3532.stl" scale="1 1 1" />
+      </geometry>
+      <material name="left_ankle_link_material_1">
+        <color rgba="0.65 0.65 0.69 1" />
+      </material>
+    </visual>
+    <collision name="left_ankle_link_collision_1">
+      <origin xyz="0 0.0361025 0" rpy="-1.57079632679 0 -3.14159265359" />
+      <geometry>
+        <mesh filename="meshes/Motor_HTDW3532.stl" scale="1 1 1" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="right_ankle_link">
+    <inertial>
+      <origin xyz="0.000605782800668 -0.0201590495117 -0.00749046053437" rpy="0 0 0" />
+      <mass value="0.225671675042" />
+      <inertia ixx="8.12676184768e-05" ixy="1.97319708753e-07" ixz="1.23897667195e-06" iyy="0.00010157734299" iyz="-2.1389056269e-06" izz="8.56685130594e-05" />
+    </inertial>
+    <visual name="right_ankle_link_visual_0">
+      <origin xyz="-0.00225126265847 0.0629975 0.0995141091459" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/Right_feet.stl" scale="1 1 1" />
+      </geometry>
+      <material name="right_ankle_link_material_0">
+        <color rgba="0.65 0.65 0.69 1" />
+      </material>
+    </visual>
+    <collision name="right_ankle_link_collision_0">
+      <origin xyz="-0.00225126265847 0.0629975 0.0995141091459" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/Right_feet.stl" scale="1 1 1" />
+      </geometry>
+    </collision>
+    <visual name="right_ankle_link_visual_1">
+      <origin xyz="0 -0.0361025 0" rpy="-1.57079632679 0 0" />
+      <geometry>
+        <mesh filename="meshes/Motor_HTDW3532.stl" scale="1 1 1" />
+      </geometry>
+      <material name="right_ankle_link_material_1">
+        <color rgba="0.65 0.65 0.69 1" />
+      </material>
+    </visual>
+    <collision name="right_ankle_link_collision_1">
+      <origin xyz="0 -0.0361025 0" rpy="-1.57079632679 0 0" />
+      <geometry>
+        <mesh filename="meshes/Motor_HTDW3532.stl" scale="1 1 1" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="neck_pitch_link">
+    <inertial>
+      <origin xyz="-0.00874999999728 0.0200091188224 0.0151554445764" rpy="0 0 0" />
+      <mass value="0.345409232363" />
+      <inertia ixx="0.00016993740383" ixy="0" ixz="4.59065454075e-05" iyy="0.000181802186963" iyz="0" izz="0.000116929091301" />
+    </inertial>
+    <visual name="neck_pitch_link_visual_0">
+      <origin xyz="0 0.0361025 0" rpy="-1.57079632679 -1.0471975512 3.14159265359" />
+      <geometry>
+        <mesh filename="meshes/Motor_HTDW3532.stl" scale="1 1 1" />
+      </geometry>
+      <material name="neck_pitch_link_material_0">
+        <color rgba="0.65 0.65 0.69 1" />
+      </material>
+    </visual>
+    <collision name="neck_pitch_link_collision_0">
+      <origin xyz="0 0.0361025 0" rpy="-1.57079632679 -1.0471975512 3.14159265359" />
+      <geometry>
+        <mesh filename="meshes/Motor_HTDW3532.stl" scale="1 1 1" />
+      </geometry>
+    </collision>
+    <visual name="neck_pitch_link_visual_1">
+      <origin xyz="-0.00875 0.0421025 0.0151554445662" rpy="-1.57079632679 -1.0471975512 3.14159265359" />
+      <geometry>
+        <mesh filename="meshes/WMD1012.stl" scale="1 1 1" />
+      </geometry>
+      <material name="neck_pitch_link_material_1">
+        <color rgba="0.65 0.65 0.69 1" />
+      </material>
+    </visual>
+    <collision name="neck_pitch_link_collision_1">
+      <origin xyz="-0.00875 0.0421025 0.0151554445662" rpy="-1.57079632679 -1.0471975512 3.14159265359" />
+      <geometry>
+        <mesh filename="meshes/WMD1012.stl" scale="1 1 1" />
+      </geometry>
+    </collision>
+    <visual name="neck_pitch_link_visual_2">
+      <origin xyz="-0.00875 0.0011025 0.0151554445662" rpy="-1.57079632679 -1.0471975512 3.14159265359" />
+      <geometry>
+        <mesh filename="meshes/WMD1007.stl" scale="1 1 1" />
+      </geometry>
+      <material name="neck_pitch_link_material_2">
+        <color rgba="0.65 0.65 0.69 1" />
+      </material>
+    </visual>
+    <collision name="neck_pitch_link_collision_2">
+      <origin xyz="-0.00875 0.0011025 0.0151554445662" rpy="-1.57079632679 -1.0471975512 3.14159265359" />
+      <geometry>
+        <mesh filename="meshes/WMD1007.stl" scale="1 1 1" />
+      </geometry>
+    </collision>
+    <visual name="neck_pitch_link_visual_3">
+      <origin xyz="0 0.0421025 0" rpy="-1.57079632679 -1.0471975512 3.14159265359" />
+      <geometry>
+        <mesh filename="meshes/Bearing_20_27_4.stl" scale="1 1 1" />
+      </geometry>
+      <material name="neck_pitch_link_material_3">
+        <color rgba="0.65 0.65 0.69 1" />
+      </material>
+    </visual>
+    <collision name="neck_pitch_link_collision_3">
+      <origin xyz="0 0.0421025 0" rpy="-1.57079632679 -1.0471975512 3.14159265359" />
+      <geometry>
+        <mesh filename="meshes/Bearing_20_27_4.stl" scale="1 1 1" />
+      </geometry>
+    </collision>
+    <visual name="neck_pitch_link_visual_4">
+      <origin xyz="-0.0175 0.0421025 0.0303108891325" rpy="-1.57079632679 -1.0471975512 3.14159265359" />
+      <geometry>
+        <mesh filename="meshes/Bearing_20_27_4.stl" scale="1 1 1" />
+      </geometry>
+      <material name="neck_pitch_link_material_4">
+        <color rgba="0.65 0.65 0.69 1" />
+      </material>
+    </visual>
+    <collision name="neck_pitch_link_collision_4">
+      <origin xyz="-0.0175 0.0421025 0.0303108891325" rpy="-1.57079632679 -1.0471975512 3.14159265359" />
+      <geometry>
+        <mesh filename="meshes/Bearing_20_27_4.stl" scale="1 1 1" />
+      </geometry>
+    </collision>
+    <visual name="neck_pitch_link_visual_5">
+      <origin xyz="-0.0175 0.0361025 0.0303108891325" rpy="-1.57079632679 -1.0471975512 3.14159265359" />
+      <geometry>
+        <mesh filename="meshes/Motor_HTDW3532.stl" scale="1 1 1" />
+      </geometry>
+      <material name="neck_pitch_link_material_5">
+        <color rgba="0.65 0.65 0.69 1" />
+      </material>
+    </visual>
+    <collision name="neck_pitch_link_collision_5">
+      <origin xyz="-0.0175 0.0361025 0.0303108891325" rpy="-1.57079632679 -1.0471975512 3.14159265359" />
+      <geometry>
+        <mesh filename="meshes/Motor_HTDW3532.stl" scale="1 1 1" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="head_pitch_link">
+    <inertial>
+      <origin xyz="-9.54326473575e-09 0.0181719573854 0.0162856278805" rpy="0 0 0" />
+      <mass value="0.0367853906427" />
+      <inertia ixx="3.07595022737e-05" ixy="5.87603258478e-12" ixz="3.88195369953e-12" iyy="1.21863307027e-05" iyz="-1.20514652959e-06" izz="2.35904943228e-05" />
+    </inertial>
+    <visual name="head_pitch_link_visual_0">
+      <origin xyz="0 -0.0126 0" rpy="-1.57079632679 -1.57079632679 0" />
+      <geometry>
+        <mesh filename="meshes/Head_pitch.stl" scale="1 1 1" />
+      </geometry>
+      <material name="head_pitch_link_material_0">
+        <color rgba="0.65 0.65 0.69 1" />
+      </material>
+    </visual>
+    <collision name="head_pitch_link_collision_0">
+      <origin xyz="0 -0.0126 0" rpy="-1.57079632679 -1.57079632679 0" />
+      <geometry>
+        <mesh filename="meshes/Head_pitch.stl" scale="1 1 1" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="head_yaw_link">
+    <inertial>
+      <origin xyz="-0.00109834551207 -8.49568919411e-09 0.0189235534357" rpy="0 0 0" />
+      <mass value="0.160466330426" />
+      <inertia ixx="3.29348050351e-05" ixy="-1.9101056607e-11" ixz="5.57708508676e-07" iyy="3.61811405834e-05" iyz="0" izz="3.46024140059e-05" />
+    </inertial>
+    <visual name="head_yaw_link_visual_0">
+      <origin xyz="-0.0175 0 0.0206025" rpy="1.57079632679 0 -1.57079632679" />
+      <geometry>
+        <mesh filename="meshes/WMD1005.stl" scale="1 1 1" />
+      </geometry>
+      <material name="head_yaw_link_material_0">
+        <color rgba="0.65 0.65 0.69 1" />
+      </material>
+    </visual>
+    <collision name="head_yaw_link_collision_0">
+      <origin xyz="-0.0175 0 0.0206025" rpy="1.57079632679 0 -1.57079632679" />
+      <geometry>
+        <mesh filename="meshes/WMD1005.stl" scale="1 1 1" />
+      </geometry>
+    </collision>
+    <visual name="head_yaw_link_visual_1">
+      <origin xyz="0 0 0.0361025" rpy="-3.14159265359 0 1.57079632679" />
+      <geometry>
+        <mesh filename="meshes/Motor_HTDW3532.stl" scale="1 1 1" />
+      </geometry>
+      <material name="head_yaw_link_material_1">
+        <color rgba="0.65 0.65 0.69 1" />
+      </material>
+    </visual>
+    <collision name="head_yaw_link_collision_1">
+      <origin xyz="0 0 0.0361025" rpy="-3.14159265359 0 1.57079632679" />
+      <geometry>
+        <mesh filename="meshes/Motor_HTDW3532.stl" scale="1 1 1" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="head_roll_link">
+    <inertial>
+      <origin xyz="0.0425430797976 0.000121351358228 0.0362176498192" rpy="0 0 0" />
+      <mass value="1.09884048193" />
+      <inertia ixx="0.00175670508591" ixy="-3.79392710936e-06" ixz="-0.00019613276173" iyy="0.00378227391006" iyz="5.92486389511e-06" izz="0.00365858058786" />
+    </inertial>
+    <visual name="head_roll_link_visual_0">
+      <origin xyz="-0.0011025 0 0" rpy="1.57079632679 0 1.57079632679" />
+      <geometry>
+        <mesh filename="meshes/WMD1018.stl" scale="1 1 1" />
+      </geometry>
+      <material name="head_roll_link_material_0">
+        <color rgba="0.65 0.65 0.69 1" />
+      </material>
+    </visual>
+    <collision name="head_roll_link_collision_0">
+      <origin xyz="-0.0011025 0 0" rpy="1.57079632679 0 1.57079632679" />
+      <geometry>
+        <mesh filename="meshes/WMD1018.stl" scale="1 1 1" />
+      </geometry>
+    </collision>
+    <visual name="head_roll_link_visual_1">
+      <origin xyz="0.0478975 0 0.0285" rpy="0 0 -1.57079632679" />
+      <geometry>
+        <mesh filename="meshes/Head.stl" scale="1 1 1" />
+      </geometry>
+      <material name="head_roll_link_material_1">
+        <color rgba="0.65 0.65 0.69 1" />
+      </material>
+    </visual>
+    <collision name="head_roll_link_collision_1">
+      <origin xyz="0.0478975 0 0.0285" rpy="0 0 -1.57079632679" />
+      <geometry>
+        <mesh filename="meshes/Head.stl" scale="1 1 1" />
+      </geometry>
+    </collision>
+    <visual name="head_roll_link_visual_2">
+      <origin xyz="0.0728975 -0.0175 0.00499999999998" rpy="1.57079632679 0 -3.14159265359" />
+      <geometry>
+        <mesh filename="meshes/Motor_HTDW3532.stl" scale="1 1 1" />
+      </geometry>
+      <material name="head_roll_link_material_2">
+        <color rgba="0.65 0.65 0.69 1" />
+      </material>
+    </visual>
+    <collision name="head_roll_link_collision_2">
+      <origin xyz="0.0728975 -0.0175 0.00499999999998" rpy="1.57079632679 0 -3.14159265359" />
+      <geometry>
+        <mesh filename="meshes/Motor_HTDW3532.stl" scale="1 1 1" />
+      </geometry>
+    </collision>
+    <visual name="head_roll_link_visual_3">
+      <origin xyz="-0.0361025 0 0" rpy="1.57079632679 0 1.57079632679" />
+      <geometry>
+        <mesh filename="meshes/Motor_HTDW3532.stl" scale="1 1 1" />
+      </geometry>
+      <material name="head_roll_link_material_3">
+        <color rgba="0.65 0.65 0.69 1" />
+      </material>
+    </visual>
+    <collision name="head_roll_link_collision_3">
+      <origin xyz="-0.0361025 0 0" rpy="1.57079632679 0 1.57079632679" />
+      <geometry>
+        <mesh filename="meshes/Motor_HTDW3532.stl" scale="1 1 1" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="mouth_link">
+    <inertial>
+      <origin xyz="0.0347912024524 -0.0129994761368 -0.000272678311701" rpy="0 0 0" />
+      <mass value="0.0579033656106" />
+      <inertia ixx="4.17786063742e-05" ixy="9.44766438093e-06" ixz="-4.3977492908e-07" iyy="2.40447888247e-05" iyz="-8.21600560492e-08" izz="6.01787812277e-05" />
+    </inertial>
+    <visual name="mouth_link_visual_0">
+      <origin xyz="-0.042 -0.0186 -0.167310889132" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/Mouth.stl" scale="1 1 1" />
+      </geometry>
+      <material name="mouth_link_material_0">
+        <color rgba="0.65 0.65 0.69 1" />
+      </material>
+    </visual>
+    <collision name="mouth_link_collision_0">
+      <origin xyz="-0.042 -0.0186 -0.167310889132" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/Mouth.stl" scale="1 1 1" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="left_hip_yaw" type="revolute">
+    <!--CAD mates: 同心1 / 重合2. q=0 is saved CAD pose.-->
+    <parent link="base_link" />
+    <child link="left_hip_yaw_link" />
+    <origin xyz="-0.00889850082397 0.026 -0.04470398" rpy="0 0 0" />
+    <axis xyz="0 0 1" />
+    <limit effort="0.6" velocity="6.28318530718" lower="-1.72787595947" upper="0.532325421858" />
+  </joint>
+  <joint name="right_hip_yaw" type="revolute">
+    <!--CAD mates: 同心2 / 重合4. q=0 is saved CAD pose.-->
+    <parent link="base_link" />
+    <child link="right_hip_yaw_link" />
+    <origin xyz="-0.00889850082397 -0.026 -0.04470398" rpy="0 0 0" />
+    <axis xyz="0 0 1" />
+    <limit effort="0.6" velocity="6.28318530718" lower="-0.532325421858" upper="1.72787595947" />
+  </joint>
+  <joint name="left_hip_roll" type="revolute">
+    <!--CAD mates: 同心3 / 重合5. q=0 is saved CAD pose.-->
+    <parent link="left_hip_yaw_link" />
+    <child link="left_hip_roll_link" />
+    <origin xyz="0.0166025 0 -0.0269" rpy="0 0 0" />
+    <axis xyz="1 0 0" />
+    <limit effort="0.6" velocity="6.28318530718" lower="-1.11526539202" upper="0.431096325243" />
+  </joint>
+  <joint name="right_hip_roll" type="revolute">
+    <!--CAD mates: 同心4 / 重合7. q=0 is saved CAD pose.-->
+    <parent link="right_hip_yaw_link" />
+    <child link="right_hip_roll_link" />
+    <origin xyz="0.0166025 0 -0.0269" rpy="0 0 0" />
+    <axis xyz="1 0 0" />
+    <limit effort="0.6" velocity="6.28318530718" lower="-0.431096325243" upper="1.11526539202" />
+  </joint>
+  <joint name="left_hip_pitch" type="revolute">
+    <!--CAD mates: 同心5 / 重合9. q=0 is saved CAD pose.-->
+    <parent link="left_hip_roll_link" />
+    <child link="left_hip_pitch_link" />
+    <origin xyz="-0.0166 0.0416 0" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit effort="0.6" velocity="6.28318530718" lower="-1.13097335529" upper="2.80474410795" />
+  </joint>
+  <joint name="right_hip_pitch" type="revolute">
+    <!--CAD mates: 同心6 / 重合11. q=0 is saved CAD pose.-->
+    <parent link="right_hip_roll_link" />
+    <child link="right_hip_pitch_link" />
+    <origin xyz="-0.0166 -0.0416 0" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit effort="0.6" velocity="6.28318530718" lower="-1.13097335529" upper="2.80474410795" />
+  </joint>
+  <joint name="left_knee" type="revolute">
+    <!--CAD mates: 同心7 / 重合13. q=0 is saved CAD pose.-->
+    <parent link="left_hip_pitch_link" />
+    <child link="left_knee_link" />
+    <origin xyz="-0.0247487373415 0 -0.0247487373415" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit effort="0.6" velocity="6.28318530718" lower="-0.574213323906" upper="3.10668606855" />
+  </joint>
+  <joint name="right_knee" type="revolute">
+    <!--CAD mates: 同心8 / 重合15. q=0 is saved CAD pose.-->
+    <parent link="right_hip_pitch_link" />
+    <child link="right_knee_link" />
+    <origin xyz="-0.0247487373415 0 -0.0247487373415" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit effort="0.6" velocity="6.28318530718" lower="-0.574213323906" upper="3.10668606855" />
+  </joint>
+  <joint name="left_ankle" type="revolute">
+    <!--CAD mates: 同心9 / 重合17. q=0 is saved CAD pose.-->
+    <parent link="left_knee_link" />
+    <child link="left_ankle_link" />
+    <origin xyz="0.027 -0.0046 -0.0467653718044" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit effort="0.6" velocity="6.28318530718" lower="-1.76452787377" upper="0.984365698125" />
+  </joint>
+  <joint name="right_ankle" type="revolute">
+    <!--CAD mates: 同心10 / 重合19. q=0 is saved CAD pose.-->
+    <parent link="right_knee_link" />
+    <child link="right_ankle_link" />
+    <origin xyz="0.027 0.0046 -0.0467653718044" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit effort="0.6" velocity="6.28318530718" lower="-1.76452787377" upper="0.984365698125" />
+  </joint>
+  <joint name="neck_pitch" type="revolute">
+    <!--CAD mates: 同心11 / 重合21. q=0 is saved CAD pose.-->
+    <parent link="base_link" />
+    <child link="neck_pitch_link" />
+    <origin xyz="0.00460149917603 -0.0186000000001 0.03039852" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit effort="0.6" velocity="6.28318530718" lower="-0.61261056745" upper="2.24274808881" />
+  </joint>
+  <joint name="head_pitch" type="revolute">
+    <!--CAD mates: 同心12 / 重合23. q=0 is saved CAD pose.-->
+    <parent link="neck_pitch_link" />
+    <child link="head_pitch_link" />
+    <origin xyz="-0.0175 0 0.0303108891325" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit effort="0.6" velocity="6.28318530718" lower="-1.12748269679" upper="1.20776784238" />
+  </joint>
+  <joint name="head_yaw" type="revolute">
+    <!--CAD mates: 同心13 / 重合25. q=0 is saved CAD pose.-->
+    <parent link="head_pitch_link" />
+    <child link="head_yaw_link" />
+    <origin xyz="0 0.0186 0.0374" rpy="0 0 0" />
+    <axis xyz="0 0 1" />
+    <limit effort="0.6" velocity="6.28318530718" lower="-3.10668606855" upper="3.10668606855" />
+  </joint>
+  <joint name="head_roll" type="revolute">
+    <!--CAD mates: 同心14 / 重合27. q=0 is saved CAD pose.-->
+    <parent link="head_yaw_link" />
+    <child link="head_roll_link" />
+    <origin xyz="-0.0269 0 0.0206025" rpy="0 0 0" />
+    <axis xyz="1 0 0" />
+    <limit effort="0.6" velocity="6.28318530718" lower="-1.25489173218" upper="1.32121424376" />
+  </joint>
+  <joint name="mouth" type="revolute">
+    <!--CAD mates: 同心15 / 重合29. q=0 is saved CAD pose.-->
+    <parent link="head_roll_link" />
+    <child link="mouth_link" />
+    <origin xyz="0.0728975 0.0186025 0.00500000000001" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit effort="0.6" velocity="6.28318530718" lower="0" upper="1.78896248329" />
+  </joint>
+  <link name="imu_link" />
+  <joint name="imu_fixed" type="fixed">
+    <parent link="base_link" />
+    <child link="imu_link" />
+    <origin xyz="0 0 0" rpy="0 0 0" />
+  </joint>
+</robot>

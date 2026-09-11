@@ -1,0 +1,131 @@
+{
+  "note": "Geometric initial joint ranges for simulation, relative to the saved CAD pose. Derived with all other joints at q=0. Independent ranges do not guarantee collision-free combined motion. Search-capped sides are software ranges, not measured mechanical stops. See ../../docs/model.en.md and joint_limits.csv. The source CAD interference audit is not distributed in this package.",
+  "units": {
+    "lower": "rad",
+    "upper": "rad",
+    "effort": "N*m",
+    "velocity": "rad/s"
+  },
+  "joints": {
+    "left_hip_yaw": {
+      "lower": -1.7278759594743862,
+      "upper": 0.5323254218582705,
+      "effort": 0.6,
+      "velocity": 6.283185307179586,
+      "limit_source": "../../docs/model.en.md",
+      "zero": "saved Full_wmduck pose"
+    },
+    "right_hip_yaw": {
+      "lower": -0.5323254218582705,
+      "upper": 1.7278759594743862,
+      "effort": 0.6,
+      "velocity": 6.283185307179586,
+      "limit_source": "../../docs/model.en.md",
+      "zero": "saved Full_wmduck pose"
+    },
+    "left_hip_roll": {
+      "lower": -1.1152653920243765,
+      "upper": 0.4310963252425994,
+      "effort": 0.6,
+      "velocity": 6.283185307179586,
+      "limit_source": "../../docs/model.en.md",
+      "zero": "saved Full_wmduck pose"
+    },
+    "right_hip_roll": {
+      "lower": -0.4310963252425994,
+      "upper": 1.1152653920243765,
+      "effort": 0.6,
+      "velocity": 6.283185307179586,
+      "limit_source": "../../docs/model.en.md",
+      "zero": "saved Full_wmduck pose"
+    },
+    "left_hip_pitch": {
+      "lower": -1.1309733552923256,
+      "upper": 2.8047441079548876,
+      "effort": 0.6,
+      "velocity": 6.283185307179586,
+      "limit_source": "../../docs/model.en.md",
+      "zero": "saved Full_wmduck pose"
+    },
+    "right_hip_pitch": {
+      "lower": -1.1309733552923256,
+      "upper": 2.8047441079548876,
+      "effort": 0.6,
+      "velocity": 6.283185307179586,
+      "limit_source": "../../docs/model.en.md",
+      "zero": "saved Full_wmduck pose"
+    },
+    "left_knee": {
+      "lower": -0.5742133239061344,
+      "upper": 3.1066860685499065,
+      "effort": 0.6,
+      "velocity": 6.283185307179586,
+      "limit_source": "../../docs/model.en.md",
+      "zero": "saved Full_wmduck pose"
+    },
+    "right_knee": {
+      "lower": -0.5742133239061344,
+      "upper": 3.1066860685499065,
+      "effort": 0.6,
+      "velocity": 6.283185307179586,
+      "limit_source": "../../docs/model.en.md",
+      "zero": "saved Full_wmduck pose"
+    },
+    "left_ankle": {
+      "lower": -1.764527873766267,
+      "upper": 0.9843656981248018,
+      "effort": 0.6,
+      "velocity": 6.283185307179586,
+      "limit_source": "../../docs/model.en.md",
+      "zero": "saved Full_wmduck pose"
+    },
+    "right_ankle": {
+      "lower": -1.764527873766267,
+      "upper": 0.9843656981248018,
+      "effort": 0.6,
+      "velocity": 6.283185307179586,
+      "limit_source": "../../docs/model.en.md",
+      "zero": "saved Full_wmduck pose"
+    },
+    "neck_pitch": {
+      "lower": -0.6126105674500097,
+      "upper": 2.2427480888127134,
+      "effort": 0.6,
+      "velocity": 6.283185307179586,
+      "limit_source": "../../docs/model.en.md",
+      "zero": "saved Full_wmduck pose"
+    },
+    "head_pitch": {
+      "lower": -1.1274826967883367,
+      "upper": 1.2077678423800762,
+      "effort": 0.6,
+      "velocity": 6.283185307179586,
+      "limit_source": "../../docs/model.en.md",
+      "zero": "saved Full_wmduck pose"
+    },
+    "head_yaw": {
+      "lower": -3.1066860685499065,
+      "upper": 3.1066860685499065,
+      "effort": 0.6,
+      "velocity": 6.283185307179586,
+      "limit_source": "../../docs/model.en.md",
+      "zero": "saved Full_wmduck pose"
+    },
+    "head_roll": {
+      "lower": -1.254891732183923,
+      "upper": 1.3212142437597074,
+      "effort": 0.6,
+      "velocity": 6.283185307179586,
+      "limit_source": "../../docs/model.en.md",
+      "zero": "saved Full_wmduck pose"
+    },
+    "mouth": {
+      "lower": 0.0,
+      "upper": 1.7889624832941877,
+      "effort": 0.6,
+      "velocity": 6.283185307179586,
+      "limit_source": "../../docs/model.en.md",
+      "zero": "saved Full_wmduck pose"
+    }
+  }
+}

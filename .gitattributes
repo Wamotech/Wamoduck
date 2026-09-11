@@ -1,2 +1,9 @@
-# Auto detect text files and perform LF normalization
-* text=auto
+# Keep text portable and binary CAD exports byte-identical.
+* text=auto eol=lf
+*.stp -text -diff
+*.step -text -diff
+*.SLDPRT binary
+*.SLDASM binary
+*.stl binary
+*.png binary
+*.jpg binary

@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "checked_on": "2026-09-12",
+  "status": "passed",
+  "scope": "Fresh package structure, parameter consistency, binary STL and MuJoCo compile/forward checks only",
+  "python_version": "3.11.2",
+  "mujoco_version": "3.12.0",
+  "urdf_sha256": "769b80d80f03be5e3ec8587dc878841d782059f812122ee679e12de2a87b88b5",
+  "urdf_links": 17,
+  "rotational_joints": 15,
+  "fixed_joints": 1,
+  "root_link": "base_link",
+  "mesh_references": 79,
+  "unique_mesh_files": 20,
+  "binary_stl_triangles": 237802,
+  "mesh_scale": [
+    1,
+    1,
+    1
+  ],
+  "component_instances": 40,
+  "model_mass_kg": 3.8863397833518,
+  "minimum_link_inertia_eigenvalue_kg_m2": 1.6926344539968278e-06,
+  "zero_pose_bounds_m": [
+    [
+      -0.08340850082323419,
+      -0.1106025029906681,
+      -0.17761809544517723
+    ],
+    [
+      0.09809900589255854,
+      0.11060250303302659,
+      0.21321191008871637
+    ]
+  ],
+  "zero_pose_size_xyz_m": [
+    0.18150750671579274,
+    0.2212050060236947,
+    0.3908300055338936
+  ],
+  "urdf_xml_elements_equal_source_export": true,
+  "joint_csv_and_json_match_urdf": true,
+  "fixed_base_nq_nv_nu": [
+    15,
+    15,
+    0
+  ],
+  "floating_base_nq_nv_nu": [
+    22,
+    21,
+    0
+  ],
+  "fixed_base_forward_finite": true,
+  "not_validated": [
+    "Fresh SolidWorks opening without access to the original development directory",
+    "STEP reimport and B-rep quality in a CAD application",
+    "Original CAD collision analysis was not rerun",
+    "Measured masses, inertia, motor ratings, encoder zero, cable clearance or physical stops",
+    "Manufacturing, electrical integration, actuators, ground contacts, walking or training"
+  ]
+}
