@@ -2,7 +2,7 @@
 
 [首页](../README.zh-CN.md) · [English](model.en.md) | 简体中文
 
-[Wamoduck URDF](../models/wmduck/wmduck.urdf) 是从 SolidWorks 2025 中保存的 `Full_wmduck.SLDASM` 总装导出的 15 自由度机器人描述，提供几何、运动学、估计惯量和初始关节限位，供查看与仿真开发使用。行走控制器和完整的强化学习环境仍待后续开发。
+[Wamoduck URDF](../models/wmduck/wmduck.urdf) 是从 SolidWorks 2025 中保存的 `Full_wmduck.SLDASM` 总装导出的 15 自由度机器人描述，提供几何、运动学、估计惯量和关节限位，供查看与仿真开发使用。本指南说明当前公开的模型快照；项目已完成的 MuJoCo 仿真工作及正在进行的软硬件联调见[项目首页](../README.zh-CN.md)。控制器、训练代码与 ONNX 策略文件尚未在本仓库提供。
 
 ![Wamoduck 的 CAD 保存姿态](../assets/wamoduck-model.png)
 
@@ -45,9 +45,9 @@ base_link (Body_sys)
 └─ imu_link (fixed)
 ```
 
-## 初始几何关节限位
+## 已确认的 URDF 关节范围
 
-下表角度单位为度，均相对于保存姿态。这些数值是带条件的几何估计，并非实测机械挡位或编码器限位。SolidWorks 角度配合用于定位保存姿态，未被当作真实运动范围。
+最终导出沿用了项目维护者确认的全部 15 个关节参数，公开 URDF 的关节定义与其一致。下表角度单位为度，均相对于保存姿态；原始依据仍是带条件的几何估计，不代表新进行的实物机械挡位或编码器限位测量。SolidWorks 角度配合用于定位保存姿态，未被当作真实运动范围。
 
 | 关节 | 下限（°） | 上限（°） | 依据 / 例外 |
 | --- | ---: | ---: | --- |

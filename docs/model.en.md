@@ -2,7 +2,7 @@
 
 [Home](../README.md) · English | [简体中文](model.zh-CN.md)
 
-The [Wamoduck URDF](../models/wmduck/wmduck.urdf) describes a 15-DOF robot exported from the saved `Full_wmduck.SLDASM` assembly in SolidWorks 2025. It provides geometry, kinematics, estimated inertia, and initial joint limits for inspection and simulation development. A walking controller and a complete reinforcement learning environment remain future work.
+The [Wamoduck URDF](../models/wmduck/wmduck.urdf) describes a 15-DOF robot exported from the saved `Full_wmduck.SLDASM` assembly in SolidWorks 2025. It provides geometry, kinematics, estimated inertia, and joint limits for inspection and simulation development. This guide covers the public model snapshot. The project's completed MuJoCo simulation work and ongoing hardware/software integration are described on the [project homepage](../README.md); controller, training, and ONNX policy files are not yet included in this repository.
 
 ![Wamoduck in the saved CAD pose](../assets/wamoduck-model.png)
 
@@ -45,9 +45,9 @@ base_link (Body_sys)
 └─ imu_link (fixed)
 ```
 
-## Initial geometric joint limits
+## Confirmed URDF joint limits
 
-All angles below are degrees relative to the saved pose. These are conditional geometric estimates, not measured mechanical stops or encoder limits. SolidWorks angle mates position the saved assembly; they were not treated as physical travel limits.
+The finalized export retains the maintainer-confirmed settings for all 15 joints; the public URDF has the same joint definitions. All angles below are degrees relative to the saved pose. Their original basis remains conditional geometric estimates, not newly measured mechanical stops or encoder limits. SolidWorks angle mates position the saved assembly; they were not treated as physical travel limits.
 
 | Joint | Lower (°) | Upper (°) | Basis / exception |
 | --- | ---: | ---: | --- |

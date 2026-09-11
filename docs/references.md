@@ -20,6 +20,8 @@ The official [microduck](https://github.com/pollen-robotics/microduck) repositor
 
 **Adapted here / 本项目采用：** separate mechanical, model, and future runtime/training scopes, with validation limits stated alongside model data. Simulation mesh availability is not equivalent to editable manufacturing CAD. / 区分机械、模型和未来运行／训练资料，在模型数据旁说明验证边界。仿真网格的公开不等于同时公开可编辑的制造 CAD。
 
+The ONNX deployment comparison in the Wamoduck introduction refers to the high-level approach of exporting policies from a simulation/training workflow and using them with runtime control inputs. It does not claim that Microduck policies are directly compatible with Wamoduck or establish autonomous-navigation performance. / Wamoduck 首页所说的 ONNX 部署方式相近，指的是从仿真／训练流程导出策略，并结合运行时控制输入执行的总体思路；不表示 Microduck 策略可直接用于 Wamoduck，也不据此推导自主导航性能。
+
 ## Microduck Replica is a separate project / 区分第三方复刻项目
 
 [Microduck Replica](https://github.com/fanhao375/microduck-replica) and its [CAD companion](https://github.com/fanhao375/microduck-replica-cad) are third-party reconstruction resources, not Pollen's official Microduck repositories. The CAD companion illustrates a separate editable-CAD download entry, with named source attribution and licensing.

@@ -2,7 +2,9 @@
 
 [English home](../README.md) · [中文首页](../README.zh-CN.md)
 
-Status of this package, 2026-09-12. These are deliverables and acceptance criteria, not promised release dates. / 本资料包状态，2026-09-12。以下是交付目标与验收条件，不代表发布日期承诺。
+Status as of 2026-09-12. The project is in mechanical prototyping and hardware/software integration, with MuJoCo simulation work completed and an ONNX deployment approach combining remote control with policy-driven autonomous actions. The same hardware/software architecture is also being explored in intelligent wearable robot projects. / 截至 2026-09-12，项目处于结构打样和软硬件联合调试阶段，已完成 MuJoCo 仿真，支持遥控与策略驱动自主动作相结合的 ONNX 部署方式；同一软硬件架构也在智能穿戴式机器人项目中进行实验应用。
+
+The table below tracks **public repository deliverables**, not all development work. Simulation code, policy files, and integration evidence will be added as the project progresses. These are deliverables and acceptance criteria, not promised release dates. / 下表跟踪的是**公开仓库交付内容**，不代表项目全部研发工作的状态。仿真代码、策略文件及联调记录将随着项目进展逐步补充，以下目标与验收条件不代表发布日期承诺。
 
 | Area / 方向 | Current state / 当前状态 | Next deliverable / 下一步交付 |
 | --- | --- | --- |
@@ -13,14 +15,14 @@ Status of this package, 2026-09-12. These are deliverables and acceptance criter
 | Assembly / 装配 | Not included / 尚未提供 | Illustrated steps by subassembly, fasteners, inserts, tools, and inspection points / 按子装配编写图文步骤、紧固件、嵌件、工具和检查点 |
 | Electronics / 电子系统 | Component geometry only / 仅提供部件几何 | Wiring diagrams, connector pinouts, power design, and confirmed board revisions / 接线图、接口定义、电源设计及确定的板卡版本 |
 | Firmware and calibration / 固件与标定 | Not included / 尚未提供 | Firmware source, supported hardware, motor ID mapping, encoder offsets, and startup procedure / 固件源码、支持硬件、电机 ID 对照、编码器零偏与启动流程 |
-| Simulation / 仿真 | Model import only; no locomotion environment / 仅模型导入，无行走环境 | Collision simplification, actuators, floating-base scene, contact settings, and reproducible checks / 简化碰撞体、执行器、浮动基座场景、接触参数与可复现检查 |
+| Simulation / 仿真 | Public package includes URDF import checks and a scripted joint-motion GIF; the project's full simulation environment is not yet published / 公开包包含 URDF 导入检查与预设关节动作 GIF，项目完整仿真环境尚未公开 | Publish the simulation environment, collision setup, actuators, scene, and reproducible validation / 公开仿真环境、碰撞配置、执行器、场景与可复现验证 |
 | Walking and training / 行走与训练 | Not included / 尚未提供 | Reproducible controller or training configuration with dated validation evidence / 可复现控制器或训练配置及带日期的验证记录 |
 
 ## Suggested milestones / 建议阶段
 
 1. **Mechanical reference package / 机械参考资料包** — this package, followed by independent CAD opening checks. / 当前资料包，随后完成独立 CAD 打开检查。
 2. **Reproducible physical build / 可复现的实物搭建** — complete the BOM, manufacturing, assembly, and electrical documentation together. / 配套补齐 BOM、制造、装配及电气文档。
-3. **Measured robot model / 经实测修正的机器人模型** — calibrate geometry and dynamics, then validate the simulation scene. / 标定几何和动力学参数，再验证仿真场景。
+3. **Measured robot model and reproducible simulation / 经实测修正的模型与可复现仿真** — reconcile the model with hardware measurements and publish the simulation environment and validation. / 用实测数据校准模型，公开仿真环境及验证记录。
 4. **Reproducible motion / 可复现的运动控制** — publish control or training software with hardware versions and test conditions. / 发布控制或训练软件，并记录硬件版本与测试条件。
 
 Document new claims together with their evidence. A successful model import establishes that the file can be compiled; it does not establish walking performance or hardware reproducibility. / 新增结论应附带对应证据。模型成功导入只证明文件可编译，不代表行走性能或实物复现已经验证。

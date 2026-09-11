@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "prepared_on": "2026-09-12",
+  "scope": "Media added for the project introduction; original source-asset hashes remain in ../asset-manifest.json",
+  "model": {
+    "path": "../models/wmduck/wmduck.urdf",
+    "sha256": "769b80d80f03be5e3ec8587dc878841d782059f812122ee679e12de2a87b88b5",
+    "joint_definitions_match_finalized_urdf_export": true,
+    "revolute_dof": 15
+  },
+  "assets": [
+    {
+      "path": "wamoduck-motion.gif",
+      "sha256": "9fceddd6a4db09d98730ab632b1262f5c41384b9daf1ab7eb05d3784d759e320",
+      "bytes": 4174254,
+      "type": "scripted_urdf_joint_motion",
+      "renderer": {
+        "engine": "MuJoCo",
+        "version": "3.12.0",
+        "method": "Prescribed joint poses and forward kinematics; no physics integration or ONNX inference",
+        "presentation": "Studio lighting, material styling, camera, and root height adjusted in memory; published model unchanged"
+      },
+      "width": 800,
+      "height": 650,
+      "frames": 180,
+      "duration_ms": 10000,
+      "average_fps": 18,
+      "loop": "infinite",
+      "joint_motion_ranges_degrees": {
+        "left_hip_yaw": [
+          -3.0,
+          3.0
+        ],
+        "left_hip_roll": [
+          -1.4,
+          1.4
+        ],
+        "left_hip_pitch": [
+          -4.5,
+          -0.0
+        ],
+        "left_knee": [
+          0.0,
+          9.0
+        ],
+        "left_ankle": [
+          -4.5,
+          -0.0
+        ],
+        "right_hip_yaw": [
+          -3.0,
+          3.0
+        ],
+        "right_hip_roll": [
+          -1.4,
+          1.4
+        ],
+        "right_hip_pitch": [
+          -4.5,
+          -0.0
+        ],
+        "right_knee": [
+          0.0,
+          9.0
+        ],
+        "right_ankle": [
+          -4.5,
+          -0.0
+        ],
+        "neck_pitch": [
+          -3.0,
+          3.0
+        ],
+        "head_pitch": [
+          -5.496649548605027,
+          5.496649548605027
+        ],
+        "head_yaw": [
+          -22.0,
+          22.0
+        ],
+        "head_roll": [
+          -6.0,
+          6.0
+        ],
+        "mouth": [
+          0.0,
+          14.0
+        ]
+      },
+      "checks": {
+        "all_15_joints_exercised": true,
+        "within_urdf_ranges": true,
+        "decoded_unique_frames": 180,
+        "loop_pose_seam_error_rad": 9.40461228041764e-17,
+        "loop_pose_seam_tolerance_rad": 1e-12
+      },
+      "scope_note": "Kinematic visualization only; not physical footage, policy evaluation, collision certification, or dynamic walking validation"
+    },
+    {
+      "path": "wamoduck-dof-overview.png",
+      "sha256": "1c1aea0c25a5cd5d5de8c58741d42d2ecfd931fc07d758249ada4dd8d7b6b693",
+      "bytes": 395900,
+      "type": "finalized_urdf_joint_origin_overview",
+      "source": "Finalized URDF export: coordinate_frames/00_overview.png",
+      "transformation": "None; copied byte-for-byte",
+      "width": 2320,
+      "height": 2280,
+      "pose": "Saved CAD pose, q=0; diagram indices are not motor IDs"
+    }
+  ]
+}
