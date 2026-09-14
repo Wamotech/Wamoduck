@@ -479,10 +479,10 @@
       "path": "models/wmduck/component_mass_audit.csv",
       "source_set": "robot_description",
       "source_file": "component_mass_audit.csv",
-      "bytes": 7637,
-      "sha256": "fb84fe72367722bf22242fb458fb487f9da4e45bbaa41ba41861a0c7915da29e",
+      "bytes": 8132,
+      "sha256": "c37d1618c628f73ba12f2b1fb7937b370bcf41f49358b5d359d93b35993dcaa4",
       "source_sha256": "07df18118b1464aa8a25b1d69ee55ab7e53d7b4cebf5f5007e96a26b52fb68cb",
-      "transformation": "Normalize text line endings to LF"
+      "transformation": "Normalize text line endings to LF; the 15 motor rows updated to the measured 141 g (mass_kg, inertia_scale, mass_source)."
     },
     {
       "path": "models/wmduck/joint_limits.csv",
@@ -686,19 +686,19 @@
       "path": "models/wmduck/motor_parameters.json",
       "source_set": "robot_description",
       "source_file": "motor_parameters.json",
-      "bytes": 2193,
-      "sha256": "005b63f96a293c2f924f3bd86bc5b94b2ba327035f3bb12fea89aad79d69b07a",
+      "bytes": 3522,
+      "sha256": "42b8c5d51e3beddf5e4ef64920e0ad0bbb9bebb9c4ff0a3735cbb7cd153f12a4",
       "source_sha256": "57ac6189da197dca0bf18fbf17ce7af789f6c502463a56b78d24d0366562ec01",
-      "transformation": "Normalize text line endings to LF"
+      "transformation": "Documentation references/comments updated; motor mass changed to the maintainer-measured 141 g with its basis recorded, and the 3.6 N*m peak plus a 30 s sustained-torque bench observation added. Vendor-image values are otherwise unchanged."
     },
     {
       "path": "models/wmduck/wmduck.urdf",
       "source_set": "robot_description",
       "source_file": "wmduck.urdf",
-      "bytes": 36360,
-      "sha256": "769b80d80f03be5e3ec8587dc878841d782059f812122ee679e12de2a87b88b5",
+      "bytes": 36366,
+      "sha256": "fd39cb49985354e76bc1e15745bf58e5824461246d492f439db77d5e2c1dd5d1",
       "source_sha256": "491d7078d216c75cebec91b82b1123716c2b2a389dffea1ff6780c44db43897b",
-      "transformation": "Documentation references/comments only; model numerical data unchanged"
+      "transformation": "Documentation references and comments kept from the public snapshot; the 15 motor instances re-massed to the maintainer-measured 141 g (see models/wmduck/motor_parameters.json). Geometry, joint definitions, and the zero-pose envelope are unchanged."
     }
   ]
 }

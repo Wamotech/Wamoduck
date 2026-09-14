@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
-  "checked_on": "2026-09-12",
+  "checked_on": "2026-09-14",
   "status": "passed",
   "scope": "Fresh package structure, parameter consistency, binary STL and MuJoCo compile/forward checks only",
   "python_version": "3.11.2",
   "mujoco_version": "3.12.0",
-  "urdf_sha256": "769b80d80f03be5e3ec8587dc878841d782059f812122ee679e12de2a87b88b5",
+  "urdf_sha256": "fd39cb49985354e76bc1e15745bf58e5824461246d492f439db77d5e2c1dd5d1",
   "urdf_links": 17,
   "rotational_joints": 15,
   "fixed_joints": 1,
@@ -19,8 +19,8 @@
     1
   ],
   "component_instances": 40,
-  "model_mass_kg": 3.8863397833518,
-  "minimum_link_inertia_eigenvalue_kg_m2": 1.6926344539968278e-06,
+  "model_mass_kg": 3.7513397833518,
+  "minimum_link_inertia_eigenvalue_kg_m2": 1.6926344539968248e-06,
   "zero_pose_bounds_m": [
     [
       -0.08340850082323419,
@@ -51,11 +51,22 @@
     0
   ],
   "fixed_base_forward_finite": true,
+  "revision_note": {
+    "change": "The 15 motor instances now use the maintainer-measured 141 g instead of the 150 g transcribed from the vendor parameter image.",
+    "why": "See motor_parameters.json: mass_source.",
+    "rechecked": "Package structure, mesh references and triangle counts, joint counts, model mass, minimum link inertia eigenvalue, and zero-pose bounds were recomputed from the updated URDF; geometry, joints, and the zero-pose envelope are unchanged, and the per-link mass, center of mass, and inertia changes are confined to links that carry a motor.",
+    "cross_check": "The sum of component_mass_audit.csv mass_kg equals the URDF model mass to within 1e-9 kg after the update.",
+    "previous": {
+      "checked_on_before_update": "2026-09-12",
+      "urdf_sha256_before_update": "769b80d80f03be5e3ec8587dc878841d782059f812122ee679e12de2a87b88b5",
+      "model_mass_kg_before_update": 3.8863397833518
+    }
+  },
   "not_validated": [
     "Fresh SolidWorks opening without access to the original development directory",
     "STEP reimport and B-rep quality in a CAD application",
     "Original CAD collision analysis was not rerun",
-    "Measured masses, inertia, motor ratings, encoder zero, cable clearance or physical stops",
+    "Component masses other than the motor, motor inertia distribution, motor ratings beyond the recorded bench observation, encoder zero, cable clearance or physical stops",
     "Manufacturing, electrical integration, actuators, ground contacts, walking or training"
   ]
 }

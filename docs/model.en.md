@@ -1,8 +1,10 @@
 # Wamoduck model guide
 
-[Home](../README.md) · English | [简体中文](model.zh-CN.md)
+[Home](../README.md) · English | [简体中文](model.zh-CN.md) · [Gait guide](matlab.en.md)
 
 The [Wamoduck URDF](../models/wmduck/wmduck.urdf) describes a 15-DOF robot exported from the saved `Full_wmduck.SLDASM` assembly in SolidWorks 2025. It provides geometry, kinematics, estimated inertia, and joint limits for inspection and simulation development. This guide covers the public model snapshot. The project's completed MuJoCo simulation work and ongoing hardware/software integration are described on the [project homepage](../README.md); controller, training, and ONNX policy files are not yet included in this repository.
+
+A walking reference plan computed with this URDF — one gait cycle and the full 1 m walk, with a MATLAB player — is documented in the [gait guide](matlab.en.md).
 
 ![Wamoduck in the saved CAD pose](../assets/wamoduck-model.png)
 
@@ -77,13 +79,18 @@ Two neck bearing fits already had approximately 0.117 mm³ of overlap at zero. T
 
 ## Motor data, mass, and inertia
 
-HTDW3532 values were transcribed from a supplied product parameter image, not measured on a test bench. All 15 motors use 150 g each, 0.6 N·m rated output torque, and 60 rpm = 6.283185 rad/s rated output speed. These output-side ratings already include the 32:1 gearbox. The separately recorded 3.7 N·m stall torque and 300 rpm no-load speed are not continuous URDF limits; no allowable stall duration was supplied.
+HTDW3532 values were transcribed from a supplied product parameter image unless noted otherwise. All 15 motors use 0.6 N·m rated output torque and 60 rpm = 6.283185 rad/s rated output speed. These output-side ratings already include the 32:1 gearbox. The separately recorded 3.6 N·m peak and 3.7 N·m stall torques are not continuous URDF limits; the current URDF effort column keeps using the rated 0.6 N·m.
 
-The exported total mass is **3.886339783 kg**, an estimate. The original CAD total was 3.348577287 kg; replacing each motor's approximately 114.149 g CAD mass with 150 g gives the exported total. Motor centers of mass were retained, and their inertia tensors were scaled by the mass ratio (approximately 1.314070037). Link inertias were then recomposed with rotated tensors and the parallel-axis theorem, including conversion of SolidWorks product-of-inertia signs to URDF conventions.
+Two figures in this section are **maintainer-supplied on 2026-09-14** rather than transcribed from the vendor image, and they are the only measured motor values in this package:
+
+- **Mass: about 141 g per motor**, measured on one production unit; all 15 motors on this robot are the same specification. This replaced the vendor image's 150 g, which was not a measurement.
+- **Sustained torque: 3.5 N·m held for more than 30 s**, a single bench observation. It is evidence that the motor is not limited to its 0.6 N·m rating for short efforts, but it is not a duty-cycle curve or a thermal rating, and it does not change the rated figure.
+
+The exported total mass is **3.751339783 kg**, an estimate. The original CAD total was 3.348577287 kg; replacing each motor's approximately 114.149 g CAD mass with the measured 141 g gives the exported total. Motor centers of mass were retained, and their inertia tensors were scaled by the mass ratio (approximately 1.235225835). Link inertias were then recomposed with rotated tensors and the parallel-axis theorem, including conversion of SolidWorks product-of-inertia signs to URDF conventions. Every link that carries a motor therefore changed slightly in mass, center of mass, and inertia; link geometry, joint definitions, and the zero-pose envelope did not change.
 
 | Component | Current assumption | Mass |
 | --- | --- | ---: |
-| Each of 15 motors | Product mass; CAD mass distribution scaled uniformly | 150.000 g |
+| Each of 15 motors | Measured 2026-09-14; CAD mass distribution scaled uniformly | 141.000 g |
 | `Head` | 6061 aluminum in CAD | 773.444 g |
 | `Battery_6s18650_24V` | Unfilled epoxy resin in CAD | 230.900 g |
 | `IMU_YB-MRA02` | Surface geometry without solid volume | 0 g |

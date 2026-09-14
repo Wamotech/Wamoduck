@@ -37,7 +37,8 @@ flowchart LR
 
 - **结构打样与实机联调：** 正在进行样机结构制作和软硬件联合调试。
 - **MuJoCo 仿真：** 已完成仿真工作，支持将遥控指令与策略驱动的自主动作结合的 ONNX 部署方式，思路类似 [Microduck](https://github.com/pollen-robotics/microduck) 与 [microduck_rl](https://github.com/pollen-robotics/microduck_rl)。面向实机的集成与调试仍在推进。
-- **当前公开资料：** 仓库已包含简化 CAD、URDF 与网格、模型参数及中英文文档。仿真／训练代码、ONNX 策略文件、运行软件、电子系统和完整搭建教程尚未在本仓库提供。
+- **参考步态：** 已随模型公开一条针对本 URDF 的行走参考轨迹，并附带 MATLAB 回放器，见[在 MATLAB 里试走参考步态](#在-matlab-里试走参考步态)。
+- **当前公开资料：** 仓库已包含简化 CAD、URDF 与网格、模型参数、参考步态与回放器，以及中英文文档。仿真／训练代码、ONNX 策略文件、运行软件、电子系统和完整搭建教程尚未在本仓库提供。
 - **持续更新：** 后续会随着项目推进，陆续更新结构版本、联调进展及软硬件资料，具体方向见[路线图](docs/roadmap.md)。
 
 以上项目进展与仓库当前公开文件的范围有所不同。随附[验证记录](models/wmduck/validation.json)只覆盖本 URDF 包的结构与导入检查，不代表项目全部仿真或实机验证结果。
@@ -65,6 +66,27 @@ flowchart LR
 
 </details>
 
+## 在 MATLAB 里试走参考步态
+
+![Wamoduck 行走参考步态](assets/wamoduck-gait-preview.gif)
+
+*参考准静态步态：给定 [tools/matlab/data/](tools/matlab/data/) 里的关节角、由公开 URDF 做前向运动学回放。它是规划结果，不是训练策略，也不是实物拍摄。*
+
+本仓库随模型附带一条针对本 URDF 的行走参考轨迹，以及一个 MATLAB 回放器：
+
+```matlab
+cd <repo>              % 含 models/ 与 tools/ 的那一层目录
+addpath('tools/matlab')
+wamoduck_play          % 交互回放器
+wamoduck_play(true)    % 无界面自检：单位、关节限位、脚底贴地
+```
+
+回放器可以逐帧步进、把 15 个关节的力矩与电机的额定／峰值能力画在一起，并给出逐关节的角度与力矩表。随附两份数据：一个稳态步态周期（2.0 s，可无缝循环）和整段 1 m 行走。
+
+整段 1 m 规划的实测结果：逆运动学误差中位 0.015 mm、两个脚掌离地都在 ±0.1 mm 以内、每一个采样点的静态稳定余量都为正、逆动力学峰值力矩 2.53 N·m（膝关节，占电机峰值 3.6 N·m 的 70 %）。
+
+它是一条**双脚支撑的准静态蹭步**，不是动态行走，原因是结构性的：真正的单脚支撑要求重心横移到支撑脚上方**至少 57 mm**，而这条腿**没有踝侧摆关节**、膝关节在标称姿态之外也只有约 15 mm 行程。实测数据与已知限制见[步态指南](docs/matlab.zh-CN.md)。
+
 ## 从这里开始
 
 | 你想做什么 | 对应入口 |
@@ -72,6 +94,7 @@ flowchart LR
 | 查看或修改单个机械零件 | [20 个 STEP 模型](hardware/step/) · [机械文件指南](docs/mechanical.zh-CN.md) |
 | 查看原生装配关系 | [SolidWorks 文件](hardware/solidworks/) · [打开方法](docs/mechanical.zh-CN.md#solidworks-装配体) |
 | 查看整机和关节运动 | [URDF 与网格](models/wmduck/) · [模型指南](docs/model.zh-CN.md) |
+| 看参考步态 / 在 MATLAB 里自己播 | [步态指南](docs/matlab.zh-CN.md) · [MATLAB 回放器](tools/matlab/) · [行走视频](assets/wamoduck-gait-walk.mp4) |
 | 了解模型中包含的部件 | [组件清单](docs/components.md) |
 | 参与改进项目 | [贡献指南](CONTRIBUTING.md) · [路线图](docs/roadmap.md) |
 
@@ -85,7 +108,7 @@ flowchart LR
 | 机器人描述 | URDF；16 个机械刚体 link + 1 个固定 IMU 参考 link |
 | 几何文件 | 20 个简化 STEP 零件模型；20 个 URDF 用 STL 网格 |
 | 保存姿态下的模型近似包络 | 181.5 × 221.2 × 390.8 mm（X × Y × Z） |
-| 模型估算质量 | 3.886 kg；基于 CAD 并修正电机质量，并非整机实测重量 |
+| 模型估算质量 | 3.751 kg；基于 CAD 并采用实测电机质量，并非整机实测重量 |
 | 模型单位 | m、kg、rad；STEP 文件声明的长度单位为 mm |
 
 质量和包络描述的是所附模型，并非经过实物验证的规格。使用惯量、电机参数或关节范围前，请先阅读[模型假设](docs/model.zh-CN.md)。
@@ -98,8 +121,9 @@ Wamoduck/
 │   ├── step/             # 独立的简化零件，毫米单位
 │   └── solidworks/       # 简化原生零件与装配体
 ├── models/wmduck/        # URDF、网格、关节数据与导入检查
-├── assets/              # 模型预览图
-├── docs/                # 中英文机械和模型指南
+├── tools/matlab/         # 参考步态数据与 MATLAB 回放器
+├── assets/              # 模型预览图与步态预览
+├── docs/                # 中英文机械、模型和步态指南
 ├── CONTRIBUTING.md
 └── LICENSE
 ```

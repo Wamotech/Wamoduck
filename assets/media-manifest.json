@@ -1,12 +1,14 @@
 {
   "schema_version": 1,
   "prepared_on": "2026-09-12",
+  "updated_on": "2026-09-14",
   "scope": "Media added for the project introduction; original source-asset hashes remain in ../asset-manifest.json",
   "model": {
     "path": "../models/wmduck/wmduck.urdf",
-    "sha256": "769b80d80f03be5e3ec8587dc878841d782059f812122ee679e12de2a87b88b5",
+    "sha256": "fd39cb49985354e76bc1e15745bf58e5824461246d492f439db77d5e2c1dd5d1",
     "joint_definitions_match_finalized_urdf_export": true,
-    "revolute_dof": 15
+    "revolute_dof": 15,
+    "note": "Joint definitions are unchanged from the finalized export; motor masses carry the maintainer-measured 141 g override."
   },
   "assets": [
     {
@@ -107,6 +109,105 @@
       "width": 2320,
       "height": 2280,
       "pose": "Saved CAD pose, q=0; diagram indices are not motor IDs"
+    },
+    {
+      "path": "wamoduck-gait-preview.gif",
+      "sha256": "eb80a03a16bbee1725d371ae70b9321e69c139a2c293534a56dc399813734cc6",
+      "bytes": 2799763,
+      "type": "reference_gait_kinematic_replay",
+      "source": {
+        "data": "tools/matlab/data/gait_cycle_2s_50Hz.csv",
+        "model": "../models/wmduck/wmduck.urdf",
+        "data_sha256": "81e4d19f70644746e3ac5c41e02b4db52c3f3b107edf34feffc94c74fc7d280f",
+        "data_bytes": 33616
+      },
+      "renderer": {
+        "engine": "MuJoCo",
+        "method": "Prescribed joint angles from the shipped CSV plus forward kinematics; body pose written to the root-link pose; no physics integration, controller, ONNX inference, or hardware data",
+        "presentation": "Brightness and camera adjusted in memory; published model unchanged"
+      },
+      "width": 800,
+      "height": 600,
+      "frames": 100,
+      "duration_ms": 5000,
+      "average_fps": 20,
+      "loop": "infinite",
+      "gait": {
+        "kind": "quasi-static inverse-kinematics plan with a static-stability check",
+        "step_length_m": 0.01,
+        "step_time_s": 1.0,
+        "speed_mps": 0.01,
+        "foot_lift_m": 0.0045,
+        "swing_window_fraction": 0.3,
+        "stance_width_m": 0.165,
+        "cycles_shown": 2,
+        "forward_travel_per_cycle_m": 0.02,
+        "ground_tick_spacing_m": 0.02
+      },
+      "checks": {
+        "joint_angles_within_urdf_ranges": true,
+        "soles_ground_clearance_mm": {
+          "left": 0.03,
+          "right": 0.08
+        },
+        "sole_check_basis": "URDF forward kinematics over the shipped cycle data (MATLAB Robotics System Toolbox); agrees with the model-side measurement to 0.1 mm",
+        "loop_seam_equals_one_frame_step": true,
+        "cycle_is_steady_state": true
+      },
+      "scope_note": "Kinematic replay of a planned joint trajectory; not physical footage, not a trained policy, and not a dynamic-balance or collision-clearance validation"
+    },
+    {
+      "path": "wamoduck-gait-walk.mp4",
+      "sha256": "f78dc0f0cf9edc8ecd170a9ca623b532d96ab82c9b0938a01ce29f3ec100643b",
+      "bytes": 1037674,
+      "type": "reference_gait_kinematic_replay",
+      "source": {
+        "data": "tools/matlab/data/gait_walk_1m_10Hz.csv",
+        "model": "../models/wmduck/wmduck.urdf",
+        "data_sha256": "3c10343a069b3a6b83ca481d0b9ab79a64a97a21c76a85c59f680f9634ca120b",
+        "data_bytes": 343336
+      },
+      "renderer": {
+        "engine": "MuJoCo",
+        "method": "Same as wamoduck-gait-preview.gif",
+        "presentation": "Body-position overlay drawn into the frame buffer; published model unchanged"
+      },
+      "width": 800,
+      "height": 600,
+      "frames": 400,
+      "duration_ms": 20000,
+      "average_fps": 20,
+      "loop": "none",
+      "codec": "H.264 (libx264) via imageio-ffmpeg",
+      "playback_note": "Real-time rate: the gait advances 1 cm/s, so 20 s of video covers 0.20 m of travel",
+      "scope_note": "Same scope as wamoduck-gait-preview.gif"
+    },
+    {
+      "path": "wamoduck-gait-still.png",
+      "sha256": "96d491baf0c791ee1f10c2cc03582424492396a5a00da37b0ffbe04fb0d13d89",
+      "bytes": 48999,
+      "type": "reference_gait_still_frame",
+      "source": "Single frame of wamoduck-gait-preview.gif",
+      "transformation": "None",
+      "width": 800,
+      "height": 600,
+      "scope_note": "Same scope as wamoduck-gait-preview.gif"
+    },
+    {
+      "path": "wamoduck-matlab-player.png",
+      "sha256": "eeb7b0b17796ba038a429bfbb910441b5f0a8f1f943d2d1cbb5c9b01e1c8dcad",
+      "bytes": 226133,
+      "type": "matlab_player_screenshot",
+      "source": "MATLAB R2023a figure capture of tools/matlab/wamoduck_play.m",
+      "transformation": "None",
+      "width": 2040,
+      "height": 1200,
+      "shown": {
+        "data": "tools/matlab/data/gait_cycle_2s_50Hz.csv",
+        "view": "mesh",
+        "frame": "looped cycle, t = 5.12 s"
+      },
+      "scope_note": "Screenshot of the bundled viewer; it shows a kinematic replay, not a controller or a policy running"
     }
   ]
 }

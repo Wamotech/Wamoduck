@@ -1,10 +1,17 @@
 {
   "schema_version": 1,
   "model": "HTDW3532",
-  "source": "User-provided HTDW3532 parameter image, supplied for this wmduck model update.",
+  "source": "Vendor HTDW3532 parameter image, plus maintainer-supplied measurements and confirmations on 2026-09-14.",
   "cad_part_stem": "Motor_HTDW3532",
   "expected_instance_count": 15,
-  "mass_kg": 0.15,
+  "mass_kg": 0.141,
+  "mass_source": {
+    "basis": "Maintainer measurement, 2026-09-14: one production HTDW3532 weighs about 141 g, and all 15 motors on this robot are the same specification.",
+    "supersedes": "The 0.15 kg figure transcribed from the vendor parameter image, which was not a measurement.",
+    "applied_to": "wmduck.urdf, component_mass_audit.csv",
+    "effect": "Model total mass 3.886339783 -> 3.751339783 kg. Motor centers of mass stay at their CAD positions and motor inertias are rescaled by mass ratio, following mass_override below, so every link that carries a motor changed slightly in mass, center of mass, and inertia. Link geometry, joint definitions, and the zero-pose envelope are unchanged.",
+    "is_a_robot_weight_measurement": false
+  },
   "gear_ratio": 32,
   "rated": {
     "voltage_v": 24.0,
@@ -14,9 +21,16 @@
     "output_power_w": 4.0
   },
   "peak_or_stall": {
+    "peak_output_torque_nm": 3.6,
     "stall_output_torque_nm": 3.7,
     "peak_current_a": 10.0,
-    "note": "Peak/stall data are not continuous URDF effort ratings. Allowed duration is not supplied."
+    "sustained_torque_observation": {
+      "torque_nm": 3.5,
+      "duration_s": "more than 30",
+      "basis": "Maintainer-confirmed bench observation, 2026-09-14.",
+      "what_it_does_not_establish": "A continuous torque rating or a thermal limit. It is a single observation at one torque level, not a duty-cycle curve; the rated figure below stays 0.6 N*m."
+    },
+    "note": "Peak/stall data are not continuous URDF effort ratings. The vendor image does not supply an allowed duration; the observation above is the only duration evidence recorded so far. The URDF effort column keeps using the rated 0.6 N*m."
   },
   "no_load": {
     "output_speed_rpm": 300.0,

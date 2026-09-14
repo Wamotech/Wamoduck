@@ -37,7 +37,8 @@ This architecture is also being experimentally applied to **intelligent wearable
 
 - **Mechanical prototyping and integration:** prototype fabrication and hardware/software debugging are in progress.
 - **MuJoCo simulation:** simulation work has been completed. The project supports an ONNX deployment approach combining remote-control commands with policy-driven autonomous actions, similar in approach to [Microduck](https://github.com/pollen-robotics/microduck) and [microduck_rl](https://github.com/pollen-robotics/microduck_rl). Integration on the physical robot is ongoing.
-- **Public materials:** this repository currently contains simplified CAD, the URDF and meshes, model parameters, and bilingual documentation. Simulation/training code, ONNX policy files, runtime software, electronics, and a complete build guide are not yet included here.
+- **Reference gait:** a walking reference trajectory for this URDF is published with the model, together with a MATLAB player. See [Try the reference gait in MATLAB](#try-the-reference-gait-in-matlab).
+- **Public materials:** this repository currently contains simplified CAD, the URDF and meshes, model parameters, a reference gait with its player, and bilingual documentation. Simulation/training code, ONNX policy files, runtime software, electronics, and a complete build guide are not yet included here.
 - **Ongoing updates:** we will continue sharing mechanical revisions, integration progress, and software and hardware documentation as the project develops. Follow the [roadmap](docs/roadmap.md) for the next steps.
 
 The project progress above and the files currently published are different scopes. The bundled [validation record](models/wmduck/validation.json) covers this URDF package's structural and import checks, rather than the project's full simulation or physical-robot validation.
@@ -65,6 +66,27 @@ Orthographic views of the finalized URDF at the saved `q=0` pose. Labels 01–05
 
 </details>
 
+## Try the reference gait in MATLAB
+
+![Wamoduck walking reference gait](assets/wamoduck-gait-preview.gif)
+
+*Reference quasi-static gait, replayed from the public URDF by prescribing the joint angles in [tools/matlab/data/](tools/matlab/data/) and running forward kinematics. It is a plan, not a trained policy and not hardware footage.*
+
+A walking reference trajectory for this URDF is included, together with a MATLAB player:
+
+```matlab
+cd <repo>              % the folder containing models/ and tools/
+addpath('tools/matlab')
+wamoduck_play          % interactive player
+wamoduck_play(true)    % headless self-test: units, joint limits, ground contact
+```
+
+The player steps through the data, plots all 15 joint torques against the motor's rated and peak values, and shows a per-joint angle/torque table. Two data sets ship with it: one steady-state gait cycle (2.0 s, loops seamlessly) and the full 1 m walk.
+
+Measured over the full 1 m plan: inverse-kinematics error 0.015 mm median, both soles within ±0.1 mm of the ground plane, a positive static-stability margin at every sample, and a peak inverse-dynamics torque of 2.53 N·m at the knee (70 % of the motor's 3.6 N·m peak rating).
+
+It is a **double-support quasi-static shuffle**, not a dynamic walk, and the reason is structural: a real single-support step would need the centre of mass to move at least 57 mm sideways onto the stance foot, while this leg has no ankle-roll joint and only about 15 mm of knee travel beyond the nominal pose. See the [gait guide](docs/matlab.en.md) for the measurements and the known limits.
+
 ## Start here
 
 | I want to… | Open |
@@ -72,6 +94,7 @@ Orthographic views of the finalized URDF at the saved `q=0` pose. Labels 01–05
 | Inspect or adapt individual mechanical parts | [20 STEP models](hardware/step/) · [Mechanical guide](docs/mechanical.en.md) |
 | Explore the native assembly | [SolidWorks files](hardware/solidworks/) · [Opening instructions](docs/mechanical.en.md#solidworks-assembly) |
 | View the robot and inspect its joints | [URDF and meshes](models/wmduck/) · [Model guide](docs/model.en.md) |
+| Watch the reference gait / play with it in MATLAB | [Gait guide](docs/matlab.en.md) · [MATLAB player](tools/matlab/) · [Walk video](assets/wamoduck-gait-walk.mp4) |
 | Understand the modeled components | [Component inventory](docs/components.md) |
 | Help improve the project | [Contributing](CONTRIBUTING.md) · [Roadmap](docs/roadmap.md) |
 
@@ -85,7 +108,7 @@ Download or clone the complete repository before opening an assembly or URDF. Th
 | Robot description | URDF; 16 mechanical links + 1 fixed IMU reference link |
 | Geometry | 20 simplified STEP part models; 20 STL meshes for the URDF |
 | Approximate model envelope at the saved pose | 181.5 × 221.2 × 390.8 mm (X × Y × Z) |
-| Estimated model mass | 3.886 kg; CAD values with motor mass overrides, not a measured robot weight |
+| Estimated model mass | 3.751 kg; CAD values with a measured motor mass override, not a measured robot weight |
 | Model units | m, kg, rad; STEP files declare mm |
 
 The mass and envelope describe the supplied model, not certified hardware specifications. See the [model assumptions](docs/model.en.md) before using its inertias, motor values, or joint ranges.
@@ -98,8 +121,9 @@ Wamoduck/
 │   ├── step/             # Individual simplified parts, millimeters
 │   └── solidworks/       # Simplified native parts and assemblies
 ├── models/wmduck/        # URDF, meshes, joint data, and import checks
-├── assets/              # Model preview
-├── docs/                # Bilingual mechanical and model guides
+├── tools/matlab/         # Reference-gait data and the MATLAB player
+├── assets/              # Model preview and gait preview
+├── docs/                # Bilingual mechanical, model, and gait guides
 ├── CONTRIBUTING.md
 └── LICENSE
 ```
