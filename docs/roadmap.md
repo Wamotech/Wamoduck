@@ -2,7 +2,7 @@
 
 [English home](../README.md) · [中文首页](../README.zh-CN.md)
 
-Status as of 2026-09-12. The project is in mechanical prototyping and hardware/software integration, with MuJoCo simulation work completed and an ONNX deployment approach combining remote control with policy-driven autonomous actions. The same hardware/software architecture is also being explored in intelligent wearable robot projects. / 截至 2026-09-12，项目处于结构打样和软硬件联合调试阶段，已完成 MuJoCo 仿真，支持遥控与策略驱动自主动作相结合的 ONNX 部署方式；同一软硬件架构也在智能穿戴式机器人项目中进行实验应用。
+Status as of 2026-09-14. The project is in mechanical prototyping and hardware/software integration. The repository now includes reference-gait CSV data and a MATLAB player, plus a four-part standing calibration fixture with an H2D PLA project. The project's full MuJoCo environment and ONNX deployment software remain outside this repository. / 截至 2026-09-14，项目处于结构打样和软硬件联合调试阶段；仓库已包含参考步态 CSV 与 MATLAB 回放器，并整理了四件式站姿标定工装及 H2D PLA 工程。项目完整 MuJoCo 环境和 ONNX 部署软件尚未包含在本仓库。
 
 The table below tracks **public repository deliverables**, not all development work. Simulation code, policy files, and integration evidence will be added as the project progresses. These are deliverables and acceptance criteria, not promised release dates. / 下表跟踪的是**公开仓库交付内容**，不代表项目全部研发工作的状态。仿真代码、策略文件及联调记录将随着项目进展逐步补充，以下目标与验收条件不代表发布日期承诺。
 
@@ -11,12 +11,12 @@ The table below tracks **public repository deliverables**, not all development w
 | Mechanical sharing / 机械分享 | Included: simplified STEP and native SolidWorks files / 已包含简化 STEP 与原生 SolidWorks 文件 | Open on a separate machine, resolve all references, and record CAD version / 在独立机器打开、确认引用完整并记录 CAD 版本 |
 | Robot description / 机器人描述 | Included: URDF, meshes, joint data, structural/import checks / 已包含 URDF、网格、关节数据与结构／导入检查 | Compare joint directions, zero offsets, masses, and inertias with measured hardware / 对照实物核对关节方向、零偏、质量和惯量 |
 | Component list / 组件清单 | Included: counts of modeled instances / 已包含模型实例数量 | Verified purchasing BOM with specifications, quantities, alternatives, and source dates / 完整核对的采购 BOM，含规格、数量、替代项与来源日期 |
-| Manufacturing / 加工制造 | Not included / 尚未提供 | Fabricated-part list, manufacturing exports, materials, tolerances, and tested print settings / 待加工零件清单、制造导出、材料、公差和实测打印设置 |
-| Assembly / 装配 | Not included / 尚未提供 | Illustrated steps by subassembly, fasteners, inserts, tools, and inspection points / 按子装配编写图文步骤、紧固件、嵌件、工具和检查点 |
+| Manufacturing / 加工制造 | [Standing fixture](../hardware/fixtures/standing-zero/README.md): 4 STEP, 4 STL, H2D PLA project; robot STEP roles classified / [站姿工装](../hardware/fixtures/standing-zero/README.zh-CN.md)含四份 STEP、四份 STL 与 H2D PLA 工程；机器人 STEP 已分类 | First-print fixture fit and repeatability; confirmed robot fabrication materials, tolerances, and tested processes / 工装首件配合与重复定位实测；机器人制造材料、公差与工艺核对 |
+| Assembly / 装配 | Fixture sequence and six M3 screws documented / 已说明工装装配顺序及六颗 M3 螺钉 | Complete robot subassembly steps, fasteners, tools, and inspection points / 整机子装配图文步骤、紧固件、工具和检查点 |
 | Electronics / 电子系统 | Component geometry only / 仅提供部件几何 | Wiring diagrams, connector pinouts, power design, and confirmed board revisions / 接线图、接口定义、电源设计及确定的板卡版本 |
-| Firmware and calibration / 固件与标定 | Not included / 尚未提供 | Firmware source, supported hardware, motor ID mapping, encoder offsets, and startup procedure / 固件源码、支持硬件、电机 ID 对照、编码器零偏与启动流程 |
+| Firmware and calibration / 固件与标定 | Manual standing-fixture method included; firmware not included / 已提供站姿工装手动标定方法，尚无固件 | Firmware, motor-ID/sign mapping, offset storage procedure, and measured calibration repeatability / 固件、电机 ID／转向映射、零偏保存流程及重复标定实测 |
 | Simulation / 仿真 | Public package includes URDF import checks and a scripted joint-motion GIF; the project's full simulation environment is not yet published / 公开包包含 URDF 导入检查与预设关节动作 GIF，项目完整仿真环境尚未公开 | Publish the simulation environment, collision setup, actuators, scene, and reproducible validation / 公开仿真环境、碰撞配置、执行器、场景与可复现验证 |
-| Walking and training / 行走与训练 | Not included / 尚未提供 | Reproducible controller or training configuration with dated validation evidence / 可复现控制器或训练配置及带日期的验证记录 |
+| Walking and training / 行走与训练 | Reference CSV trajectory and MATLAB playback/self-test included / 已包含参考轨迹 CSV 与 MATLAB 回放、自检 | Publish the trajectory generator and controller/training configuration with validation evidence / 公开轨迹生成器及控制器／训练配置和验证记录 |
 
 ## Suggested milestones / 建议阶段
 

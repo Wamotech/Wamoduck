@@ -1,0 +1,350 @@
+{
+  "checked_at_utc": "2026-09-14T10:33:05.328460+00:00",
+  "review_type": "Independent fresh reload of delivered binary STL; does not use build-script validation assertions",
+  "file": "Wamoduck_Standing_160mm.stl",
+  "sha256": "ccbf810cbc7d7c1af2d7d276e885d178368bc43d92b9d1be36b6b8ca2b4acd96",
+  "vertices": 163590,
+  "triangles": 327424,
+  "all_coordinates_finite": true,
+  "bounds_mm": [
+    [
+      -36.93165588378906,
+      -48.789798736572266,
+      1.143322192291834e-14
+    ],
+    [
+      36.931968688964844,
+      48.789794921875,
+      160.0
+    ]
+  ],
+  "dimensions_mm": [
+    73.8636245727539,
+    97.57959365844727,
+    160.0
+  ],
+  "within_180mm_cube": true,
+  "connected_shells": 1,
+  "watertight": true,
+  "winding_consistent": true,
+  "is_positive_volume": true,
+  "signed_volume_mm3": 156445.33599674774,
+  "edge_face_incidence_counts": {
+    "2": 491136
+  },
+  "degenerate_triangles_area_le_1e-10_mm2": 0,
+  "min_triangle_area_mm2": 0.00045946918180561624,
+  "duplicate_faces": 0,
+  "manifold3d_status": "Error.NoError",
+  "bed_contact": {
+    "z_min_mm": 1.143322192291834e-14,
+    "flat_triangle_count": 86,
+    "all_geometric_normals_down": true,
+    "area_sum_mm2": 4035.007520200752,
+    "polygon_union_area_mm2": 4035.007520200752,
+    "polygon_union_valid": true,
+    "polygon_union_type": "Polygon",
+    "upward_triangle_count": 0
+  },
+  "solid_geometry_center_of_mass_mm": [
+    -7.550255053109117,
+    0.11164759308915136,
+    71.3704592600338
+  ],
+  "stability": {
+    "solid_COM_projection_inside_base": true,
+    "projection_distance_from_base_boundary_mm": 18.889102961864626,
+    "scope": "Uniform solid geometric center of mass only; slicer infill and support removal can alter actual mass distribution."
+  },
+  "representative_horizontal_sections": [
+    {
+      "region": "shin",
+      "z_mm": 24.5,
+      "contours": [
+        {
+          "area_mm2": 48.95938388883553,
+          "centroid_xy_mm": [
+            -10.234827731384161,
+            23.274702132380398
+          ],
+          "max_inscribed_diameter_mm": 3.435291959853762,
+          "xy_spans_mm": [
+            15.215210564572416,
+            3.649613882173039
+          ]
+        },
+        {
+          "area_mm2": 44.83731638322652,
+          "centroid_xy_mm": [
+            -5.627781449952805,
+            40.82679021297463
+          ],
+          "max_inscribed_diameter_mm": 3.4074745181044794,
+          "xy_spans_mm": [
+            13.877433591375324,
+            3.436054078273628
+          ]
+        },
+        {
+          "area_mm2": 49.0135376043964,
+          "centroid_xy_mm": [
+            -10.232698858770593,
+            -23.27381546086527
+          ],
+          "max_inscribed_diameter_mm": 3.4151556009798116,
+          "xy_spans_mm": [
+            15.218818041607848,
+            3.646777324225095
+          ]
+        },
+        {
+          "area_mm2": 44.879423349158166,
+          "centroid_xy_mm": [
+            -5.629938464999472,
+            -40.82700680969768
+          ],
+          "max_inscribed_diameter_mm": 3.3890453184497678,
+          "xy_spans_mm": [
+            13.87486560061837,
+            3.423420813498417
+          ]
+        }
+      ]
+    },
+    {
+      "region": "shin",
+      "z_mm": 25,
+      "contours": [
+        {
+          "area_mm2": 59.70420108928873,
+          "centroid_xy_mm": [
+            -11.541613869480102,
+            -23.83714696773785
+          ],
+          "max_inscribed_diameter_mm": 4.248462118365112,
+          "xy_spans_mm": [
+            15.967058353690671,
+            6.159434475626572
+          ]
+        },
+        {
+          "area_mm2": 39.83830968065586,
+          "centroid_xy_mm": [
+            -5.616819215823455,
+            40.91124113902705
+          ],
+          "max_inscribed_diameter_mm": 3.2230193550544572,
+          "xy_spans_mm": [
+            12.8918172612629,
+            3.23258492216285
+          ]
+        },
+        {
+          "area_mm2": 39.78136909623983,
+          "centroid_xy_mm": [
+            -5.620982746624458,
+            -40.91480244777207
+          ],
+          "max_inscribed_diameter_mm": 3.205442276332944,
+          "xy_spans_mm": [
+            12.910017457638816,
+            3.2311387414432318
+          ]
+        },
+        {
+          "area_mm2": 59.87620411131158,
+          "centroid_xy_mm": [
+            -11.551348340053817,
+            23.846197557272127
+          ],
+          "max_inscribed_diameter_mm": 4.2135335357848325,
+          "xy_spans_mm": [
+            15.763410392310828,
+            6.164051761482565
+          ]
+        }
+      ]
+    },
+    {
+      "region": "shin",
+      "z_mm": 25.5,
+      "contours": [
+        {
+          "area_mm2": 35.473712894820906,
+          "centroid_xy_mm": [
+            -5.707316577804574,
+            40.91435753689563
+          ],
+          "max_inscribed_diameter_mm": 3.208259618965167,
+          "xy_spans_mm": [
+            12.409741800665355,
+            3.227934095039231
+          ]
+        },
+        {
+          "area_mm2": 35.48460936702868,
+          "centroid_xy_mm": [
+            -5.70295595500865,
+            -40.91775745867807
+          ],
+          "max_inscribed_diameter_mm": 3.214711471781647,
+          "xy_spans_mm": [
+            12.451059876758809,
+            3.2241087009063065
+          ]
+        },
+        {
+          "area_mm2": 71.54157372785285,
+          "centroid_xy_mm": [
+            -12.54667689861595,
+            24.305519582409016
+          ],
+          "max_inscribed_diameter_mm": 5.401036158593028,
+          "xy_spans_mm": [
+            17.069625523010515,
+            6.650134103567876
+          ]
+        },
+        {
+          "area_mm2": 71.62792902956284,
+          "centroid_xy_mm": [
+            -12.548462284995098,
+            -24.305155893231948
+          ],
+          "max_inscribed_diameter_mm": 5.38542894584112,
+          "xy_spans_mm": [
+            17.073780914835055,
+            6.655298964718334
+          ]
+        }
+      ]
+    },
+    {
+      "region": "neck",
+      "z_mm": 106,
+      "contours": [
+        {
+          "area_mm2": 210.40614369241604,
+          "centroid_xy_mm": [
+            -7.696006516707193,
+            -2.3359304369478906
+          ],
+          "max_inscribed_diameter_mm": 8.360236984193937,
+          "xy_spans_mm": [
+            14.656438559896358,
+            22.928822224450666
+          ]
+        },
+        {
+          "area_mm2": 31.37141203127193,
+          "centroid_xy_mm": [
+            -8.147272314155426,
+            12.743188267236672
+          ],
+          "max_inscribed_diameter_mm": 2.5790638003018884,
+          "xy_spans_mm": [
+            13.257545320117416,
+            2.6056038210880708
+          ]
+        }
+      ]
+    },
+    {
+      "region": "neck",
+      "z_mm": 107,
+      "contours": [
+        {
+          "area_mm2": 162.40882511914498,
+          "centroid_xy_mm": [
+            -7.693831163498378,
+            -3.0535407317721224
+          ],
+          "max_inscribed_diameter_mm": 7.430095274913648,
+          "xy_spans_mm": [
+            13.279934368684646,
+            22.754051160928743
+          ]
+        },
+        {
+          "area_mm2": 30.97212354833907,
+          "centroid_xy_mm": [
+            -8.147046018070352,
+            12.75925270432236
+          ],
+          "max_inscribed_diameter_mm": 2.3985737314605284,
+          "xy_spans_mm": [
+            13.26429388493149,
+            2.4316292661046486
+          ]
+        }
+      ]
+    },
+    {
+      "region": "neck",
+      "z_mm": 108,
+      "contours": [
+        {
+          "area_mm2": 71.71960673534483,
+          "centroid_xy_mm": [
+            -8.121465413478962,
+            -10.001499947213059
+          ],
+          "max_inscribed_diameter_mm": 6.48696754794243,
+          "xy_spans_mm": [
+            13.279888982396441,
+            6.831749536757362
+          ]
+        },
+        {
+          "area_mm2": 60.44260487012332,
+          "centroid_xy_mm": [
+            -8.21006497956615,
+            10.58283105614892
+          ],
+          "max_inscribed_diameter_mm": 3.7704185200866247,
+          "xy_spans_mm": [
+            13.271042449745565,
+            7.8505965966411
+          ]
+        }
+      ]
+    },
+    {
+      "region": "neck",
+      "z_mm": 109,
+      "contours": [
+        {
+          "area_mm2": 50.078792078050455,
+          "centroid_xy_mm": [
+            -8.20995135821463,
+            11.350457029981861
+          ],
+          "max_inscribed_diameter_mm": 4.064206154298207,
+          "xy_spans_mm": [
+            13.27779101455964,
+            7.089854488621979
+          ]
+        },
+        {
+          "area_mm2": 58.627120512544366,
+          "centroid_xy_mm": [
+            -8.132950392458014,
+            -10.491417438182445
+          ],
+          "max_inscribed_diameter_mm": 5.986811920616576,
+          "xy_spans_mm": [
+            13.27904501333848,
+            6.076700930263408
+          ]
+        }
+      ]
+    }
+  ],
+  "section_method": "Closed XY intersection loops with area >=20 mm2. Polygon maximum-inscribed-circle diameter estimates a round interior core at that section; this is not global minimum wall thickness or a mechanical strength test.",
+  "practical_print_notes": [
+    "Large underside surfaces below head, beak, torso and thigh motor shapes require supports in the upright orientation.",
+    "Leg and neck links retain several-mm interior cores in representative narrow horizontal sections, but thin decorative ribs and recessed edges can be smaller.",
+    "Remove supports carefully around neck and legs; no physical print or strength testing was performed."
+  ],
+  "status": "PASS"
+}

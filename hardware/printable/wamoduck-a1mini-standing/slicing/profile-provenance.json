@@ -1,0 +1,63 @@
+{
+  "source": "Installed Bambu Studio bundled BBL profiles",
+  "profile_bundle_version": "02.08.00.04",
+  "machine": "Bambu Lab A1 mini 0.4 nozzle",
+  "process_base": "0.16mm High Quality @BBL A1M",
+  "filament": "Generic PLA @BBL A1M",
+  "bed_type": "Textured PEI Plate",
+  "overrides": {
+    "name": "Wamoduck 0.16mm PLA A1 mini tree supports",
+    "from": "user",
+    "inherits": "0.16mm High Quality @BBL A1M",
+    "layer_height": "0.16",
+    "initial_layer_print_height": "0.2",
+    "wall_loops": "3",
+    "sparse_infill_density": "15%",
+    "sparse_infill_pattern": "gyroid",
+    "enable_support": "1",
+    "support_type": "tree(auto)",
+    "support_style": "default",
+    "support_on_build_plate_only": "0",
+    "support_threshold_angle": "30",
+    "support_top_z_distance": "0.2",
+    "support_bottom_z_distance": "0.2",
+    "support_interface_top_layers": "3",
+    "support_interface_bottom_layers": "2",
+    "support_object_xy_distance": "0.35",
+    "support_filament": "0",
+    "support_interface_filament": "0",
+    "brim_type": "outer_only",
+    "brim_width": "8",
+    "brim_object_gap": "0.1",
+    "initial_layer_speed": [
+      "25"
+    ],
+    "initial_layer_infill_speed": [
+      "40"
+    ],
+    "enable_prime_tower": "0",
+    "timelapse_type": "0"
+  },
+  "source_sha256": {
+    "filament\\Generic PLA @BBL A1M.json": "63520edcb7fb83e7c16dff679243e28b536c62f4a89e6d8f5fe0475c9460ff30",
+    "filament\\Generic PLA @base.json": "84e29bd9f94778e01afdbc657f673715dda8e998e13e08ab9d30171262d74399",
+    "filament\\fdm_filament_common.json": "55573eb37c4031a58e939c4a2c281d62e234192509cac525d4f8d911e8a85c09",
+    "filament\\fdm_filament_pla.json": "1fb8e60457aeda25a5c1b16944188aaa4925267828a194993ddfbcbb727100fe",
+    "machine\\Bambu Lab A1 mini 0.4 nozzle template change_filament_gcode.json": "bf534d9a5b2be9a6814f25a2bfc1a98f153d7b4b88b5abcfb4560d039b4413ce",
+    "machine\\Bambu Lab A1 mini 0.4 nozzle template layer_change_gcode.json": "2a5ec06e6b2ef607f46b97a51d68314a2d9cc4b23dee91b6982c70e2b0badd47",
+    "machine\\Bambu Lab A1 mini 0.4 nozzle template machine_end_gcode.json": "3d7a8fe220fde5b793ade2657742ea74e8e8c6ec50cbadc330b87dacac3ef7f4",
+    "machine\\Bambu Lab A1 mini 0.4 nozzle template machine_start_gcode.json": "78dde019be6bf06b0db7252778215016cfc623cd4406fd2f6aec07cd0bd889e8",
+    "machine\\Bambu Lab A1 mini 0.4 nozzle template time_lapse_gcode.json": "a3d31982b3ce7e8843826014ad41ce4e624438f89550ea784fe05c164478f998",
+    "machine\\Bambu Lab A1 mini 0.4 nozzle.json": "1b028c1c4df4ef075571dab8597b54c6c9f32b1b914b3ca271f4ae38805ff6af",
+    "machine\\fdm_bbl_3dp_001_common.json": "aa5b0148c3131965ab2bb1d377b43301304030c3d87b339897cef98809a9004f",
+    "machine\\fdm_machine_common.json": "aef949f605e74bd7370dab061d9cb9f6b7fde5ae92e7fe3b34d98c0a7746c514",
+    "process\\0.16mm High Quality @BBL A1M.json": "d105cbe4620416e4ef2061cfa46e6c1c15987a5305f83faae2a3b4d40768eace",
+    "process\\fdm_process_common.json": "ff2c0e49a424f70319e52eff6e84c57604b5b86deb883bb4d5614ff448d0c107",
+    "process\\fdm_process_single_0.16.json": "fa18401482566a2cc6fdf7cb2ae9fe0400c6260ccf77097888e47964039ed599",
+    "process\\fdm_process_single_common.json": "b589e22e3a9f3513dd71d0a1061181c6f24a2e330b73b1cf7f63a292d7d6a37b"
+  },
+  "references": [
+    "https://github.com/bambulab/BambuStudio/wiki/Command-Line-Usage",
+    "https://github.com/bambulab/BambuStudio/blob/master/src/libslic3r/PresetBundle.cpp"
+  ]
+}

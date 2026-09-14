@@ -5,7 +5,13 @@
 *.SLDPRT binary
 *.SLDASM binary
 *.stl binary
+*.3mf binary
 *.png binary
 *.jpg binary
 *.gif binary
 *.mp4 binary
+
+# Preserve the exact slicer snapshots and audit bytes used by the A1 mini hashes.
+hardware/printable/wamoduck-a1mini-standing/*.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+hardware/printable/wamoduck-a1mini-standing/slicing/*.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+hardware/printable/wamoduck-a1mini-standing/source/*.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol

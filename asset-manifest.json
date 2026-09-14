@@ -1,12 +1,52 @@
 {
   "schema_version": 1,
-  "prepared_on": "2026-09-12",
-  "scope": "Selected source assets only; does not hash documentation or this manifest",
+  "prepared_on": "2026-09-14",
+  "scope": "Selected mechanical, robot-description, reference-gait, and print-package assets; excludes this manifest.",
   "sources": {
     "simplified_design": "Maintainer-supplied simplified mechanical design set",
-    "robot_description": "Selected files from the maintainer-supplied wmduck_urdf export"
+    "robot_description": "Selected files from the maintainer-supplied wmduck_urdf export",
+    "standing_zero_fixture": "Maintainer-updated P01 and H2D project, with fresh read-only SolidWorks 2025 STEP exports.",
+    "static_display_print": "Separate A1 mini task: fused and reinforced q=0 URDF display geometry; see package reports.",
+    "reference_gait": "Previously published trajectory CSVs and MATLAB player, retained unchanged; documentation scope clarified.",
+    "branding": "Maintainer-supplied Wamotech logo and wordmark; copied without image changes."
   },
   "assets": [
+    {
+      "path": "assets/branding/wamotech-symbol-black.png",
+      "source_set": "branding",
+      "source_file": "logo.png",
+      "bytes": 46566,
+      "sha256": "72e3fb34b09a243cefc70ac6c915f10299955b2d12577713e3bbd307244a041f",
+      "source_sha256": "72e3fb34b09a243cefc70ac6c915f10299955b2d12577713e3bbd307244a041f",
+      "transformation": "none"
+    },
+    {
+      "path": "assets/branding/wamotech-symbol-white.png",
+      "source_set": "branding",
+      "source_file": "logo 白色.png",
+      "bytes": 92821,
+      "sha256": "124b0234b68ec3a5069e2b45ddfbeee0d21680cb306d3e328a3a7b55d1dabc3c",
+      "source_sha256": "124b0234b68ec3a5069e2b45ddfbeee0d21680cb306d3e328a3a7b55d1dabc3c",
+      "transformation": "none"
+    },
+    {
+      "path": "assets/branding/wamotech-wordmark-black.png",
+      "source_set": "branding",
+      "source_file": "英文.png",
+      "bytes": 149200,
+      "sha256": "4b6b0e697894ebde7282eb2ad03e00c234b64369312627113d212738e0b35d5c",
+      "source_sha256": "4b6b0e697894ebde7282eb2ad03e00c234b64369312627113d212738e0b35d5c",
+      "transformation": "none"
+    },
+    {
+      "path": "assets/branding/wamotech-wordmark-white.png",
+      "source_set": "branding",
+      "source_file": "英文白色.png",
+      "bytes": 149042,
+      "sha256": "ae77e70f0e2269a3de25540481ffdc6fe859aa32b319c4a8de94c52722263901",
+      "source_sha256": "ae77e70f0e2269a3de25540481ffdc6fe859aa32b319c4a8de94c52722263901",
+      "transformation": "none"
+    },
     {
       "path": "assets/wamoduck-model.png",
       "source_set": "robot_description",
@@ -15,6 +55,294 @@
       "sha256": "4d9a970e3f556508e41d1a0fbd12dea6c247b7a37488f1078b56bca8b95d7b18",
       "source_sha256": "4d9a970e3f556508e41d1a0fbd12dea6c247b7a37488f1078b56bca8b95d7b18",
       "transformation": "none"
+    },
+    {
+      "path": "hardware/fixtures/standing-zero/README.md",
+      "source_set": "standing_zero_fixture",
+      "source_file": "README.md",
+      "bytes": 7974,
+      "sha256": "702170321c881436f8e3f5970137ec37044a7372d4d5c890414da59be57ee68a",
+      "transformation": "See the package validation/provenance and README."
+    },
+    {
+      "path": "hardware/fixtures/standing-zero/README.zh-CN.md",
+      "source_set": "standing_zero_fixture",
+      "source_file": "README.zh-CN.md",
+      "bytes": 6886,
+      "sha256": "0f88705833281bd0921a0c2e5462c79fcd4b74e228561affd3ad023e6fb6b9c1",
+      "transformation": "See the package validation/provenance and README."
+    },
+    {
+      "path": "hardware/fixtures/standing-zero/bambu/H2D_PLA_standing_zero.3mf",
+      "source_set": "standing_zero_fixture",
+      "source_file": "H2D_PLA_standing_zero.3mf",
+      "bytes": 99570,
+      "sha256": "94ddc03b8f03c6cb6b6018d805cba912d7ceab88e032e36450d26642cc387e5d",
+      "transformation": "See the package validation/provenance and README."
+    },
+    {
+      "path": "hardware/fixtures/standing-zero/images/assembly.png",
+      "source_set": "standing_zero_fixture",
+      "source_file": "assembly.png",
+      "bytes": 298775,
+      "sha256": "7683e0f351a79cdf50c8bd3db5837a0e879f1e47f4dbce1df7cd159f4b409523",
+      "transformation": "See the package validation/provenance and README."
+    },
+    {
+      "path": "hardware/fixtures/standing-zero/images/roots.png",
+      "source_set": "standing_zero_fixture",
+      "source_file": "roots.png",
+      "bytes": 240901,
+      "sha256": "78f45f9fcb06513b249c78f28baf4536e381b230addbc10fd2db2563c20164be",
+      "transformation": "See the package validation/provenance and README."
+    },
+    {
+      "path": "hardware/fixtures/standing-zero/manifest.json",
+      "source_set": "standing_zero_fixture",
+      "source_file": "manifest.json",
+      "bytes": 2690,
+      "sha256": "e31df4d44da295a50dbb6f190b74d6e911273920a42a59bca06628f4ea3ec200",
+      "transformation": "See the package validation/provenance and README."
+    },
+    {
+      "path": "hardware/fixtures/standing-zero/print-parts.csv",
+      "source_set": "standing_zero_fixture",
+      "source_file": "print-parts.csv",
+      "bytes": 731,
+      "sha256": "1af55f2e7dab36ef06af6ad7711bcf9bd8cd158d4a0a86bf77029590c01275ce",
+      "transformation": "See the package validation/provenance and README."
+    },
+    {
+      "path": "hardware/fixtures/standing-zero/step/P01_Main_frame.step",
+      "source_set": "standing_zero_fixture",
+      "source_file": "P01_Main_frame.step",
+      "bytes": 606358,
+      "sha256": "35840cefd4e312cec656f8b2bf820542ddda58b06d4216c0c59c21fddab9dafa",
+      "transformation": "See the package validation/provenance and README."
+    },
+    {
+      "path": "hardware/fixtures/standing-zero/step/P02_Head_cradle.step",
+      "source_set": "standing_zero_fixture",
+      "source_file": "P02_Head_cradle.step",
+      "bytes": 173912,
+      "sha256": "c82520d21d8e345c1800ce191c511d94f3974cb223612e0d7dba2e060e71921e",
+      "transformation": "See the package validation/provenance and README."
+    },
+    {
+      "path": "hardware/fixtures/standing-zero/step/P03_Head_keeper_mouth.step",
+      "source_set": "standing_zero_fixture",
+      "source_file": "P03_Head_keeper_mouth.step",
+      "bytes": 95521,
+      "sha256": "014ec919a0180b29fb8d3f66c5b5c52b89e370e1ca1b81d675fdb2d43009dffa",
+      "transformation": "See the package validation/provenance and README."
+    },
+    {
+      "path": "hardware/fixtures/standing-zero/step/P04_Body_bridge.step",
+      "source_set": "standing_zero_fixture",
+      "source_file": "P04_Body_bridge.step",
+      "bytes": 146682,
+      "sha256": "15611bd0ea49eedacd64ef9e31cb959c47c06b7799d790be786c315f347a4b59",
+      "transformation": "See the package validation/provenance and README."
+    },
+    {
+      "path": "hardware/fixtures/standing-zero/stl/P01_Main_frame.stl",
+      "source_set": "standing_zero_fixture",
+      "source_file": "P01_Main_frame.stl",
+      "bytes": 97784,
+      "sha256": "8c6a3a192ba8722730bea2d102b1aa28d00424b81584d67c7d35d2f71deb819b",
+      "transformation": "See the package validation/provenance and README."
+    },
+    {
+      "path": "hardware/fixtures/standing-zero/stl/P02_Head_cradle.stl",
+      "source_set": "standing_zero_fixture",
+      "source_file": "P02_Head_cradle.stl",
+      "bytes": 64384,
+      "sha256": "995e5b7e65fa6bb119e2985696402f20421998617f516fae410376f4b69e7425",
+      "transformation": "See the package validation/provenance and README."
+    },
+    {
+      "path": "hardware/fixtures/standing-zero/stl/P03_Head_keeper_mouth.stl",
+      "source_set": "standing_zero_fixture",
+      "source_file": "P03_Head_keeper_mouth.stl",
+      "bytes": 38084,
+      "sha256": "ac9b915cefdc75f2b1b3df8d999b14cf620992b74bd3b6fa2c93b96012dbef4c",
+      "transformation": "See the package validation/provenance and README."
+    },
+    {
+      "path": "hardware/fixtures/standing-zero/stl/P04_Body_bridge.stl",
+      "source_set": "standing_zero_fixture",
+      "source_file": "P04_Body_bridge.stl",
+      "bytes": 12284,
+      "sha256": "9d1a129da74ac1e847481e49294dd40128285ede080ccb406bef8c8208c5314a",
+      "transformation": "See the package validation/provenance and README."
+    },
+    {
+      "path": "hardware/fixtures/standing-zero/validation.json",
+      "source_set": "standing_zero_fixture",
+      "source_file": "validation.json",
+      "bytes": 13113,
+      "sha256": "4e990ac186fcd864f854d2ccfb7814b63470b01fc96391be9dff52e6e90cbb10",
+      "transformation": "See the package validation/provenance and README."
+    },
+    {
+      "path": "hardware/printable/README.md",
+      "source_set": "static_display_print",
+      "source_file": "README.md",
+      "bytes": 1604,
+      "sha256": "fccdab00909f0f81703501f924a61a7f1f2b8c48e863c81d1b7fa7ddef0d13f5",
+      "transformation": "See the package validation/provenance and README."
+    },
+    {
+      "path": "hardware/printable/wamoduck-a1mini-standing/README.md",
+      "source_set": "static_display_print",
+      "source_file": "README.md",
+      "bytes": 3378,
+      "sha256": "d08c30e962fd16d54ad19aded139e48723cd3d0e0bf611a55a76da5ce6689761",
+      "transformation": "See the package validation/provenance and README."
+    },
+    {
+      "path": "hardware/printable/wamoduck-a1mini-standing/README_打印说明.md",
+      "source_set": "static_display_print",
+      "source_file": "README_打印说明.md",
+      "bytes": 3410,
+      "sha256": "d2cf0a1b45f8cd64ef39e9f6a7a725c8cefc8e30e6714a3a85ab70453e8209a1",
+      "transformation": "See the package validation/provenance and README."
+    },
+    {
+      "path": "hardware/printable/wamoduck-a1mini-standing/Wamoduck_A1mini_PLA_160mm.3mf",
+      "source_set": "static_display_print",
+      "source_file": "Wamoduck_A1mini_PLA_160mm.3mf",
+      "bytes": 23081315,
+      "sha256": "acbbe804ae284d35d9c03e39cd7c4f2b18f8198dfad1ff3182e833362d386023",
+      "transformation": "See the package validation/provenance and README."
+    },
+    {
+      "path": "hardware/printable/wamoduck-a1mini-standing/Wamoduck_Standing_160mm.3mf",
+      "source_set": "static_display_print",
+      "source_file": "Wamoduck_Standing_160mm.3mf",
+      "bytes": 6027223,
+      "sha256": "d4c0fe5fcf656e2b7f621f9da53fe8d82061f30186e4899720535f66cea4afaa",
+      "transformation": "See the package validation/provenance and README."
+    },
+    {
+      "path": "hardware/printable/wamoduck-a1mini-standing/Wamoduck_Standing_160mm.stl",
+      "source_set": "static_display_print",
+      "source_file": "Wamoduck_Standing_160mm.stl",
+      "bytes": 16371284,
+      "sha256": "ccbf810cbc7d7c1af2d7d276e885d178368bc43d92b9d1be36b6b8ca2b4acd96",
+      "transformation": "See the package validation/provenance and README."
+    },
+    {
+      "path": "hardware/printable/wamoduck-a1mini-standing/geometry_validation.json",
+      "source_set": "static_display_print",
+      "source_file": "geometry_validation.json",
+      "bytes": 4514,
+      "sha256": "1902a5246bf8ba537b2d63612ca4e3a13505dce7588ffbbcdbeb6a8014ac1c4c",
+      "transformation": "See the package validation/provenance and README."
+    },
+    {
+      "path": "hardware/printable/wamoduck-a1mini-standing/preview.png",
+      "source_set": "static_display_print",
+      "source_file": "preview.png",
+      "bytes": 792377,
+      "sha256": "8aadbcc1b81e95f1bfeb6fd5cd281b0f49fb20518f228936502c1f45a7a5b307",
+      "transformation": "See the package validation/provenance and README."
+    },
+    {
+      "path": "hardware/printable/wamoduck-a1mini-standing/slicing/README.md",
+      "source_set": "static_display_print",
+      "source_file": "README.md",
+      "bytes": 4360,
+      "sha256": "2177c3ab59f8af04af843baa25e33dbec1f49bca35cde725e6d6c3f6d39513dc",
+      "transformation": "See the package validation/provenance and README."
+    },
+    {
+      "path": "hardware/printable/wamoduck-a1mini-standing/slicing/filament-generic-pla.json",
+      "source_set": "static_display_print",
+      "source_file": "filament-generic-pla.json",
+      "bytes": 7764,
+      "sha256": "26fa748ad5ac927efea4ad462d03ba6d3eddf34d2475c4dd8de0d6060bceb647",
+      "transformation": "See the package validation/provenance and README."
+    },
+    {
+      "path": "hardware/printable/wamoduck-a1mini-standing/slicing/machine-a1mini-0.4.json",
+      "source_set": "static_display_print",
+      "source_file": "machine-a1mini-0.4.json",
+      "bytes": 27653,
+      "sha256": "b3ea23318b71e97d2d18a71f8827d51a59d79c2c2855cdbd159b2119100cde36",
+      "transformation": "See the package validation/provenance and README."
+    },
+    {
+      "path": "hardware/printable/wamoduck-a1mini-standing/slicing/prepare_profiles.py",
+      "source_set": "static_display_print",
+      "source_file": "prepare_profiles.py",
+      "bytes": 3695,
+      "sha256": "fc5adbb450ca08c94799d253e0bfda2ed0a172ee11b918179bec9894e2b93f2f",
+      "transformation": "See the package validation/provenance and README."
+    },
+    {
+      "path": "hardware/printable/wamoduck-a1mini-standing/slicing/process-0.16-tree.json",
+      "source_set": "static_display_print",
+      "source_file": "process-0.16-tree.json",
+      "bytes": 7795,
+      "sha256": "a9a6261e7872bd90940fb0989390041a61e990bce4b4f46afde959c00894eb5f",
+      "transformation": "See the package validation/provenance and README."
+    },
+    {
+      "path": "hardware/printable/wamoduck-a1mini-standing/slicing/profile-provenance.json",
+      "source_set": "static_display_print",
+      "source_file": "profile-provenance.json",
+      "bytes": 3502,
+      "sha256": "445739c9673a94b4decba321b8a6cae120a57dc452495e5d6f4463164639b913",
+      "transformation": "See the package validation/provenance and README."
+    },
+    {
+      "path": "hardware/printable/wamoduck-a1mini-standing/slicing/slice_model.py",
+      "source_set": "static_display_print",
+      "source_file": "slice_model.py",
+      "bytes": 5604,
+      "sha256": "fb471bd1b9ded602021430988772d80a5b996c7f68bf5f61ba28a976311eb56c",
+      "transformation": "See the package validation/provenance and README."
+    },
+    {
+      "path": "hardware/printable/wamoduck-a1mini-standing/slicing_validation.json",
+      "source_set": "static_display_print",
+      "source_file": "slicing_validation.json",
+      "bytes": 5296,
+      "sha256": "959221036306f68a6cd637dceb5bea5018842e5ac6b92cb535fc75e8559f2ca2",
+      "transformation": "See the package validation/provenance and README."
+    },
+    {
+      "path": "hardware/printable/wamoduck-a1mini-standing/source/build_model.py",
+      "source_set": "static_display_print",
+      "source_file": "build_model.py",
+      "bytes": 12958,
+      "sha256": "e31e46912d7822bf4b108355e6b053bdc08f1c96797137154a2d0a6aafef8344",
+      "transformation": "See the package validation/provenance and README."
+    },
+    {
+      "path": "hardware/printable/wamoduck-a1mini-standing/source/independent_mesh_review.json",
+      "source_set": "static_display_print",
+      "source_file": "independent_mesh_review.json",
+      "bytes": 9960,
+      "sha256": "828c4dce605fed2b46eea7b9800dcb7f1def926d9d793c5a76af30f9b3e1054f",
+      "transformation": "See the package validation/provenance and README."
+    },
+    {
+      "path": "hardware/printable/wamoduck-a1mini-standing/source/requirements.txt",
+      "source_set": "static_display_print",
+      "source_file": "requirements.txt",
+      "bytes": 184,
+      "sha256": "5d25b8fdb5d3d305a8487c2c98a9122bafb6953af7e2a931bd00aca63c64b17f",
+      "transformation": "See the package validation/provenance and README."
+    },
+    {
+      "path": "hardware/printable/wamoduck-a1mini-standing/source/source_geometry_audit.json",
+      "source_set": "static_display_print",
+      "source_file": "source_geometry_audit.json",
+      "bytes": 22249,
+      "sha256": "cfd0e7bbd3a8b36b6295a3fe4a4742dade131f8baec6929f2452223d7e0ea17b",
+      "transformation": "See the package validation/provenance and README."
     },
     {
       "path": "hardware/solidworks/Battery_6s18650_24V.SLDPRT",
@@ -699,6 +1027,30 @@
       "sha256": "fd39cb49985354e76bc1e15745bf58e5824461246d492f439db77d5e2c1dd5d1",
       "source_sha256": "491d7078d216c75cebec91b82b1123716c2b2a389dffea1ff6780c44db43897b",
       "transformation": "Documentation references and comments kept from the public snapshot; the 15 motor instances re-massed to the maintainer-measured 141 g (see models/wmduck/motor_parameters.json). Geometry, joint definitions, and the zero-pose envelope are unchanged."
+    },
+    {
+      "path": "tools/matlab/data/gait_cycle_2s_50Hz.csv",
+      "source_set": "reference_gait",
+      "source_file": "gait_cycle_2s_50Hz.csv",
+      "bytes": 33616,
+      "sha256": "81e4d19f70644746e3ac5c41e02b4db52c3f3b107edf34feffc94c74fc7d280f",
+      "transformation": "none; existing implementation and CSV retained"
+    },
+    {
+      "path": "tools/matlab/data/gait_walk_1m_10Hz.csv",
+      "source_set": "reference_gait",
+      "source_file": "gait_walk_1m_10Hz.csv",
+      "bytes": 343336,
+      "sha256": "3c10343a069b3a6b83ca481d0b9ab79a64a97a21c76a85c59f680f9634ca120b",
+      "transformation": "none; existing implementation and CSV retained"
+    },
+    {
+      "path": "tools/matlab/wamoduck_play.m",
+      "source_set": "reference_gait",
+      "source_file": "wamoduck_play.m",
+      "bytes": 19509,
+      "sha256": "568e021c8d06b490e7b262e54ace82dd95e3760470029f0605afc19bd570284c",
+      "transformation": "none; existing implementation and CSV retained"
     }
   ]
 }

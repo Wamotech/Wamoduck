@@ -11,6 +11,7 @@ This package contains simplified geometry selected for sharing. It supports insp
 | STEP `.stp` | [hardware/step](../hardware/step/) | 20 individual part models | Exchange geometry across CAD tools |
 | SolidWorks `.SLDPRT` / `.SLDASM` | [hardware/solidworks](../hardware/solidworks/) | 20 parts + 11 assemblies | Inspect the native assembly and mates |
 | URDF + STL | [models/wmduck](../models/wmduck/) | Robot description + 20 meshes | View the assembled robot and explore joint motion |
+| Zero-fixture STEP / STL / 3MF | [hardware/fixtures/standing-zero](../hardware/fixtures/standing-zero/) | 4 editable STEP + 4 print STL + a two-plate H2D project | Print the standing-zero calibration fixture |
 
 The public native set uses the main saved assembly. Alternate motion assemblies, the older-version archive, application lock files, and intermediate exports are not included. File names are preserved so they can be matched to the source model.
 
@@ -22,6 +23,8 @@ The public native set uses the main saved assembly. Alternate motion assemblies,
 4. Compare the file name with the [component inventory](components.md). Motor, battery, bearing, IMU, and control-board models provide component geometry; their presence does not provide electronics or supplier manufacturing drawings.
 
 The STEP set is copied without changing its geometry. The IMU is represented by sheet geometry, so a successful import need not yield a solid for every file. This preparation checked file structure and declared units, but did not reopen every STEP in a CAD application.
+
+The [structure classification](../hardware/robot-structure.csv) separates the 20 STEP geometries into 15 robot-structure classes and 5 purchased/reference classes. The assembly uses 40 modeled instances, but an assembly instance count is not a printable-part split or a manufacturing quantity. One STEP may also contain more than one body; `Body_Frame`, in particular, should be inspected as a multi-body candidate after import. CAD material assignments record source-model metadata and are not approved materials or manufacturing requirements.
 
 ## SolidWorks assembly
 
@@ -38,8 +41,12 @@ Two source spellings are intentionally preserved: `Control_Borad_AT32` and `Righ
 
 The STL files under `models/wmduck/meshes/` use **meters** and include purchased-component geometry. They are not slicer-ready manufacturing exports. A slicer that assumes millimeters would import them at the wrong scale.
 
-A future printable release should identify only the parts to be fabricated, use an explicit manufacturing unit, and specify quantities, material, orientation, supports, tolerances, and any inserts or finishing operations. Confirm those requirements against the physical design before generating print files. The CAD material labels in the [inventory](components.md) are model data, not approved manufacturing instructions.
+To make a trial print of a robot structural STEP, choose a `robot_structure` entry in [robot-structure.csv](../hardware/robot-structure.csv), import its `.stp` into a STEP-capable slicer such as Bambu Studio, and preserve millimeters at 100% scale. Inspect the body count before arranging the plate: one file can contain several bodies. Choose orientation and supports for the selected part, then check mating holes and contact faces on the trial print. The CSV's modeled instance count is a reference for assembly, not an approved print quantity or process.
+
+The [standing-zero fixture](../hardware/fixtures/standing-zero/README.md) is the current downloadable manufacturing package. It provides four editable STEP files and four millimetre-scale STL files, one of each printed part. The user-supplied Bambu H2D 3MF arranges those four parts across two plates. Assembly uses six M3 screws. Its documented CAD and mesh checks do not establish that a physical print or repeatability test has been completed.
+
+The robot itself does not yet have a verified functional print list. A future robot-print release should identify only the parts to be fabricated, specify the actual print split rather than copying assembly instance counts, use explicit manufacturing units, and record material, orientation, supports, tolerances, hardware and finishing operations. Confirm those requirements against the physical design before generating print files. The CAD material labels in the [inventory](components.md) are model data, not approved manufacturing instructions.
 
 ## Traceability
 
-[`asset-manifest.json`](../asset-manifest.json) lists the supplied source assets, byte sizes, hashes, and any text-only adjustments. Public file paths are relative to this repository. The [roadmap](roadmap.md) separates this geometry package from the documentation needed to reproduce a working robot.
+[`asset-manifest.json`](../asset-manifest.json) lists the selected assets, byte sizes, hashes, and export provenance. Public file paths are relative to this repository; the fixture has its own detailed manifest and validation record. The [roadmap](roadmap.md) separates this geometry package from the documentation needed to reproduce a working robot.

@@ -2,6 +2,14 @@
 
 ## Unreleased / 尚未发布
 
+### 2026-09-14 — Printable standing fixture and reproduction index / 站姿打印工装与复现入口
+
+- Curated the maintainer's updated P01 and matching H2D project into [standing-zero](hardware/fixtures/standing-zero/README.md): four STEP solids, four millimeter STL files, and a two-plate PLA 3MF with each part required once. / 将维护者优化后的 P01 与匹配 H2D 工程整理到[站姿工装目录](hardware/fixtures/standing-zero/README.zh-CN.md)：四个 STEP 实体、四个毫米 STL、各件一份的双盘 PLA 3MF。
+- Added part quantities, six M3 screw specifications, 0.4 mm total fit clearance, assembly/calibration instructions, current CAD/mesh checks, and hashes. Preserved the user's slicer settings and local native master files. Physical fit and repeatability remain unmeasured. / 补充数量表、六颗 M3 螺钉规格、0.4 mm 总配合间隙、装配标定方法及新版 CAD／网格检查和哈希；保留用户切片设置与本地原生工作文件，实物配合及重复定位精度待测。
+- Classified 20 robot STEP models into 15 structural types and five purchased-component reference types. Distinguished print geometry from meter-based URDF visualization meshes. / 将 20 个机器人 STEP 模型分为 15 类结构几何与五类采购件参考，区分打印几何与米制 URDF 显示网格。
+- Integrated the separate task's [160 mm static A1 mini model](hardware/printable/README.md), print project, generation scripts, and portable slicing report into the print index. / 将另一任务完成的 [160 mm A1 mini 固定展示模型](hardware/printable/README.md)、打印工程、生成脚本和可移植切片报告纳入打印入口。
+- Retained the existing MATLAB implementation and trajectory data; clarified its smoke-test scope and distinguished CSV-computed values from unpublished planner reports and physical measurements. / 保留原 MATLAB 实现与轨迹数据，说明快速自检的范围，并区分 CSV 可复核数值、未公开规划器报告与实物测量。
+
 ### 2026-09-14 — Motor mass updated to a measurement / 电机质量改用实测值
 
 - The 15 motor instances now use the maintainer-measured **141 g** instead of the 150 g transcribed from the vendor parameter image. Model total mass **3.886339783 → 3.751339783 kg**. / 15 个电机实例改用维护者实测的 **141 g**（原为厂家参数图转录的 150 g），模型总质量 **3.886339783 → 3.751339783 kg**。

@@ -4,6 +4,8 @@
 
 | Asset / 文件 | Contents / 内容 |
 | --- | --- |
+| [Brand logo](branding/wamotech-symbol-black.png) · [White version](branding/wamotech-symbol-white.png) | Maintainer-supplied Wamotech symbol, copied unchanged / 维护者提供的望默科技图形标志，原样复制 |
+| [Wordmark](branding/wamotech-wordmark-black.png) · [White version](branding/wamotech-wordmark-white.png) | WAMOTECH wordmark paired with the symbol in both README headers / 与图形标志配套展示在中英文首页的 WAMOTECH 字标 |
 | [wamoduck-motion.gif](wamoduck-motion.gif) | Animated joint-motion preview rendered from the public URDF / 由公开 URDF 渲染的关节运动演示 |
 | [wamoduck-gait-preview.gif](wamoduck-gait-preview.gif) | Reference walking gait, two cycles, rendered from the public URDF / 参考行走步态（两个周期），由公开 URDF 渲染 |
 | [wamoduck-gait-walk.mp4](wamoduck-gait-walk.mp4) | The same gait, 20 s of continuous walking with the body position shown / 同一步态，连续行走 20 s 并标出机体位置 |

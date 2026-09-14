@@ -1,0 +1,1192 @@
+[
+  {
+    "name": "base_link_visual_0",
+    "file": "Motor_HTDW3532.stl",
+    "link": "base_link",
+    "bounds_mm": [
+      [
+        -26.3985,
+        -43.5,
+        -44.704
+      ],
+      [
+        8.6015,
+        -8.5,
+        -8.6015
+      ]
+    ],
+    "faces": 1678,
+    "watertight": true,
+    "volume_mm3": 42271.10332205221,
+    "shells": [
+      {
+        "faces": 1678,
+        "watertight": true,
+        "volume_mm3": 42271.1033
+      }
+    ]
+  },
+  {
+    "name": "base_link_visual_1",
+    "file": "Body_Frame.stl",
+    "link": "base_link",
+    "bounds_mm": [
+      [
+        -81.8985,
+        -44.5,
+        -90.1015
+      ],
+      [
+        20.1015,
+        44.5,
+        45.8985
+      ]
+    ],
+    "faces": 27228,
+    "watertight": false,
+    "volume_mm3": 127920.21429529013,
+    "shells": [
+      {
+        "faces": 10878,
+        "watertight": true,
+        "volume_mm3": 38942.9757
+      },
+      {
+        "faces": 5222,
+        "watertight": true,
+        "volume_mm3": 16784.652
+      },
+      {
+        "faces": 1744,
+        "watertight": true,
+        "volume_mm3": 10916.4591
+      },
+      {
+        "faces": 1100,
+        "watertight": true,
+        "volume_mm3": 1071.5943
+      },
+      {
+        "faces": 1700,
+        "watertight": true,
+        "volume_mm3": 16233.572
+      },
+      {
+        "faces": 4414,
+        "watertight": true,
+        "volume_mm3": 28773.6164
+      },
+      {
+        "faces": 2174,
+        "watertight": true,
+        "volume_mm3": 15197.3448
+      }
+    ]
+  },
+  {
+    "name": "base_link_visual_2",
+    "file": "IMU_YB-MRA02.stl",
+    "link": "base_link",
+    "bounds_mm": [
+      [
+        -15.5015,
+        -12.3,
+        -1.6015
+      ],
+      [
+        15.5005,
+        12.3,
+        -0.0
+      ]
+    ],
+    "faces": 3343,
+    "watertight": false,
+    "volume_mm3": 1186.552037076577,
+    "shells": [
+      {
+        "faces": 3341,
+        "watertight": false,
+        "volume_mm3": 1186.552
+      },
+      {
+        "faces": 2,
+        "watertight": false,
+        "volume_mm3": 0.0
+      }
+    ]
+  },
+  {
+    "name": "base_link_visual_3",
+    "file": "Control_Borad_AT32.stl",
+    "link": "base_link",
+    "bounds_mm": [
+      [
+        -83.4085,
+        -32.5,
+        -67.1015
+      ],
+      [
+        -81.8985,
+        32.5,
+        -2.1015
+      ]
+    ],
+    "faces": 3644,
+    "watertight": true,
+    "volume_mm3": 6236.242566575257,
+    "shells": [
+      {
+        "faces": 3644,
+        "watertight": true,
+        "volume_mm3": 6236.2426
+      }
+    ]
+  },
+  {
+    "name": "base_link_visual_4",
+    "file": "Motor_HTDW3532.stl",
+    "link": "base_link",
+    "bounds_mm": [
+      [
+        -26.3985,
+        8.5,
+        -44.704
+      ],
+      [
+        8.6015,
+        43.5,
+        -8.6015
+      ]
+    ],
+    "faces": 1678,
+    "watertight": true,
+    "volume_mm3": 42271.1033220522,
+    "shells": [
+      {
+        "faces": 1678,
+        "watertight": true,
+        "volume_mm3": 42271.1033
+      }
+    ]
+  },
+  {
+    "name": "base_link_visual_5",
+    "file": "Battery_6s18650_24V.stl",
+    "link": "base_link",
+    "bounds_mm": [
+      [
+        -73.8985,
+        -33.5,
+        -86.1015
+      ],
+      [
+        -43.8985,
+        33.5,
+        31.8985
+      ]
+    ],
+    "faces": 572,
+    "watertight": true,
+    "volume_mm3": 209760.19503624112,
+    "shells": [
+      {
+        "faces": 204,
+        "watertight": true,
+        "volume_mm3": 7336.638
+      },
+      {
+        "faces": 204,
+        "watertight": true,
+        "volume_mm3": 7336.638
+      },
+      {
+        "faces": 140,
+        "watertight": true,
+        "volume_mm3": 174209.6874
+      },
+      {
+        "faces": 12,
+        "watertight": true,
+        "volume_mm3": 10438.6158
+      },
+      {
+        "faces": 12,
+        "watertight": true,
+        "volume_mm3": 10438.6158
+      }
+    ]
+  },
+  {
+    "name": "left_hip_yaw_link_visual_0",
+    "file": "Motor_HTDW3532.stl",
+    "link": "left_hip_yaw_link",
+    "bounds_mm": [
+      [
+        -28.3985,
+        8.5,
+        -89.104
+      ],
+      [
+        7.704,
+        43.5,
+        -54.104
+      ]
+    ],
+    "faces": 1678,
+    "watertight": true,
+    "volume_mm3": 42271.103322052186,
+    "shells": [
+      {
+        "faces": 1678,
+        "watertight": true,
+        "volume_mm3": 42271.1033
+      }
+    ]
+  },
+  {
+    "name": "left_hip_yaw_link_visual_1",
+    "file": "WMD1005.stl",
+    "link": "left_hip_yaw_link",
+    "bounds_mm": [
+      [
+        -24.3905,
+        7.5,
+        -95.104
+      ],
+      [
+        12.6015,
+        44.5,
+        -43.704
+      ]
+    ],
+    "faces": 2956,
+    "watertight": true,
+    "volume_mm3": 10262.407850967873,
+    "shells": [
+      {
+        "faces": 2956,
+        "watertight": true,
+        "volume_mm3": 10262.4079
+      }
+    ]
+  },
+  {
+    "name": "right_hip_yaw_link_visual_0",
+    "file": "Motor_HTDW3532.stl",
+    "link": "right_hip_yaw_link",
+    "bounds_mm": [
+      [
+        -28.3985,
+        -43.5,
+        -89.104
+      ],
+      [
+        7.704,
+        -8.5,
+        -54.104
+      ]
+    ],
+    "faces": 1678,
+    "watertight": true,
+    "volume_mm3": 42271.1033220522,
+    "shells": [
+      {
+        "faces": 1678,
+        "watertight": true,
+        "volume_mm3": 42271.1033
+      }
+    ]
+  },
+  {
+    "name": "right_hip_yaw_link_visual_1",
+    "file": "WMD1005.stl",
+    "link": "right_hip_yaw_link",
+    "bounds_mm": [
+      [
+        -24.3905,
+        -44.5,
+        -95.104
+      ],
+      [
+        12.6015,
+        -7.5,
+        -43.704
+      ]
+    ],
+    "faces": 2956,
+    "watertight": true,
+    "volume_mm3": 10262.407850967873,
+    "shells": [
+      {
+        "faces": 2956,
+        "watertight": true,
+        "volume_mm3": 10262.4079
+      }
+    ]
+  },
+  {
+    "name": "left_hip_roll_link_visual_0",
+    "file": "Left_hip_roll.stl",
+    "link": "left_hip_roll_link",
+    "bounds_mm": [
+      [
+        -24.3846,
+        10.5,
+        -87.104
+      ],
+      [
+        20.304,
+        68.6,
+        -56.104
+      ]
+    ],
+    "faces": 2584,
+    "watertight": true,
+    "volume_mm3": 24029.08922192434,
+    "shells": [
+      {
+        "faces": 2584,
+        "watertight": true,
+        "volume_mm3": 24029.0892
+      }
+    ]
+  },
+  {
+    "name": "right_hip_roll_link_visual_0",
+    "file": "Right_hip_roll.stl",
+    "link": "right_hip_roll_link",
+    "bounds_mm": [
+      [
+        -24.3846,
+        -68.6,
+        -87.104
+      ],
+      [
+        20.304,
+        -10.5,
+        -56.104
+      ]
+    ],
+    "faces": 2582,
+    "watertight": true,
+    "volume_mm3": 24029.189109262355,
+    "shells": [
+      {
+        "faces": 2582,
+        "watertight": true,
+        "volume_mm3": 24029.1891
+      }
+    ]
+  },
+  {
+    "name": "left_hip_pitch_link_visual_0",
+    "file": "WMD1007.stl",
+    "link": "left_hip_pitch_link",
+    "bounds_mm": [
+      [
+        -59.1447,
+        62.7025,
+        -121.8527
+      ],
+      [
+        16.604,
+        68.7025,
+        -46.104
+      ]
+    ],
+    "faces": 3170,
+    "watertight": true,
+    "volume_mm3": 11031.450635481842,
+    "shells": [
+      {
+        "faces": 3170,
+        "watertight": true,
+        "volume_mm3": 11031.4506
+      }
+    ]
+  },
+  {
+    "name": "left_hip_pitch_link_visual_1",
+    "file": "Motor_HTDW3532.stl",
+    "link": "left_hip_pitch_link",
+    "bounds_mm": [
+      [
+        -31.396,
+        67.6,
+        -94.104
+      ],
+      [
+        13.604,
+        103.7025,
+        -49.104
+      ]
+    ],
+    "faces": 1678,
+    "watertight": true,
+    "volume_mm3": 42271.10332205221,
+    "shells": [
+      {
+        "faces": 1678,
+        "watertight": true,
+        "volume_mm3": 42271.1033
+      }
+    ]
+  },
+  {
+    "name": "left_hip_pitch_link_visual_2",
+    "file": "Motor_HTDW3532.stl",
+    "link": "left_hip_pitch_link",
+    "bounds_mm": [
+      [
+        -56.1447,
+        67.6,
+        -118.8527
+      ],
+      [
+        -11.1447,
+        103.7025,
+        -73.8527
+      ]
+    ],
+    "faces": 1678,
+    "watertight": true,
+    "volume_mm3": 42271.1033220522,
+    "shells": [
+      {
+        "faces": 1678,
+        "watertight": true,
+        "volume_mm3": 42271.1033
+      }
+    ]
+  },
+  {
+    "name": "left_hip_pitch_link_visual_3",
+    "file": "WMD1008.stl",
+    "link": "left_hip_pitch_link",
+    "bounds_mm": [
+      [
+        -59.1447,
+        103.7025,
+        -121.8527
+      ],
+      [
+        16.604,
+        109.7025,
+        -46.104
+      ]
+    ],
+    "faces": 4082,
+    "watertight": true,
+    "volume_mm3": 15814.3408706104,
+    "shells": [
+      {
+        "faces": 4082,
+        "watertight": true,
+        "volume_mm3": 15814.3409
+      }
+    ]
+  },
+  {
+    "name": "right_hip_pitch_link_visual_0",
+    "file": "Motor_HTDW3532.stl",
+    "link": "right_hip_pitch_link",
+    "bounds_mm": [
+      [
+        -31.396,
+        -103.7025,
+        -94.104
+      ],
+      [
+        13.604,
+        -67.6,
+        -49.104
+      ]
+    ],
+    "faces": 1678,
+    "watertight": true,
+    "volume_mm3": 42271.103322052215,
+    "shells": [
+      {
+        "faces": 1678,
+        "watertight": true,
+        "volume_mm3": 42271.1033
+      }
+    ]
+  },
+  {
+    "name": "right_hip_pitch_link_visual_1",
+    "file": "Motor_HTDW3532.stl",
+    "link": "right_hip_pitch_link",
+    "bounds_mm": [
+      [
+        -56.1447,
+        -103.7025,
+        -118.8527
+      ],
+      [
+        -11.1447,
+        -67.6,
+        -73.8527
+      ]
+    ],
+    "faces": 1678,
+    "watertight": true,
+    "volume_mm3": 42271.103322052215,
+    "shells": [
+      {
+        "faces": 1678,
+        "watertight": true,
+        "volume_mm3": 42271.1033
+      }
+    ]
+  },
+  {
+    "name": "right_hip_pitch_link_visual_2",
+    "file": "WMD1008.stl",
+    "link": "right_hip_pitch_link",
+    "bounds_mm": [
+      [
+        -59.1447,
+        -109.7025,
+        -121.8527
+      ],
+      [
+        16.604,
+        -103.7025,
+        -46.104
+      ]
+    ],
+    "faces": 4082,
+    "watertight": true,
+    "volume_mm3": 15814.340870610402,
+    "shells": [
+      {
+        "faces": 4082,
+        "watertight": true,
+        "volume_mm3": 15814.3409
+      }
+    ]
+  },
+  {
+    "name": "right_hip_pitch_link_visual_3",
+    "file": "WMD1007.stl",
+    "link": "right_hip_pitch_link",
+    "bounds_mm": [
+      [
+        -59.1447,
+        -68.7025,
+        -121.8527
+      ],
+      [
+        16.604,
+        -62.7025,
+        -46.104
+      ]
+    ],
+    "faces": 3170,
+    "watertight": true,
+    "volume_mm3": 11031.450635481842,
+    "shells": [
+      {
+        "faces": 3170,
+        "watertight": true,
+        "volume_mm3": 11031.4506
+      }
+    ]
+  },
+  {
+    "name": "left_knee_link_visual_0",
+    "file": "Left_knee.stl",
+    "link": "left_knee_link",
+    "bounds_mm": [
+      [
+        -49.1212,
+        55.0,
+        -158.6181
+      ],
+      [
+        8.8317,
+        68.6,
+        -80.8527
+      ]
+    ],
+    "faces": 2306,
+    "watertight": true,
+    "volume_mm3": 20640.748108947828,
+    "shells": [
+      {
+        "faces": 2306,
+        "watertight": true,
+        "volume_mm3": 20640.7481
+      }
+    ]
+  },
+  {
+    "name": "right_knee_link_visual_0",
+    "file": "Right_knee.stl",
+    "link": "right_knee_link",
+    "bounds_mm": [
+      [
+        -49.1212,
+        -68.6,
+        -158.6181
+      ],
+      [
+        8.8317,
+        -55.0,
+        -80.8527
+      ]
+    ],
+    "faces": 2306,
+    "watertight": true,
+    "volume_mm3": 20640.7481262313,
+    "shells": [
+      {
+        "faces": 2306,
+        "watertight": true,
+        "volume_mm3": 20640.7481
+      }
+    ]
+  },
+  {
+    "name": "left_ankle_link_visual_0",
+    "file": "Left_feet.stl",
+    "link": "left_ankle_link",
+    "bounds_mm": [
+      [
+        -47.6447,
+        58.6025,
+        -177.6181
+      ],
+      [
+        34.3553,
+        110.6025,
+        -117.6374
+      ]
+    ],
+    "faces": 8008,
+    "watertight": false,
+    "volume_mm3": 74152.6475353177,
+    "shells": [
+      {
+        "faces": 5150,
+        "watertight": true,
+        "volume_mm3": 53120.7302
+      },
+      {
+        "faces": 2860,
+        "watertight": true,
+        "volume_mm3": 21031.9174
+      }
+    ]
+  },
+  {
+    "name": "left_ankle_link_visual_1",
+    "file": "Motor_HTDW3532.stl",
+    "link": "left_ankle_link",
+    "bounds_mm": [
+      [
+        -24.1447,
+        63.0,
+        -160.6181
+      ],
+      [
+        10.8553,
+        99.1025,
+        -125.6181
+      ]
+    ],
+    "faces": 1678,
+    "watertight": true,
+    "volume_mm3": 42271.1033220522,
+    "shells": [
+      {
+        "faces": 1678,
+        "watertight": true,
+        "volume_mm3": 42271.1033
+      }
+    ]
+  },
+  {
+    "name": "right_ankle_link_visual_0",
+    "file": "Right_feet.stl",
+    "link": "right_ankle_link",
+    "bounds_mm": [
+      [
+        -47.6447,
+        -110.6025,
+        -177.6181
+      ],
+      [
+        34.3553,
+        -58.6025,
+        -117.6181
+      ]
+    ],
+    "faces": 7266,
+    "watertight": false,
+    "volume_mm3": 74139.82395229235,
+    "shells": [
+      {
+        "faces": 4536,
+        "watertight": false,
+        "volume_mm3": 53108.1382
+      },
+      {
+        "faces": 2736,
+        "watertight": true,
+        "volume_mm3": 21031.6861
+      }
+    ]
+  },
+  {
+    "name": "right_ankle_link_visual_1",
+    "file": "Motor_HTDW3532.stl",
+    "link": "right_ankle_link",
+    "bounds_mm": [
+      [
+        -24.1447,
+        -99.1025,
+        -160.6181
+      ],
+      [
+        10.8553,
+        -63.0,
+        -125.6181
+      ]
+    ],
+    "faces": 1678,
+    "watertight": true,
+    "volume_mm3": 42271.10332205221,
+    "shells": [
+      {
+        "faces": 1678,
+        "watertight": true,
+        "volume_mm3": 42271.1033
+      }
+    ]
+  },
+  {
+    "name": "neck_pitch_link_visual_0",
+    "file": "Motor_HTDW3532.stl",
+    "link": "neck_pitch_link",
+    "bounds_mm": [
+      [
+        -17.5278,
+        -18.6,
+        8.2692
+      ],
+      [
+        26.7308,
+        17.5025,
+        52.5278
+      ]
+    ],
+    "faces": 1678,
+    "watertight": true,
+    "volume_mm3": 42271.10332205222,
+    "shells": [
+      {
+        "faces": 1678,
+        "watertight": true,
+        "volume_mm3": 42271.1033
+      }
+    ]
+  },
+  {
+    "name": "neck_pitch_link_visual_1",
+    "file": "WMD1012.stl",
+    "link": "neck_pitch_link",
+    "bounds_mm": [
+      [
+        -38.396,
+        17.5025,
+        4.9202
+      ],
+      [
+        30.099,
+        28.5025,
+        86.1877
+      ]
+    ],
+    "faces": 5704,
+    "watertight": true,
+    "volume_mm3": 18186.283030895705,
+    "shells": [
+      {
+        "faces": 5704,
+        "watertight": true,
+        "volume_mm3": 18186.283
+      }
+    ]
+  },
+  {
+    "name": "neck_pitch_link_visual_2",
+    "file": "WMD1007.stl",
+    "link": "neck_pitch_link",
+    "bounds_mm": [
+      [
+        -38.3898,
+        -23.4975,
+        4.9073
+      ],
+      [
+        30.0928,
+        -17.4975,
+        86.2007
+      ]
+    ],
+    "faces": 3170,
+    "watertight": true,
+    "volume_mm3": 11031.450635481839,
+    "shells": [
+      {
+        "faces": 3170,
+        "watertight": true,
+        "volume_mm3": 11031.4506
+      }
+    ]
+  },
+  {
+    "name": "neck_pitch_link_visual_3",
+    "file": "Bearing_20_27_4.stl",
+    "link": "neck_pitch_link",
+    "bounds_mm": [
+      [
+        -8.8985,
+        21.5025,
+        16.9214
+      ],
+      [
+        18.1015,
+        25.5025,
+        43.8757
+      ]
+    ],
+    "faces": 1968,
+    "watertight": true,
+    "volume_mm3": 971.8761665041948,
+    "shells": [
+      {
+        "faces": 1968,
+        "watertight": true,
+        "volume_mm3": 971.8762
+      }
+    ]
+  },
+  {
+    "name": "neck_pitch_link_visual_4",
+    "file": "Bearing_20_27_4.stl",
+    "link": "neck_pitch_link",
+    "bounds_mm": [
+      [
+        -26.3985,
+        21.5025,
+        47.2322
+      ],
+      [
+        0.6015,
+        25.5025,
+        74.1866
+      ]
+    ],
+    "faces": 1968,
+    "watertight": true,
+    "volume_mm3": 971.8761665041948,
+    "shells": [
+      {
+        "faces": 1968,
+        "watertight": true,
+        "volume_mm3": 971.8762
+      }
+    ]
+  },
+  {
+    "name": "neck_pitch_link_visual_5",
+    "file": "Motor_HTDW3532.stl",
+    "link": "neck_pitch_link",
+    "bounds_mm": [
+      [
+        -35.0278,
+        -18.6,
+        38.5801
+      ],
+      [
+        9.2308,
+        17.5025,
+        82.8387
+      ]
+    ],
+    "faces": 1678,
+    "watertight": true,
+    "volume_mm3": 42271.103322052215,
+    "shells": [
+      {
+        "faces": 1678,
+        "watertight": true,
+        "volume_mm3": 42271.1033
+      }
+    ]
+  },
+  {
+    "name": "head_pitch_link_visual_0",
+    "file": "Head_pitch.stl",
+    "link": "head_pitch_link",
+    "bounds_mm": [
+      [
+        -28.3985,
+        -31.2,
+        45.2094
+      ],
+      [
+        2.6015,
+        34.0,
+        99.1094
+      ]
+    ],
+    "faces": 7324,
+    "watertight": false,
+    "volume_mm3": 36017.63002945069,
+    "shells": [
+      {
+        "faces": 1052,
+        "watertight": true,
+        "volume_mm3": 1070.9648
+      },
+      {
+        "faces": 3366,
+        "watertight": true,
+        "volume_mm3": 8710.3533
+      },
+      {
+        "faces": 2906,
+        "watertight": true,
+        "volume_mm3": 26236.312
+      }
+    ]
+  },
+  {
+    "name": "head_yaw_link_visual_0",
+    "file": "WMD1005.stl",
+    "link": "head_yaw_link",
+    "bounds_mm": [
+      [
+        -40.7985,
+        -18.5,
+        103.2199
+      ],
+      [
+        10.6015,
+        18.5,
+        140.2119
+      ]
+    ],
+    "faces": 2956,
+    "watertight": true,
+    "volume_mm3": 10262.407850967878,
+    "shells": [
+      {
+        "faces": 2956,
+        "watertight": true,
+        "volume_mm3": 10262.4079
+      }
+    ]
+  },
+  {
+    "name": "head_yaw_link_visual_1",
+    "file": "Motor_HTDW3532.stl",
+    "link": "head_yaw_link",
+    "bounds_mm": [
+      [
+        -30.3985,
+        -17.5,
+        98.1094
+      ],
+      [
+        4.6015,
+        17.5,
+        134.2119
+      ]
+    ],
+    "faces": 1678,
+    "watertight": true,
+    "volume_mm3": 42271.1033220522,
+    "shells": [
+      {
+        "faces": 1678,
+        "watertight": true,
+        "volume_mm3": 42271.1033
+      }
+    ]
+  },
+  {
+    "name": "head_roll_link_visual_0",
+    "file": "WMD1018.stl",
+    "link": "head_roll_link",
+    "bounds_mm": [
+      [
+        -81.901,
+        -20.5,
+        98.2119
+      ],
+      [
+        -34.901,
+        20.5,
+        147.2119
+      ]
+    ],
+    "faces": 2338,
+    "watertight": true,
+    "volume_mm3": 24922.06278317548,
+    "shells": [
+      {
+        "faces": 2338,
+        "watertight": true,
+        "volume_mm3": 24922.0628
+      }
+    ]
+  },
+  {
+    "name": "head_roll_link_visual_1",
+    "file": "Head.stl",
+    "link": "head_roll_link",
+    "bounds_mm": [
+      [
+        -81.901,
+        -50.0,
+        103.2119
+      ],
+      [
+        98.099,
+        50.0,
+        213.2119
+      ]
+    ],
+    "faces": 146237,
+    "watertight": false,
+    "volume_mm3": 286533.3917885134,
+    "shells": [
+      {
+        "faces": 107657,
+        "watertight": false,
+        "volume_mm3": 17427.8472
+      },
+      {
+        "faces": 875,
+        "watertight": false,
+        "volume_mm3": 991.4176
+      },
+      {
+        "faces": 3,
+        "watertight": false,
+        "volume_mm3": -0.0068
+      },
+      {
+        "faces": 6694,
+        "watertight": true,
+        "volume_mm3": 129462.2532
+      },
+      {
+        "faces": 8330,
+        "watertight": true,
+        "volume_mm3": 115530.8382
+      },
+      {
+        "faces": 20438,
+        "watertight": true,
+        "volume_mm3": 6656.6236
+      },
+      {
+        "faces": 384,
+        "watertight": false,
+        "volume_mm3": 922.6057
+      },
+      {
+        "faces": 2340,
+        "watertight": true,
+        "volume_mm3": 15541.8119
+      }
+    ]
+  },
+  {
+    "name": "head_roll_link_visual_2",
+    "file": "Motor_HTDW3532.stl",
+    "link": "head_roll_link",
+    "bounds_mm": [
+      [
+        15.599,
+        -17.5,
+        106.2119
+      ],
+      [
+        50.599,
+        18.6025,
+        141.2119
+      ]
+    ],
+    "faces": 1678,
+    "watertight": true,
+    "volume_mm3": 42271.1033220522,
+    "shells": [
+      {
+        "faces": 1678,
+        "watertight": true,
+        "volume_mm3": 42271.1033
+      }
+    ]
+  },
+  {
+    "name": "head_roll_link_visual_3",
+    "file": "Motor_HTDW3532.stl",
+    "link": "head_roll_link",
+    "bounds_mm": [
+      [
+        -75.901,
+        -17.5,
+        101.2119
+      ],
+      [
+        -39.7985,
+        17.5,
+        136.2119
+      ]
+    ],
+    "faces": 1678,
+    "watertight": true,
+    "volume_mm3": 42271.10332205219,
+    "shells": [
+      {
+        "faces": 1678,
+        "watertight": true,
+        "volume_mm3": 42271.1033
+      }
+    ]
+  },
+  {
+    "name": "mouth_link_visual_0",
+    "file": "Mouth.stl",
+    "link": "mouth_link",
+    "bounds_mm": [
+      [
+        17.599,
+        -49.9975,
+        108.2119
+      ],
+      [
+        98.099,
+        50.0025,
+        139.2119
+      ]
+    ],
+    "faces": 2506,
+    "watertight": true,
+    "volume_mm3": 56733.29037349807,
+    "shells": [
+      {
+        "faces": 2506,
+        "watertight": true,
+        "volume_mm3": 56733.2904
+      }
+    ]
+  }
+]

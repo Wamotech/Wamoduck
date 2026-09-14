@@ -22,4 +22,6 @@ See the [model guide](docs/model.en.md) / [模型指南](docs/model.zh-CN.md) fo
 
 ## Files and attribution / 文件与署名
 
+For printable fixtures, update STEP, STL, the slicer project's embedded geometry, quantities, and checksums together. Preserve assembly coordinates in CAD exports and document any print orientation changes. Record printer, material, nozzle, saved settings, and whether validation was digital or a physical print. See the [fixture guide](hardware/fixtures/standing-zero/README.md) / [工装说明](hardware/fixtures/standing-zero/README.zh-CN.md). / 修改打印工装时，同步更新 STEP、STL、切片工程内嵌几何、数量表和校验值；保留 CAD 装配坐标，说明打印朝向变换。记录打印机、材料、喷嘴、保存参数，以及验证属于数字检查还是实物试打。
+
 Include only material you are entitled to share, and retain required third-party attribution and license notices. Keep private machine paths, credentials, CAD lock files, caches, and duplicate generated bundles out of contributions. Read the existing [LICENSE](LICENSE) before contributing. / 请只提交有权分享的资料，保留必要的第三方署名及许可证说明。贡献内容中不要包含个人机器路径、凭据、CAD 锁文件、缓存或重复生成的压缩包；贡献前请阅读现有 [LICENSE](LICENSE)。

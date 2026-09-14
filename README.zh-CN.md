@@ -1,3 +1,17 @@
+<p align="center">
+  <a href="https://www.wamotechology.com">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="assets/branding/wamotech-symbol-white.png">
+      <img src="assets/branding/wamotech-symbol-black.png" alt="望默科技标志" width="140">
+    </picture>
+    <br>
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="assets/branding/wamotech-wordmark-white.png">
+      <img src="assets/branding/wamotech-wordmark-black.png" alt="WAMOTECH" width="300">
+    </picture>
+  </a>
+</p>
+
 # Wamoduck
 
 **从一只鸭子出发，探索运动、感知与自主行为。**
@@ -38,6 +52,7 @@ flowchart LR
 - **结构打样与实机联调：** 正在进行样机结构制作和软硬件联合调试。
 - **MuJoCo 仿真：** 已完成仿真工作，支持将遥控指令与策略驱动的自主动作结合的 ONNX 部署方式，思路类似 [Microduck](https://github.com/pollen-robotics/microduck) 与 [microduck_rl](https://github.com/pollen-robotics/microduck_rl)。面向实机的集成与调试仍在推进。
 - **参考步态：** 已随模型公开一条针对本 URDF 的行走参考轨迹，并附带 MATLAB 回放器，见[在 MATLAB 里试走参考步态](#在-matlab-里试走参考步态)。
+- **3D 打印：** [站姿标定工装](hardware/fixtures/standing-zero/README.zh-CN.md)提供四个分件与 H2D PLA 工程；另有独立的 [160 mm A1 mini 展示模型](hardware/printable/wamoduck-a1mini-standing/README_打印说明.md)，可一体打印。
 - **当前公开资料：** 仓库已包含简化 CAD、URDF 与网格、模型参数、参考步态与回放器，以及中英文文档。仿真／训练代码、ONNX 策略文件、运行软件、电子系统和完整搭建教程尚未在本仓库提供。
 - **持续更新：** 后续会随着项目推进，陆续更新结构版本、联调进展及软硬件资料，具体方向见[路线图](docs/roadmap.md)。
 
@@ -83,15 +98,17 @@ wamoduck_play(true)    % 无界面自检：单位、关节限位、脚底贴地
 
 回放器可以逐帧步进、把 15 个关节的力矩与电机的额定／峰值能力画在一起，并给出逐关节的角度与力矩表。随附两份数据：一个稳态步态周期（2.0 s，可无缝循环）和整段 1 m 行走。
 
-整段 1 m 规划的实测结果：逆运动学误差中位 0.015 mm、两个脚掌离地都在 ±0.1 mm 以内、每一个采样点的静态稳定余量都为正、逆动力学峰值力矩 2.53 N·m（膝关节，占电机峰值 3.6 N·m 的 70 %）。
+公开 CSV 包含模型计算的关节角与力矩估计，其中最大绝对力矩为 **2.50815 N·m**，出现在整段行走的右膝。回放器保留现有的快速自检。原始高采样率规划器及其 IK／动力学生成代码尚未包含在仓库中；可从 CSV 复核的指标与原规划报告结果的区别见[步态指南](docs/matlab.zh-CN.md)。
 
-它是一条**双脚支撑的准静态蹭步**，不是动态行走，原因是结构性的：真正的单脚支撑要求重心横移到支撑脚上方**至少 57 mm**，而这条腿**没有踝侧摆关节**、膝关节在标称姿态之外也只有约 15 mm 行程。实测数据与已知限制见[步态指南](docs/matlab.zh-CN.md)。
+参考轨迹包含小幅交替抬脚，模型回放本身不能证明动态平衡。原规划分析指出模型的重心横移能力有限，且没有踝侧摆关节；分析口径与已知限制见[步态指南](docs/matlab.zh-CN.md)，这些数据不是实机测量结果。
 
 ## 从这里开始
 
 | 你想做什么 | 对应入口 |
 | --- | --- |
 | 查看或修改单个机械零件 | [20 个 STEP 模型](hardware/step/) · [机械文件指南](docs/mechanical.zh-CN.md) |
+| 打印整机站姿标定工装 | [四个分件与 H2D PLA 工程](hardware/fixtures/standing-zero/README.zh-CN.md) · [打印数量表](hardware/fixtures/standing-zero/print-parts.csv) |
+| 打印小型固定展示模型 | [160 mm A1 mini 一体打印版](hardware/printable/wamoduck-a1mini-standing/README_打印说明.md) |
 | 查看原生装配关系 | [SolidWorks 文件](hardware/solidworks/) · [打开方法](docs/mechanical.zh-CN.md#solidworks-装配体) |
 | 查看整机和关节运动 | [URDF 与网格](models/wmduck/) · [模型指南](docs/model.zh-CN.md) |
 | 看参考步态 / 在 MATLAB 里自己播 | [步态指南](docs/matlab.zh-CN.md) · [MATLAB 回放器](tools/matlab/) · [行走视频](assets/wamoduck-gait-walk.mp4) |
@@ -118,8 +135,11 @@ wamoduck_play(true)    % 无界面自检：单位、关节限位、脚底贴地
 ```text
 Wamoduck/
 ├── hardware/
-│   ├── step/             # 独立的简化零件，毫米单位
-│   └── solidworks/       # 简化原生零件与装配体
+│   ├── step/             # 机器人结构与采购件参考，毫米单位
+│   ├── solidworks/       # 简化原生零件与装配体
+│   ├── robot-structure.csv # 几何分类与模型实例数量
+│   ├── fixtures/standing-zero/ # 四个 STEP、四个打印 STL 与 H2D 工程
+│   └── printable/        # 固定展示模型与 A1 mini 工程
 ├── models/wmduck/        # URDF、网格、关节数据与导入检查
 ├── tools/matlab/         # 参考步态数据与 MATLAB 回放器
 ├── assets/              # 模型预览图与步态预览
@@ -128,13 +148,18 @@ Wamoduck/
 └── LICENSE
 ```
 
-STEP 用于跨软件交换几何。STL 用于机器人显示与初步碰撞建模，**不是一套经过验证的可打印零件**。关节限位来自单关节几何检查，不能保证多个关节同时运动时不发生碰撞。
+机器人 STEP 可用于跨软件交换几何，也可将选定的结构件导入切片。[制造分类表](hardware/robot-structure.csv)区分了结构件与仅供装配参考的电机、轴承和电子件。`models/wmduck/meshes/` 下的 STL 使用米单位，用于显示和碰撞建模；打印工装请使用[工装目录](hardware/fixtures/standing-zero/README.zh-CN.md)内的毫米单位 STL。关节限位来自单关节几何检查，不能保证组合动作不发生碰撞。
 
-要根据公开文件完成实物复现，还需陆续公开经过核对的采购 BOM、制造要求、装配步骤、接线、标定及控制软件。[路线图](docs/roadmap.md)列出了这些交付内容。
+站姿工装已配套四个打印件、H2D PLA 双盘工程、六颗 M3 螺钉规格和试装标定说明，完成了数字几何检查，实际打印配合与重复定位精度仍待测量。完整可运行机器人的复现，还需要经过核对的采购 BOM、结构件制造要求、整机装配步骤、接线及控制软件。[路线图](docs/roadmap.md)列出了后续内容。
 
 ## 一起把这只鸭子做得更有趣
 
 如果你对伺服控制、机器人感知、策略部署，或自己的机械改造方案感兴趣，欢迎 **Star 关注项目进展**，通过 Issue 交流想法，或提交 PR 参与改进。中英文贡献都欢迎，入口见[贡献指南](CONTRIBUTING.md)。
+
+## 联系我们
+
+- 邮箱：[business@wamotechology.com](mailto:business@wamotechology.com)
+- 官网：[www.wamotechology.com](https://www.wamotechology.com)
 
 ## 参考项目与许可证
 

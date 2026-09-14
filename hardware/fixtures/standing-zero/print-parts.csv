@@ -1,0 +1,5 @@
+part,stl,quantity,plate,material,nozzle_mm,layer_height_mm,walls,infill,infill_pattern,brim_type,brim_width_mm,bed,support,print_orientation
+P01_Main_frame,stl/P01_Main_frame.stl,1,1,PLA,0.4,0.2,2,20%,honeycomb,auto_brim,5,SuperTack,"normal(auto), enabled",as exported; bbox minimum translated to XYZ 0
+P02_Head_cradle,stl/P02_Head_cradle.stl,1,2,PLA,0.4,0.2,2,20%,honeycomb,auto_brim,5,SuperTack,"normal(auto), enabled",bottom face down
+P03_Head_keeper_mouth,stl/P03_Head_keeper_mouth.stl,1,2,PLA,0.4,0.2,2,20%,honeycomb,auto_brim,5,SuperTack,"normal(auto), enabled",outer X=110.5 face down
+P04_Body_bridge,stl/P04_Body_bridge.stl,1,2,PLA,0.4,0.2,2,20%,honeycomb,auto_brim,5,SuperTack,"normal(auto), enabled",Y=-32 side face down

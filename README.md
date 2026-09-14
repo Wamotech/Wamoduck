@@ -1,3 +1,17 @@
+<p align="center">
+  <a href="https://www.wamotechology.com">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="assets/branding/wamotech-symbol-white.png">
+      <img src="assets/branding/wamotech-symbol-black.png" alt="Wamotech logo" width="140">
+    </picture>
+    <br>
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="assets/branding/wamotech-wordmark-white.png">
+      <img src="assets/branding/wamotech-wordmark-black.png" alt="WAMOTECH" width="300">
+    </picture>
+  </a>
+</p>
+
 # Wamoduck
 
 **An expressive little duck. A platform to explore motion, perception, and autonomous behavior.**
@@ -38,6 +52,7 @@ This architecture is also being experimentally applied to **intelligent wearable
 - **Mechanical prototyping and integration:** prototype fabrication and hardware/software debugging are in progress.
 - **MuJoCo simulation:** simulation work has been completed. The project supports an ONNX deployment approach combining remote-control commands with policy-driven autonomous actions, similar in approach to [Microduck](https://github.com/pollen-robotics/microduck) and [microduck_rl](https://github.com/pollen-robotics/microduck_rl). Integration on the physical robot is ongoing.
 - **Reference gait:** a walking reference trajectory for this URDF is published with the model, together with a MATLAB player. See [Try the reference gait in MATLAB](#try-the-reference-gait-in-matlab).
+- **3D printing:** the [standing calibration fixture](hardware/fixtures/standing-zero/README.md) includes four parts and an H2D PLA project. A separate [160 mm A1 mini figurine](hardware/printable/wamoduck-a1mini-standing/README.md) provides a single-piece display model.
 - **Public materials:** this repository currently contains simplified CAD, the URDF and meshes, model parameters, a reference gait with its player, and bilingual documentation. Simulation/training code, ONNX policy files, runtime software, electronics, and a complete build guide are not yet included here.
 - **Ongoing updates:** we will continue sharing mechanical revisions, integration progress, and software and hardware documentation as the project develops. Follow the [roadmap](docs/roadmap.md) for the next steps.
 
@@ -83,15 +98,17 @@ wamoduck_play(true)    % headless self-test: units, joint limits, ground contact
 
 The player steps through the data, plots all 15 joint torques against the motor's rated and peak values, and shows a per-joint angle/torque table. Two data sets ship with it: one steady-state gait cycle (2.0 s, loops seamlessly) and the full 1 m walk.
 
-Measured over the full 1 m plan: inverse-kinematics error 0.015 mm median, both soles within ±0.1 mm of the ground plane, a positive static-stability margin at every sample, and a peak inverse-dynamics torque of 2.53 N·m at the knee (70 % of the motor's 3.6 N·m peak rating).
+The published CSV files contain model-computed joint angles and torque estimates. Their largest absolute torque is **2.50815 N·m**, at the right knee in the full walk. The player retains its existing smoke self-test. The original higher-rate planner and its IK/dynamics generation code are not included; see the [gait guide](docs/matlab.en.md) for the distinction between reproducible CSV checks and reported planning results.
 
-It is a **double-support quasi-static shuffle**, not a dynamic walk, and the reason is structural: a real single-support step would need the centre of mass to move at least 57 mm sideways onto the stance foot, while this leg has no ankle-roll joint and only about 15 mm of knee travel beyond the nominal pose. See the [gait guide](docs/matlab.en.md) for the measurements and the known limits.
+The reference trajectory uses small alternating foot lifts. Its model-based playback does not establish dynamic balance. The separate planning analysis identified limited lateral centre-of-mass travel and the absence of ankle roll; see the [gait guide](docs/matlab.en.md) for its scope and known limits.
 
 ## Start here
 
 | I want to… | Open |
 | --- | --- |
 | Inspect or adapt individual mechanical parts | [20 STEP models](hardware/step/) · [Mechanical guide](docs/mechanical.en.md) |
+| Print the standing calibration fixture | [4 parts + H2D PLA project](hardware/fixtures/standing-zero/README.md) · [Quantities](hardware/fixtures/standing-zero/print-parts.csv) |
+| Print a small static display model | [160 mm A1 mini figurine](hardware/printable/wamoduck-a1mini-standing/README.md) |
 | Explore the native assembly | [SolidWorks files](hardware/solidworks/) · [Opening instructions](docs/mechanical.en.md#solidworks-assembly) |
 | View the robot and inspect its joints | [URDF and meshes](models/wmduck/) · [Model guide](docs/model.en.md) |
 | Watch the reference gait / play with it in MATLAB | [Gait guide](docs/matlab.en.md) · [MATLAB player](tools/matlab/) · [Walk video](assets/wamoduck-gait-walk.mp4) |
@@ -118,8 +135,11 @@ The mass and envelope describe the supplied model, not certified hardware specif
 ```text
 Wamoduck/
 ├── hardware/
-│   ├── step/             # Individual simplified parts, millimeters
-│   └── solidworks/       # Simplified native parts and assemblies
+│   ├── step/             # Robot structure and purchased-component references, mm
+│   ├── solidworks/       # Simplified native parts and assemblies
+│   ├── robot-structure.csv # Geometry roles and modeled instance quantities
+│   ├── fixtures/standing-zero/ # 4 STEP + 4 printable STL + H2D project
+│   └── printable/        # Static display model and A1 mini project
 ├── models/wmduck/        # URDF, meshes, joint data, and import checks
 ├── tools/matlab/         # Reference-gait data and the MATLAB player
 ├── assets/              # Model preview and gait preview
@@ -128,13 +148,18 @@ Wamoduck/
 └── LICENSE
 ```
 
-The STEP files support geometry exchange. The STL files are robot visualization and initial collision meshes, **not a validated set of printable parts**. Joint limits are estimates from single-joint geometry checks and do not guarantee collision-free combined motion.
+Robot STEP files support geometry exchange and slicing of the selected structural geometry. The [manufacturing map](hardware/robot-structure.csv) distinguishes structural parts from motors, bearings, and electronics supplied as assembly references. The STL files under `models/wmduck/meshes/` use meters for robot visualization and collision; use the millimeter STL files in [the fixture package](hardware/fixtures/standing-zero/README.md) to print the jig. Joint limits are estimates from single-joint geometry checks and do not guarantee collision-free combined motion.
 
-For physical reproduction from the public files, a verified procurement BOM, manufacturing specifications, assembly instructions, wiring, calibration, and control software still need to be published. The [roadmap](docs/roadmap.md) tracks these deliverables.
+The standing fixture includes four printable parts, a two-plate H2D PLA project, six M3 screw specifications, and fitting/calibration instructions. Its digital geometry has been checked; physical print fit and repeatability remain to be measured. A complete working robot additionally needs a verified procurement BOM, structural manufacturing specifications, robot assembly instructions, wiring, and control software. The [roadmap](docs/roadmap.md) tracks these deliverables.
 
 ## Build along with us
 
 Interested in servo control, robot perception, policy deployment, or your own mechanical variation? **Star the project to follow its progress**, share ideas through Issues, or contribute improvements through a pull request. Contributions in English and Chinese are welcome; start with the [contribution guide](CONTRIBUTING.md).
+
+## Contact
+
+- Email: [business@wamotechology.com](mailto:business@wamotechology.com)
+- Website: [www.wamotechology.com](https://www.wamotechology.com)
 
 ## References and license
 

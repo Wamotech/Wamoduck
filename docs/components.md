@@ -6,6 +6,8 @@ This is a count of instances in the simplified model, **not a procurement or man
 
 Counts are derived from [component_mass_audit.csv](../models/wmduck/component_mass_audit.csv). The linked STEP files and identically named native part files describe the same named components; this does not establish manufacturing readiness. / 数量来自 [component_mass_audit.csv](../models/wmduck/component_mass_audit.csv)。下表 STEP 与同名原生零件对应同一命名组件，不代表已经具备制造条件。
 
+The machine-readable [STEP classification](../hardware/robot-structure.csv) identifies 15 robot-structure geometry classes and 5 purchased/reference classes (`Motor_HTDW3532`, `Bearing_20_27_4`, `Battery_6s18650_24V`, `Control_Borad_AT32`, and `IMU_YB-MRA02`). This classification describes the role of each model, not its manufacturing process. Modeled instances are not printable-part splits: a single model such as `Body_Frame` may contain multiple bodies, while several assembly instances may reuse one geometry. CAD material labels are source-model metadata, not manufacturing requirements. / 机器可读的 [STEP 分类表](../hardware/robot-structure.csv)标出 15 类机器人结构几何与 5 类外购／参考几何（`Motor_HTDW3532`、`Bearing_20_27_4`、`Battery_6s18650_24V`、`Control_Borad_AT32`、`IMU_YB-MRA02`）。该分类描述模型用途，不代表制造工艺。建模实例数不等于打印分体数：`Body_Frame` 这类单个模型可能包含多个实体，而装配中的多个实例也可能复用同一几何。CAD 材料标签属于源模型元数据，不是制造要求。
+
 | STEP file / STEP 文件 | Description / 说明 | Instances / 实例数 | Modeled link(s) / 所属模型刚体 |
 | --- | --- | ---: | --- |
 | [Battery_6s18650_24V.stp](../hardware/step/Battery_6s18650_24V.stp) | Battery envelope / 电池包外形 | 1 | `base_link` |
@@ -32,6 +34,10 @@ Counts are derived from [component_mass_audit.csv](../models/wmduck/component_ma
 **Total / 合计：40 instances / 个实例。**
 
 A part assigned to a link moves rigidly with that link. The table does not identify motor IDs, encoder wiring, or procurement quantities for a complete robot. / 某零件归属于一个 link，表示它与该刚体一起运动；此表不定义电机 ID、编码器接线，也不代表完整机器人的采购数量。
+
+## Printable calibration fixture / 可打印标定工装
+
+The [standing-zero fixture](../hardware/fixtures/standing-zero/README.md) is a separate manufacturing package and is not part of the 40 robot-model instances above. Print one each of its four millimetre-scale STL files: main frame, head cradle, combined head keeper/mouth stop, and Body bridge. Four matching STEP files provide editable exchange geometry. The user-supplied Bambu H2D 3MF places the four parts on two plates, and assembly uses six M3 screws. The package does not claim a completed physical print or measured repeatability. / [站姿零点工装](../hardware/fixtures/standing-zero/README.zh-CN.md)是独立制造包，不属于上面的 40 个机器人模型实例。其 4 个毫米单位 STL——主框架、头托、头部前挡／嘴托组合件和 Body 横梁——每种打印 1 件；另有 4 个对应 STEP 用于编辑交换。用户提供的 Bambu H2D 3MF 将四件排在两个打印盘上，装配使用 6 颗 M3 螺钉。本包不宣称已经完成实物打印或实测重复定位验证。
 
 ## Before making a purchasing BOM / 转为采购 BOM 前
 

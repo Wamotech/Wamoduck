@@ -1,0 +1,157 @@
+{
+  "exit_code": 0,
+  "elapsed_seconds": 43.22,
+  "input_model": "Wamoduck_Standing_160mm.stl",
+  "input_model_sha256": "ccbf810cbc7d7c1af2d7d276e885d178368bc43d92b9d1be36b6b8ca2b4acd96",
+  "config_sha256": {
+    "machine-a1mini-0.4.json": "b3ea23318b71e97d2d18a71f8827d51a59d79c2c2855cdbd159b2119100cde36",
+    "process-0.16-tree.json": "a9a6261e7872bd90940fb0989390041a61e990bce4b4f46afde959c00894eb5f",
+    "filament-generic-pla.json": "26fa748ad5ac927efea4ad462d03ba6d3eddf34d2475c4dd8de0d6060bceb647"
+  },
+  "slicing_result": {
+    "error_string": "Success.",
+    "export_time": 5472,
+    "layer_height": 0.1599999964237213,
+    "plate_index": 0,
+    "prepare_time": 357,
+    "return_code": 0,
+    "sliced_plates": [
+      {
+        "feature_type_times": {
+          "Bottom surface": 214.7394561767578,
+          "Bridge": 859.1234741210938,
+          "Brim": 125.99405670166016,
+          "Custom": 362.4246826171875,
+          "Flush": 28.0,
+          "Gap infill": 599.111572265625,
+          "Inner wall": 7187.41015625,
+          "Internal solid infill": 3887.582763671875,
+          "Outer wall": 6670.22314453125,
+          "Overhang wall": 557.0875854492188,
+          "Sparse infill": 4251.802734375,
+          "Support": 10449.7890625,
+          "Support interface": 506.4046630859375,
+          "Top surface": 465.4724426269531,
+          "Travel": 6816.74365234375,
+          "Undefined": 6806.501953125
+        },
+        "filament_change_times": 0,
+        "filaments": [
+          {
+            "filament_id": "GFL99",
+            "id": 1,
+            "main_used_g": 150.26222229003906,
+            "total_used_g": 150.26222229003906
+          }
+        ],
+        "generate_support_material_time": 21859,
+        "id": 1,
+        "infill_time": 3140,
+        "layer_filament_change": 0,
+        "main_predication": 42589.18359375,
+        "make_perimeters_time": 2081,
+        "obj_cached_cnt": 0,
+        "objects": [
+          {
+            "bbox": {
+              "depth": 97.57958984375,
+              "height": 160.0,
+              "width": 73.8636245727539,
+              "x": 53.06819534301758,
+              "y": 41.210205078125,
+              "z": 0.0
+            },
+            "id": 5,
+            "name": "Wamoduck_Standing_160mm.stl",
+            "triangle_count": 327424
+          }
+        ],
+        "sliced_time": 36228,
+        "sliced_time_with_cache": 8136,
+        "total_predication": 42997.3671875,
+        "triangle_count": 327424,
+        "warning_message": ""
+      }
+    ],
+    "sparse_infill_density": 15.0,
+    "wall_loops": 3
+  },
+  "archive": "Wamoduck_A1mini_PLA_160mm.3mf",
+  "archive_sha256": "acbbe804ae284d35d9c03e39cd7c4f2b18f8198dfad1ff3182e833362d386023",
+  "archive_members": [
+    "[Content_Types].xml",
+    "Metadata/plate_1.png",
+    "Metadata/plate_1_small.png",
+    "Metadata/plate_no_light_1.png",
+    "Metadata/top_1.png",
+    "Metadata/pick_1.png",
+    "Metadata/plate_1.json",
+    "3D/3dmodel.model",
+    "3D/_rels/3dmodel.model.rels",
+    "3D/Objects/object_1.model",
+    "Metadata/project_settings.config",
+    "Metadata/plate_1.gcode.md5",
+    "Metadata/plate_1.gcode",
+    "Metadata/_rels/model_settings.config.rels",
+    "Metadata/model_settings.config",
+    "Metadata/cut_information.xml",
+    "Metadata/slice_info.config",
+    "Metadata/filament_sequence.json",
+    "_rels/.rels"
+  ],
+  "gcode_bytes": 57691947,
+  "verified_settings": {
+    "printer_model": "Bambu Lab A1 mini",
+    "layer_height": "0.16",
+    "wall_loops": "3",
+    "sparse_infill_density": "15%",
+    "sparse_infill_pattern": "gyroid",
+    "enable_support": "1",
+    "support_type": "tree(auto)",
+    "brim_width": "8",
+    "brim_type": "outer_only",
+    "brim_object_gap": "0.1",
+    "support_top_z_distance": "0.2",
+    "support_bottom_z_distance": "0.2",
+    "support_filament": "0",
+    "support_interface_filament": "0",
+    "curr_bed_type": "Textured PEI Plate"
+  },
+  "support_segments": 1409,
+  "support_interface_segments": 464,
+  "gcode_header": "; HEADER_BLOCK_START\n; BambuStudio 02.08.02.60\n; model printing time: 11h 50m 17s; total estimated time: 11h 56m 37s\n; total layer number: 1000\n; total filament length [mm] : 50380.46\n; total filament volume [cm^3] : 121179.21\n; total filament weight [g] : 150.26\n; filament_density: 1.24\n; filament_diameter: 1.75\n; max_z_height: 160.04\n; filament: 1\n; support_material_on_wipe_tower: 0\n",
+  "plate_metadata": {
+    "bbox_all": [
+      36.37257,
+      31.542250000000003,
+      132.84165000000002,
+      148.46056000000002
+    ],
+    "bbox_objects": [
+      {
+        "area": 4036.44580078125,
+        "bbox": [
+          36.37257,
+          31.542250000000003,
+          132.84165000000002,
+          148.46056000000002
+        ],
+        "id": 28,
+        "layer_height": 0.20000000298023224,
+        "name": "Wamoduck_Standing_160mm.stl"
+      }
+    ],
+    "bed_type": "textured_plate",
+    "filament_colors": [
+      "#00AE42"
+    ],
+    "filament_ids": [
+      0
+    ],
+    "first_extruder": 0,
+    "first_layer_time": 0.0,
+    "is_seq_print": false,
+    "nozzle_diameter": 0.4000000059604645,
+    "version": 2
+  }
+}

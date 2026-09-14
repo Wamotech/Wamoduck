@@ -1,0 +1,433 @@
+{
+  "schema_version": 1,
+  "overall_pass": true,
+  "h2d_build_envelope_mm": [
+    325.0,
+    320.0,
+    325.0
+  ],
+  "stl_file_count": 4,
+  "stl_all_valid": true,
+  "stl_files": [
+    {
+      "path": "stl/P01_Main_frame.stl",
+      "format": "binary",
+      "triangle_count": 1954,
+      "bbox": {
+        "min": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "max": [
+          200.0,
+          260.0,
+          315.83001708984375
+        ],
+        "dimensions_mm": [
+          200.0,
+          260.0,
+          315.83001708984375
+        ]
+      },
+      "volume_mm3": 1160214.6820664145,
+      "quantization_mm": 1e-05,
+      "edge_count": 2931,
+      "bad_edge_count": 0,
+      "bad_edge_multiplicities": {},
+      "nonfinite_triangle_count": 0,
+      "degenerate_triangle_count": 0,
+      "watertight_manifold": true,
+      "fits_h2d_envelope": true,
+      "h2d_orientation": "as_exported",
+      "h2d_envelope_mm": [
+        325.0,
+        320.0,
+        325.0
+      ],
+      "single_material_assumed": true,
+      "valid": true,
+      "sha256": "8c6a3a192ba8722730bea2d102b1aa28d00424b81584d67c7d35d2f71deb819b",
+      "publication_transform": {
+        "source_sha256": "728f0b641772136a5591f8ee76fb74dbabadb99eddc5cef017999af28e4c7f45",
+        "translation_mm": [
+          110.0,
+          130.0,
+          191.618103027
+        ],
+        "source_bbox_min_mm": [
+          -110.0,
+          -130.0,
+          -191.618103027
+        ],
+        "published_bbox_min_mm": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "published_bbox_max_mm": [
+          200.0,
+          260.0,
+          315.83001709
+        ],
+        "published_dimensions_mm": [
+          200.0,
+          260.0,
+          315.83001709
+        ],
+        "triangle_order_and_count_preserved": true,
+        "non_vertex_bytes_unchanged": true,
+        "max_translation_residual_mm": 1.0789593e-05,
+        "translation_applied_to_all_vertices_within_2e-5_mm": true,
+        "only_vertex_coordinates_changed": true
+      },
+      "native_cad_volume_mm3": 1160209.2890518513,
+      "mesh_to_native_volume_relative_delta": 4.648311829717251e-06,
+      "mesh_volume_matches_native_within_0p1_percent": true,
+      "source_file": "P01_Main_frame.stl",
+      "source_availability": "Maintainer local working copy; source hash recorded for provenance."
+    },
+    {
+      "path": "stl/P02_Head_cradle.stl",
+      "format": "binary",
+      "triangle_count": 1286,
+      "bbox": {
+        "min": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "max": [
+          220.5,
+          130.40000915527344,
+          38.79998779296875
+        ],
+        "dimensions_mm": [
+          220.5,
+          130.40000915527344,
+          38.79998779296875
+        ]
+      },
+      "volume_mm3": 173906.3621199192,
+      "quantization_mm": 1e-05,
+      "edge_count": 1929,
+      "bad_edge_count": 0,
+      "bad_edge_multiplicities": {},
+      "nonfinite_triangle_count": 0,
+      "degenerate_triangle_count": 0,
+      "watertight_manifold": true,
+      "fits_h2d_envelope": true,
+      "h2d_orientation": "as_exported",
+      "h2d_envelope_mm": [
+        325.0,
+        320.0,
+        325.0
+      ],
+      "single_material_assumed": true,
+      "valid": true,
+      "sha256": "995e5b7e65fa6bb119e2985696402f20421998617f516fae410376f4b69e7425",
+      "publication_transform": {
+        "source_sha256": "995e5b7e65fa6bb119e2985696402f20421998617f516fae410376f4b69e7425",
+        "translation_mm": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "byte_identical_to_source": true
+      },
+      "native_cad_volume_mm3": 173900.4520521968,
+      "mesh_to_native_volume_relative_delta": 3.398534996695205e-05,
+      "mesh_volume_matches_native_within_0p1_percent": true,
+      "source_file": "P02_Head_cradle.stl",
+      "source_availability": "Maintainer local working copy; source hash recorded for provenance."
+    },
+    {
+      "path": "stl/P03_Head_keeper_mouth.stl",
+      "format": "binary",
+      "triangle_count": 760,
+      "bbox": {
+        "min": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "max": [
+          130.40000915527344,
+          54.111907958984375,
+          46.999996185302734
+        ],
+        "dimensions_mm": [
+          130.40000915527344,
+          54.111907958984375,
+          46.999996185302734
+        ]
+      },
+      "volume_mm3": 26425.138140914572,
+      "quantization_mm": 1e-05,
+      "edge_count": 1140,
+      "bad_edge_count": 0,
+      "bad_edge_multiplicities": {},
+      "nonfinite_triangle_count": 0,
+      "degenerate_triangle_count": 0,
+      "watertight_manifold": true,
+      "fits_h2d_envelope": true,
+      "h2d_orientation": "as_exported",
+      "h2d_envelope_mm": [
+        325.0,
+        320.0,
+        325.0
+      ],
+      "single_material_assumed": true,
+      "valid": true,
+      "sha256": "ac9b915cefdc75f2b1b3df8d999b14cf620992b74bd3b6fa2c93b96012dbef4c",
+      "publication_transform": {
+        "source_sha256": "ac9b915cefdc75f2b1b3df8d999b14cf620992b74bd3b6fa2c93b96012dbef4c",
+        "translation_mm": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "byte_identical_to_source": true
+      },
+      "native_cad_volume_mm3": 26421.709501668982,
+      "mesh_to_native_volume_relative_delta": 0.00012976598828225044,
+      "mesh_volume_matches_native_within_0p1_percent": true,
+      "source_file": "P03_Head_keeper_mouth.stl",
+      "source_availability": "Maintainer local working copy; source hash recorded for provenance."
+    },
+    {
+      "path": "stl/P04_Body_bridge.stl",
+      "format": "binary",
+      "triangle_count": 244,
+      "bbox": {
+        "min": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "max": [
+          28.24850082397461,
+          52.0,
+          64.0
+        ],
+        "dimensions_mm": [
+          28.24850082397461,
+          52.0,
+          64.0
+        ]
+      },
+      "volume_mm3": 23103.489721553,
+      "quantization_mm": 1e-05,
+      "edge_count": 366,
+      "bad_edge_count": 0,
+      "bad_edge_multiplicities": {},
+      "nonfinite_triangle_count": 0,
+      "degenerate_triangle_count": 0,
+      "watertight_manifold": true,
+      "fits_h2d_envelope": true,
+      "h2d_orientation": "as_exported",
+      "h2d_envelope_mm": [
+        325.0,
+        320.0,
+        325.0
+      ],
+      "single_material_assumed": true,
+      "valid": true,
+      "sha256": "9d1a129da74ac1e847481e49294dd40128285ede080ccb406bef8c8208c5314a",
+      "publication_transform": {
+        "source_sha256": "9d1a129da74ac1e847481e49294dd40128285ede080ccb406bef8c8208c5314a",
+        "translation_mm": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "byte_identical_to_source": true
+      },
+      "native_cad_volume_mm3": 23103.489799999978,
+      "mesh_to_native_volume_relative_delta": 3.3954600905397374e-09,
+      "mesh_volume_matches_native_within_0p1_percent": true,
+      "source_file": "P04_Body_bridge.stl",
+      "source_availability": "Maintainer local working copy; source hash recorded for provenance."
+    }
+  ],
+  "three_mf": {
+    "path": "bambu/H2D_PLA_standing_zero.3mf",
+    "sha256": "94ddc03b8f03c6cb6b6018d805cba912d7ceab88e032e36450d26642cc387e5d",
+    "privacy_edit": {
+      "source_sha256": "0e9e51517df11173e8256a7a78c662777b62e10b3fb7c590475f1f6116f3b37c",
+      "published_sha256": "94ddc03b8f03c6cb6b6018d805cba912d7ceab88e032e36450d26642cc387e5d",
+      "edited_archive_entry": "3D/3dmodel.model",
+      "edited_metadata_field": "DesignerUserId",
+      "original_value_present": true,
+      "original_value_redacted": true,
+      "published_value_empty": true,
+      "exact_targeted_edit": true,
+      "same_entry_order": true,
+      "unchanged_entry_payload_count": 24,
+      "changed_entry_payloads": [
+        "3D/3dmodel.model"
+      ],
+      "all_other_entry_payloads_byte_identical": true
+    },
+    "validation": {
+      "plate_count": 2,
+      "plates": [
+        {
+          "plate": 1,
+          "parts": [
+            "P01_Main_frame"
+          ]
+        },
+        {
+          "plate": 2,
+          "parts": [
+            "P04_Body_bridge",
+            "P02_Head_cradle",
+            "P03_Head_keeper_mouth"
+          ]
+        }
+      ],
+      "part_quantity": {
+        "P01_Main_frame": 1,
+        "P02_Head_cradle": 1,
+        "P03_Head_keeper_mouth": 1,
+        "P04_Body_bridge": 1
+      },
+      "build_item_count": 4,
+      "gcode_embedded": false,
+      "gcode_entries": [],
+      "designer_user_id_empty": true,
+      "absolute_path_finding_entries": [],
+      "application": "BambuStudio-02.08.02.60",
+      "printer_model": "Bambu Lab H2D",
+      "printer_variant": "0.4",
+      "layer_height_mm": 0.2,
+      "nozzle_diameter_mm": [
+        0.4,
+        0.4
+      ],
+      "effective_material": "PLA",
+      "effective_filament_profile": "Bambu PLA Basic @BBL H2D",
+      "bed_type": "supertack_plate",
+      "walls": 2,
+      "infill_density": "20%",
+      "infill_pattern": "honeycomb",
+      "brim_type": "auto_brim",
+      "brim_width_mm": 5.0,
+      "support_enabled": true,
+      "support_type": "normal(auto)",
+      "mesh_checks": [
+        {
+          "part": "P01_Main_frame",
+          "source_triangle_count": 1954,
+          "embedded_triangle_count": 1954,
+          "alignment_translation_mm": [
+            -9.999999999,
+            -3e-09,
+            -33.703096557
+          ],
+          "max_aligned_triangle_vertex_delta_mm": 6.010071e-06,
+          "matches_source_stl_within_1e-5_mm": true
+        },
+        {
+          "part": "P02_Head_cradle",
+          "source_triangle_count": 1286,
+          "embedded_triangle_count": 1286,
+          "alignment_translation_mm": [
+            110.250000006,
+            65.200004578,
+            19.399993898
+          ],
+          "max_aligned_triangle_vertex_delta_mm": 4.73237e-07,
+          "matches_source_stl_within_1e-5_mm": true
+        },
+        {
+          "part": "P03_Head_keeper_mouth",
+          "source_triangle_count": 760,
+          "embedded_triangle_count": 760,
+          "alignment_translation_mm": [
+            65.200004579,
+            27.055953982,
+            23.49999809
+          ],
+          "max_aligned_triangle_vertex_delta_mm": 7.0065e-08,
+          "matches_source_stl_within_1e-5_mm": true
+        },
+        {
+          "part": "P04_Body_bridge",
+          "source_triangle_count": 244,
+          "embedded_triangle_count": 244,
+          "alignment_translation_mm": [
+            14.124250413,
+            25.999999738,
+            32.0
+          ],
+          "max_aligned_triangle_vertex_delta_mm": 7.28967e-07,
+          "matches_source_stl_within_1e-5_mm": true
+        }
+      ],
+      "valid": true
+    }
+  },
+  "limitations": [
+    "These are numerical file, topology, package, and envelope checks only.",
+    "No physical first-article fit, encoder-zero repeatability, load capacity, or powered-motion test has been performed.",
+    "STL-to-native volume agreement checks tessellation consistency; it is not an interference or structural analysis."
+  ],
+  "checked_on": "2026-09-14",
+  "native_cad": {
+    "application": "SolidWorks 2025",
+    "source_open_mode": "silent, read-only",
+    "source_files_unchanged": true,
+    "parts": [
+      {
+        "part": "P01_Main_frame",
+        "source_file": "P01_Main_frame.SLDPRT",
+        "source_sha256": "692948980ca8b40315c42e2c423386f1b5a880d5552a4549087cad282f2c5384",
+        "solid_bodies": 1,
+        "volume_mm3": 1160209.2890518513,
+        "checked_feature_count": 28,
+        "reported_feature_errors": 0
+      },
+      {
+        "part": "P02_Head_cradle",
+        "source_file": "P02_Head_cradle.SLDPRT",
+        "source_sha256": "acce9f21748baf5a4316c971a056c133ea37b7324b297257db5be9071f59c36c",
+        "solid_bodies": 1,
+        "volume_mm3": 173900.4520521968,
+        "checked_feature_count": 11,
+        "reported_feature_errors": 0
+      },
+      {
+        "part": "P03_Head_keeper_mouth",
+        "source_file": "P03_Head_keeper_mouth.SLDPRT",
+        "source_sha256": "f475b3f1d436905c36d1e8c29c777044bbb68c3e1a8a9bbe19dc3b69bac25a38",
+        "solid_bodies": 1,
+        "volume_mm3": 26421.709501668982,
+        "checked_feature_count": 12,
+        "reported_feature_errors": 0
+      },
+      {
+        "part": "P04_Body_bridge",
+        "source_file": "P04_Body_bridge.SLDPRT",
+        "source_sha256": "9d051878163b3c0abc9ca2f100bb9d66a7b57d9c1c18a127a99198cfebc8b086",
+        "solid_bodies": 1,
+        "volume_mm3": 23103.489799999978,
+        "checked_feature_count": 5,
+        "reported_feature_errors": 0
+      }
+    ],
+    "static_interference": {
+      "pose": "saved default standing assembly",
+      "scope": "overlaps involving fixture parts",
+      "coincident_contact_counted_as_interference": false,
+      "include_hidden_bodies": true,
+      "detected_overlaps": 0
+    },
+    "step_export": {
+      "units": "mm",
+      "coordinates": "common assembly coordinates",
+      "header_normalization": "Portable filename, Wamotech author, and SolidWorks 2025; DATA section unchanged."
+    }
+  }
+}

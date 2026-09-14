@@ -1,0 +1,12 @@
+numpy==2.4.6
+trimesh==5.1.0
+scipy==1.17.1
+scikit-image==0.26.0
+manifold3d==3.5.3
+vtk==9.7.0
+pyvista==0.49.0
+pillow==12.3.0
+rtree==1.4.1
+shapely==2.1.2
+mapbox-earcut==2.1.0
+lxml==6.1.3

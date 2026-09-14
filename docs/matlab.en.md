@@ -2,7 +2,7 @@
 
 [English home](../README.md) · [中文首页](../README.zh-CN.md) · [中文版](matlab.zh-CN.md) · [Player README](../tools/matlab/README.md)
 
-This page documents the bundled reference gait: where the data comes from, what it is and is not, how to play it, and the measured limits of this leg design.
+This page documents the bundled reference gait: where the data comes from, what it is and is not, how to play it, and the model-derived limits of this leg design.
 
 ```matlab
 cd <repo>                      % the folder containing models/ and tools/
@@ -34,25 +34,25 @@ Angles are in radians because the ship-and-replay path should contain no unit co
 
 ## What the gait does and does not do
 
-Measured on the model this plan was made with, over the full 1 m walk:
+The separate planning project reported the following model calculations over its full-rate 1 m plan. That trajectory generator and its per-sample diagnostics are not published here, so the IK, contact, stability, and timing figures below cannot all be recomputed from this repository alone.
 
 | Quantity | Value | How it was obtained |
 | --- | ---: | --- |
 | Inverse-kinematics position error | 0.015 mm median, 0.020 mm max | Per-sample IK residual |
 | Sole contact | within +0.04 / −0.12 mm of the ground plane | Lowest sole corner per frame, MuJoCo model |
 | Static stability margin | positive for 100 % of samples (min +34.2 mm) | Centre of mass against the support polygon |
-| Peak inverse-dynamics torque | 2.53 N·m (`right_knee`), 70 % of the 3.6 N·m peak rating | Per-joint inverse dynamics |
+| Peak inverse-dynamics torque | 2.53 N·m (`right_knee`), 70 % of the 3.6 N·m peak rating | Separate full-rate planning result; the bundled 10 Hz CSV contains a directly reproducible peak of **2.50815 N·m** |
 | Foot clearance while swinging | 4.5 mm, 21 % of the time above 1 mm | Lowest sole corner |
 | Both feet stationary | 54 % of the time | Lowest sole corner |
 
-The gait is a **double-support quasi-static shuffle**. Both soles stay within a few millimetres of the ground for most of the cycle; it is not a dynamic walk, and the bundled data does not claim to be one.
+The gait is a **low-clearance quasi-static shuffle**. It alternates a swing foot that rises about 4.5 mm while the other sole remains on the ground; describing the whole trajectory as double support would be inaccurate. It is not a dynamic walk, and the bundled data does not claim to be one.
 
-Two structural reasons, both measured rather than assumed:
+Two structural reasons, both calculated on the planning model rather than measured on hardware:
 
-- **A real single-support step is out of reach.** Lifting a foot more than ~5 mm leaves only the stance foot as support, and the centre of mass must then move over that foot: with a 165 mm stance and a 51 mm wide sole, that is a lateral shift of **at least 57 mm**. This leg has **no ankle-roll joint** and only about 15 mm of knee travel beyond the nominal pose, so that lateral shift is not kinematically available. Forcing it makes the inverse kinematics roll the foot onto its edge — a test variant reached a 42° foot roll, 6.3 mm of ground penetration and contact forces of 112 N against a 37 N robot weight.
+- **A higher-clearance single-support step is out of reach in this plan.** Raising the swing foot beyond this low shuffle requires the centre of mass to move securely over the stance foot: with a 165 mm stance and a 51 mm wide sole, that is a lateral shift of **at least 57 mm**. This leg has **no ankle-roll joint** and only about 15 mm of knee travel beyond the nominal pose, so that lateral shift is not kinematically available. Forcing it makes the inverse kinematics roll the foot onto its edge — a test variant reached a 42° foot roll, 6.3 mm of ground penetration and contact forces of 112 N against a 37 N robot weight.
 - **The sole cannot be levelled laterally, only fore-aft.** Fore-aft tilt is fixed by the hip-pitch/knee/ankle chain; levelness there is achievable and is enforced (0.01° residual). Lateral tilt is set by the hip roll and the body roll, which have no independent ankle-roll to compensate them, so a few degrees of lateral sole tilt remain.
 
-This is what gives the plan its shape: a 4.5 mm lift with a 30 % swing window keeps both soles effectively on the ground, which is what makes the static margin positive throughout.
+This is what gives the plan its shape: a 4.5 mm lift with a 30 % swing window creates a brief, low-clearance swing while keeping the other sole in contact. Positive static margin is a result reported by the separate planning project; this kinematic player does not validate dynamic balance.
 
 ## Playing it
 
@@ -65,10 +65,12 @@ This is what gives the plan its shape: a 4.5 mm lift with a 30 % swing window ke
 | slider | Scrub to any frame |
 | torque plot | All 15 joints with the 0.6 N·m rated and 3.6 N·m peak lines from [`motor_parameters.json`](../models/wmduck/motor_parameters.json) |
 
-`wamoduck_play(true)` checks the data without opening a window: angles inside the URDF limits, and both soles on the ground plane.
+`wamoduck_play(true)` is the existing quick smoke test. It samples the middle row of each CSV, checks its joint limits and a coarse ±20 mm sole-height range, and writes a hidden-figure screenshot. Passing does not establish all-frame ground contact, a ±0.1 mm contact tolerance, or gait balance. The player implementation and trajectory CSVs are retained unchanged in this documentation update.
 
 ## Provenance
 
-The joint angles and body pose come from a quasi-static reference-gait plan computed with this repository's URDF (the plan was produced by a separate simulation project and exported here in radians). The GIF, the MP4 and the still frame are rendered from the public URDF by prescribing those joint angles and running forward kinematics — the same method described in [`assets/README.md`](../assets/README.md) for the joint-motion preview. No physics integration, no controller, no learned policy, no hardware.
+The joint angles and body pose come from a quasi-static reference-gait plan computed with this repository's URDF (the plan was produced by a separate simulation project and exported here in radians). The generator is not included. `wamoduck_play` only replays the published samples; it does not regenerate the trajectory or recompute inverse dynamics. The GIF, the MP4 and the still frame are rendered from the public URDF by prescribing those joint angles and running forward kinematics — the same method described in [`assets/README.md`](../assets/README.md) for the joint-motion preview. No physics integration, no controller, no learned policy, no hardware.
 
 Torques are inverse-dynamics estimates using the modelled masses and inertias in this repository, not measurements. They use the model with the maintainer-measured 141 g motor mass recorded in [`motor_parameters.json`](../models/wmduck/motor_parameters.json), so the shipped data and the shipped URDF describe the same robot. Treat them as a demand estimate for a given motor rating, not as a bench result.
+
+The URDF's `q=0` is the saved standing model pose, not an actuator encoder zero. Hardware playback requires a measured direction and zero-offset mapping for every actuator. The [standing-zero fixture](../hardware/fixtures/standing-zero/README.md) assists that calibration; it does not make the CSV safe to send to motors and does not validate gait balance.

@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "package": "standing-zero",
+  "prepared_on": "2026-09-14",
+  "scope": "Every file in this package except this manifest; paths relative to this directory.",
+  "provenance": "Updated maintainer P01 and matching H2D project; native CAD hashes and transformations in validation.json.",
+  "files": [
+    {
+      "path": "bambu/H2D_PLA_standing_zero.3mf",
+      "bytes": 99570,
+      "sha256": "94ddc03b8f03c6cb6b6018d805cba912d7ceab88e032e36450d26642cc387e5d"
+    },
+    {
+      "path": "images/assembly.png",
+      "bytes": 298775,
+      "sha256": "7683e0f351a79cdf50c8bd3db5837a0e879f1e47f4dbce1df7cd159f4b409523"
+    },
+    {
+      "path": "images/roots.png",
+      "bytes": 240901,
+      "sha256": "78f45f9fcb06513b249c78f28baf4536e381b230addbc10fd2db2563c20164be"
+    },
+    {
+      "path": "print-parts.csv",
+      "bytes": 731,
+      "sha256": "1af55f2e7dab36ef06af6ad7711bcf9bd8cd158d4a0a86bf77029590c01275ce"
+    },
+    {
+      "path": "README.md",
+      "bytes": 7974,
+      "sha256": "702170321c881436f8e3f5970137ec37044a7372d4d5c890414da59be57ee68a"
+    },
+    {
+      "path": "README.zh-CN.md",
+      "bytes": 6886,
+      "sha256": "0f88705833281bd0921a0c2e5462c79fcd4b74e228561affd3ad023e6fb6b9c1"
+    },
+    {
+      "path": "step/P01_Main_frame.step",
+      "bytes": 606358,
+      "sha256": "35840cefd4e312cec656f8b2bf820542ddda58b06d4216c0c59c21fddab9dafa"
+    },
+    {
+      "path": "step/P02_Head_cradle.step",
+      "bytes": 173912,
+      "sha256": "c82520d21d8e345c1800ce191c511d94f3974cb223612e0d7dba2e060e71921e"
+    },
+    {
+      "path": "step/P03_Head_keeper_mouth.step",
+      "bytes": 95521,
+      "sha256": "014ec919a0180b29fb8d3f66c5b5c52b89e370e1ca1b81d675fdb2d43009dffa"
+    },
+    {
+      "path": "step/P04_Body_bridge.step",
+      "bytes": 146682,
+      "sha256": "15611bd0ea49eedacd64ef9e31cb959c47c06b7799d790be786c315f347a4b59"
+    },
+    {
+      "path": "stl/P01_Main_frame.stl",
+      "bytes": 97784,
+      "sha256": "8c6a3a192ba8722730bea2d102b1aa28d00424b81584d67c7d35d2f71deb819b"
+    },
+    {
+      "path": "stl/P02_Head_cradle.stl",
+      "bytes": 64384,
+      "sha256": "995e5b7e65fa6bb119e2985696402f20421998617f516fae410376f4b69e7425"
+    },
+    {
+      "path": "stl/P03_Head_keeper_mouth.stl",
+      "bytes": 38084,
+      "sha256": "ac9b915cefdc75f2b1b3df8d999b14cf620992b74bd3b6fa2c93b96012dbef4c"
+    },
+    {
+      "path": "stl/P04_Body_bridge.stl",
+      "bytes": 12284,
+      "sha256": "9d1a129da74ac1e847481e49294dd40128285ede080ccb406bef8c8208c5314a"
+    },
+    {
+      "path": "validation.json",
+      "bytes": 13113,
+      "sha256": "4e990ac186fcd864f854d2ccfb7814b63470b01fc96391be9dff52e6e90cbb10"
+    }
+  ]
+}

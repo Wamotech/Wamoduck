@@ -1,0 +1,195 @@
+{
+  "source_urdf": "models\\wmduck\\wmduck.urdf",
+  "source_pose": "all 15 revolute joints q=0",
+  "source_bounds_mm": [
+    [
+      -83.40850082323418,
+      -110.60250211000442,
+      -177.61809473751066
+    ],
+    [
+      98.09900275250455,
+      110.60250211000442,
+      213.21190877487214
+    ]
+  ],
+  "source_scale": 0.39915052221689884,
+  "voxel_pitch_mm_before_final_scale": 0.2,
+  "surface_growth_mm_before_final_scale": 0.4,
+  "mesh_simplification_tolerance_mm_before_final_scale": 0.035,
+  "stl_float32_simplification_tolerance_mm": 0.005,
+  "removed_small_disconnected_volume_mm3": 0.016000000000000004,
+  "joint_pins": [
+    {
+      "joint": "left_hip_yaw",
+      "center_mm": [
+        -6.483702009183444,
+        10.37791357763937,
+        55.8527383074742
+      ],
+      "diameter_mm": 4.8,
+      "length_mm": 7
+    },
+    {
+      "joint": "right_hip_yaw",
+      "center_mm": [
+        -6.483702009183444,
+        -10.37791357763937,
+        55.8527383074742
+      ],
+      "diameter_mm": 4.8,
+      "length_mm": 7
+    },
+    {
+      "joint": "left_hip_roll",
+      "center_mm": [
+        0.14319453592261855,
+        10.37791357763937,
+        45.115589259839616
+      ],
+      "diameter_mm": 4.8,
+      "length_mm": 7
+    },
+    {
+      "joint": "right_hip_roll",
+      "center_mm": [
+        0.14319453592261855,
+        -10.37791357763937,
+        45.115589259839616
+      ],
+      "diameter_mm": 4.8,
+      "length_mm": 7
+    },
+    {
+      "joint": "left_hip_pitch",
+      "center_mm": [
+        -6.4827041328779025,
+        26.982575301862358,
+        45.115589259839616
+      ],
+      "diameter_mm": 4.8,
+      "length_mm": 7
+    },
+    {
+      "joint": "right_hip_pitch",
+      "center_mm": [
+        -6.4827041328779025,
+        -26.982575301862358,
+        45.115589259839616
+      ],
+      "diameter_mm": 4.8,
+      "length_mm": 7
+    },
+    {
+      "joint": "left_knee",
+      "center_mm": [
+        -16.361175566946496,
+        26.982575301862358,
+        35.23711782577103
+      ],
+      "diameter_mm": 4.8,
+      "length_mm": 7
+    },
+    {
+      "joint": "right_knee",
+      "center_mm": [
+        -16.361175566946496,
+        -26.982575301862358,
+        35.23711782577103
+      ],
+      "diameter_mm": 4.8,
+      "length_mm": 7
+    },
+    {
+      "joint": "left_ankle",
+      "center_mm": [
+        -5.584111467090226,
+        25.146482899664626,
+        16.570695248377326
+      ],
+      "diameter_mm": 4.8,
+      "length_mm": 7
+    },
+    {
+      "joint": "right_ankle",
+      "center_mm": [
+        -5.584111467090226,
+        -25.146482899664626,
+        16.570695248377326
+      ],
+      "diameter_mm": 4.8,
+      "length_mm": 7
+    },
+    {
+      "joint": "neck_pitch",
+      "center_mm": [
+        -1.0951699592553097,
+        -7.424199713274233,
+        85.82994040226883
+      ],
+      "diameter_mm": 4.8,
+      "length_mm": 7
+    },
+    {
+      "joint": "head_pitch",
+      "center_mm": [
+        -8.08030409805104,
+        -7.424199713274233,
+        97.92854762836474
+      ],
+      "diameter_mm": 4.8,
+      "length_mm": 7
+    },
+    {
+      "joint": "head_yaw",
+      "center_mm": [
+        -8.08030409805104,
+        -3.991500013101361e-11,
+        112.85677715927676
+      ],
+      "diameter_mm": 4.8,
+      "length_mm": 7
+    },
+    {
+      "joint": "head_roll",
+      "center_mm": [
+        -18.81745314568562,
+        -3.991500013101361e-11,
+        121.08027579325042
+      ],
+      "diameter_mm": 4.8,
+      "length_mm": 7
+    },
+    {
+      "joint": "mouth",
+      "center_mm": [
+        10.279622047620764,
+        7.425197589499946,
+        123.0760284043389
+      ],
+      "diameter_mm": 4.8,
+      "length_mm": 7
+    }
+  ],
+  "omitted_meshes": [
+    "IMU_YB-MRA02.stl"
+  ],
+  "base_nominal_height_mm": 3.2,
+  "final_size_xyz_mm": [
+    73.8636245727539,
+    97.57959365844727,
+    160.0
+  ],
+  "vertices": 163590,
+  "triangles": 327424,
+  "watertight": true,
+  "winding_consistent": true,
+  "volume_mm3": 156445.33599674774,
+  "connected_shells": 1,
+  "positive_volume": true,
+  "degenerate_triangles": 0,
+  "bottom_cap_area_mm2": 4035.007520200752,
+  "bottom_cap_all_normals_down": true,
+  "stl_sha256": "ccbf810cbc7d7c1af2d7d276e885d178368bc43d92b9d1be36b6b8ca2b4acd96",
+  "urdf_sha256": "fd39cb49985354e76bc1e15745bf58e5824461246d492f439db77d5e2c1dd5d1"
+}

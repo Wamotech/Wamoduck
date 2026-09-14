@@ -208,6 +208,42 @@
         "frame": "looped cycle, t = 5.12 s"
       },
       "scope_note": "Screenshot of the bundled viewer; it shows a kinematic replay, not a controller or a policy running"
+    },
+    {
+      "path": "branding/wamotech-symbol-black.png",
+      "type": "maintainer_brand_logo",
+      "source_file": "logo.png",
+      "bytes": 46566,
+      "sha256": "72e3fb34b09a243cefc70ac6c915f10299955b2d12577713e3bbd307244a041f",
+      "transformation": "none",
+      "note": "Original transparent PNG; README display sizing only."
+    },
+    {
+      "path": "branding/wamotech-symbol-white.png",
+      "type": "maintainer_brand_logo",
+      "source_file": "logo 白色.png",
+      "bytes": 92821,
+      "sha256": "124b0234b68ec3a5069e2b45ddfbeee0d21680cb306d3e328a3a7b55d1dabc3c",
+      "transformation": "none",
+      "note": "Original transparent PNG; README display sizing only."
+    },
+    {
+      "path": "branding/wamotech-wordmark-black.png",
+      "type": "maintainer_brand_logo",
+      "source_file": "英文.png",
+      "bytes": 149200,
+      "sha256": "4b6b0e697894ebde7282eb2ad03e00c234b64369312627113d212738e0b35d5c",
+      "transformation": "none",
+      "note": "Original transparent PNG; README display sizing only."
+    },
+    {
+      "path": "branding/wamotech-wordmark-white.png",
+      "type": "maintainer_brand_logo",
+      "source_file": "英文白色.png",
+      "bytes": 149042,
+      "sha256": "ae77e70f0e2269a3de25540481ffdc6fe859aa32b319c4a8de94c52722263901",
+      "transformation": "none",
+      "note": "Original transparent PNG; README display sizing only."
     }
   ]
 }
