@@ -9,7 +9,7 @@ This page is one honest board of what the trained policies actually do. Every fi
 - **What works:** standing still while something shoves it, getting up after a knock-down, walking forwards, and walking over 1 cm curbs.
 - **What does not work:** turning in place, and side-stepping — which also drags the robot round. And `getup` stands the robot up without returning it to the saved nominal pose.
 - **What none of this is:** hardware. Every figure on this page came out of a simulator.
-- Sit/stand gives interactive height control, but has no acceptance numbers in this batch.
+- Sit/stand gives interactive height control, but has no acceptance numbers in this batch — and **two known issues**, measured on CPU: it **buzzes in place while standing**, and its **sitting posture is neither upright nor left/right symmetric**. See [section 6](#6-sit--stand).
 
 **Scope: simulation only.** The policies run in a MuJoCo / mjlab environment on one laptop GPU, normally **64 parallel environments** per measurement (32 for the walking table), with the round named in each row. There are no hardware measurements on this page. The training code, the scene generator, the checkpoints, and the measurement tools live in the private development repository and are **not** published here — so this page reports measurements rather than offering a reproduction recipe. Re-measure before quoting it.
 
@@ -24,7 +24,7 @@ This page is one honest board of what the trained policies actually do. Every fi
 | 3 | Get-up from a random lying pose | `getup_v18` (`model_3999.pt`) | Standing at the end **64/64**; strict nominal criterion still **0/64** |
 | 4 | Flat-ground walking | `walk_r3` (`model_5999.pt`, shipped) | Forward tracking 106 % / 103 %, but **side-stepping and in-place turning are broken** |
 | 5 | 1 cm rough terrain | `rough_v2` (`model_5999.pt`) | Survival **51/64 (79.7 %)**; mean speed **61 %** of the command |
-| 6 | Sit / stand | `sit_stand_v2` (`model_2499.pt`, shipped) | Interactive height control; no acceptance numbers in this batch |
+| 6 | Sit / stand | `sit_stand_v2` (`model_2499.pt`, shipped) | Interactive height control; no acceptance numbers in this batch. **Two known issues**, measured on CPU: the standing posture buzzes in place (action jitter **0.235** per step against **2.9e-7** for `stand`), and the sitting posture is neither upright (**25.89°** of tilt) nor left/right symmetric (residuals of **119°** to **174°** on three of the five leg pairs) |
 
 A policy marked *shipped* is the checkpoint the interactive demos load by default in the development repository. As of this release, five of the six rows also have a published ONNX file you can run yourself: `stand_v3`, `getup_v18`, `sit_stand_v2`, and `rough_v2` are the exact checkpoints on this page, while the published walking policy is `walk_v4r` rather than the `walk_r3` this page measured — see [row 4](#4-flat-ground-walking) and the [simulation guide](simulation.md).
 
@@ -125,6 +125,175 @@ The 61 % is a real loss of speed, and it is measured against the commanded speed
 | Control | One key toggles between sitting and standing; two more keys raise and lower the target height |
 | Measured | Interactive only. No acceptance numbers were recorded for this round in the same batch, so none are claimed here |
 | Tools | `play_sit_stand.py`, `diagnose_stand_play.py` |
+| **Known issue** | A user playing the published demo reported that `sitstand` **buzzes in place while standing**, and that sitting down does not produce the pose the report described as "head and torso vertical to the ground, left and right legs braced symmetrically". Both were then measured on CPU with this repository's own runner. **Neither is fixed.** The numbers are in [The two known sit/stand issues](#the-two-known-sitstand-issues-as-measured) below. |
+
+### The two known sit/stand issues, as measured
+
+The report is quoted as the user gave it; every number below is our own measurement, taken after that
+report, with the published single-file runner. **CPU only** — MuJoCo **3.10.0**, ONNX Runtime **1.30.0**,
+NumPy **2.5.3** — 500 control steps (**10.0 s**) per run, spawn `nominal`, flat floor, on the same code path as
+
+```bash
+python wamoduck_sim.py --policy sitstand --target-height 0.175 --headless --steps 500
+python wamoduck_sim.py --policy sitstand --target-height 0.085 --headless --steps 500
+python wamoduck_sim.py --policy stand                      --headless --steps 500
+```
+
+**These are Sim2Sim numbers from our CPU runner, not internal-board numbers.** The internal round behind
+this row recorded no acceptance figures at all, and it recorded no `sitstand` jitter figure, so nothing
+below reproduces a private measurement. Two figures that were already on this page do come back out of
+this run: **0.094 m** held against a 0.085 m command, and a lean of **~26°**. What is new here is the
+jitter and the left/right symmetry.
+
+**1. The standing posture buzzes in place** (height command **0.175 m**). The robot is upright — final tilt
+**0.44°**, base height **0.1762 m** — and it does not settle: the action stream in the last 1.0 s is just
+as restless as the average over the whole run, so this is a sustained limit cycle, not a decaying transient.
+
+| Quantity | `sitstand` @0.175 m | `stand` (same run length) |
+| --- | --- | --- |
+| Action jitter, mean abs(delta a) per control step, whole 10 s | **0.229** | 9.9e-5 |
+| Action jitter, mean abs(delta a), after the first 1.0 s | **0.235** | 2.9e-7 |
+| Action jitter, mean abs(delta a), last 1.0 s | **0.236** | 4.1e-8 |
+| max abs(delta a), after the first 1.0 s | **1.313** | 2.5e-5 |
+| base height std, after the first 1.0 s | **1.10 mm** | 1.8e-7 m |
+| base height std, last 1.0 s | **0.99 mm** | 8.7e-11 m |
+| tilt std, after the first 1.0 s | **0.403°** | 6.6e-4° |
+| tilt std, last 1.0 s | **0.396°** | 2.5e-7° |
+| mean abs(joint velocity), after the first 1.0 s | **1.68 rad/s** | 7.2e-6 rad/s |
+| mean abs(joint velocity), last 1.0 s | **1.69 rad/s** | 3.4e-8 rad/s |
+| max abs(joint velocity), last 1.0 s | **10.11 rad/s** | 2.0e-7 rad/s |
+| steps with both soles down, after the first 1.0 s | **92.2 %** | 100 % |
+| mean total ground reaction, after the first 1.0 s | **45.46 N** | 36.80 N |
+| displacement over the 10 s | **0.263 m** | 0.001 m |
+
+Read the first row against the figure in row 1 of this page: the `stand` policy's internal 40 s quiet stand
+records the same metric as **0.00000**, and our `stand` run reproduces that to **2.9e-7**. The `sitstand`
+policy is about **six orders of magnitude** above it — `mean abs(delta a)` of **0.235** per 0.02 s control
+step is the joint targets moving at roughly **11.7 rad/s**. The robot's weight is **36.80 N**; the feet
+carry **45.46 N** on average at that height, which is the buzz pushing the ground. And "in place" is
+approximate: it also travels **0.263 m** over the 10 s.
+
+**2. The sitting posture is neither upright nor left/right symmetric** (height command **0.085 m**). Where
+the standing posture buzzes, this one is **quiet** — it reaches a static pose within about 1.0 s and stays
+there (`mean abs(delta a)` **4.4e-7** in the last 1.0 s, base height std **1.9e-7 m**, tilt std
+**1.3e-4°**). Pressing `m` mid-run instead of starting at 0.085 m lands on the same pose (`mean abs(delta a)`
+**3.0e-5**, base height **0.0943 m**, tilt **25.84°**). So the jitter is a standing-height problem only.
+
+What that quiet pose is:
+
+| Quantity | Measured | The user's expectation |
+| --- | --- | --- |
+| base height, commanded **0.085 m** | **0.0943 m** (**+9.3 mm**, **+10.9 %**) | the commanded height |
+| base tilt, last 1.0 s | **25.89°** (roll **−15.99°**, pitch **+20.64°**) | upright, i.e. near **0°** |
+| `neck_pitch_link` up-axis vs world up | **25.44°** | near **0°** |
+| `head_roll_link` (the head) up-axis vs world up | **25.62°** | near **0°** |
+| `base_link_body_collision` against the floor, after the first 1.0 s | in contact **100 %** of steps, **7.16 N** of **36.83 N** = **19.4 %** of the weight | the two feet carrying the robot |
+| left sole | **3** contact points, **16.69 N**, flat | both feet planted |
+| right sole | **1** contact point, **12.98 N**, sole geometry **22 mm** above its contact | both feet planted |
+| lateral distance between the soles | **0.216 m** (nominal spawn **0.169 m**) | legs braced outward |
+| base drift from the spawn | dy **+0.041 m**, dx **−0.012 m**, yaw **+7.42°** | — |
+
+The head chain's own joints are all within **0.6°** of zero (`neck_pitch` **−0.55°**, `head_pitch`
+**+0.015°`, `head_yaw` **−0.20°**, `head_roll` **−0.28°**), so the trunk's lean is inherited whole by the
+head: **the head and the torso are 25.4° to 25.9° off vertical**, which is what "not head and torso vertical
+to the ground" looks like as a number. And the robot is **not** standing on two feet — its pelvis is on the
+floor for every step of the last 1.0 s, carrying a fifth of its weight, with the right foot rolled onto a
+single edge contact.
+
+The 14 joint angles at the end (last 1.0 s mean, degrees), beside the same policy's standing-height run and
+the `stand` policy as references:
+
+| Joint | `sitstand` @0.085 m | `sitstand` @0.175 m | `stand` |
+| --- | --- | --- | --- |
+| `left_hip_yaw` | **−95.55** | +16.00 | −1.88 |
+| `left_hip_roll` | +19.84 | −7.45 | +0.46 |
+| `left_hip_pitch` | **+128.29** | +32.17 | −0.22 |
+| `left_knee` | −17.77 | −11.19 | +0.38 |
+| `left_ankle` | **−93.97** | −23.22 | −0.88 |
+| `right_hip_yaw` | −23.77 | −14.25 | −0.44 |
+| `right_hip_roll` | −20.39 | +2.84 | −0.26 |
+| `right_hip_pitch` | **−45.26** | −43.97 | +0.014 |
+| `right_knee` | −17.25 | +16.21 | −0.051 |
+| `right_ankle` | **+48.36** | +32.96 | −0.29 |
+| `neck_pitch` | −0.55 | +0.14 | +0.31 |
+| `head_pitch` | +0.015 | −0.094 | −0.16 |
+| `head_yaw` | −0.20 | −0.65 | +0.041 |
+| `head_roll` | −0.28 | −0.19 | −0.12 |
+
+**The left/right symmetry, and the sign convention it needs.** Two independent checks fix the convention
+before any asymmetry is claimed, because the same joint on the two sides does **not** share a sign:
+
+1. **The MJCF itself mirrors the rolls and yaws.** `left_hip_yaw` is **−1.7279 to +0.5323 rad** while
+   `right_hip_yaw` is **−0.5323 to +1.7279 rad**, and `left_hip_roll` is **−1.1153 to +0.4311 rad** against
+   `right_hip_roll` **−0.4311 to +1.1153 rad**. `hip_pitch`, `knee` and `ankle` have **identical** ranges on
+   both sides.
+2. **A direct probe agrees.** With everything else at the nominal pose, `left_hip_roll = +0.3 rad` moves the
+   left sole from y = **+0.0846 m** to **+0.1116 m** — outward — while `right_hip_roll = +0.3 rad` moves the
+   right sole from y = **−0.0846 m** to **−0.0523 m** — inward. A positive roll is outward on the left and
+   inward on the right. (The same probe on `hip_yaw` is inconclusive on its own: ±0.3 rad moved the left
+   sole's y by under **2 mm** and non-monotonically, because yaw twists the leg about the vertical axis. The
+   mirrored ranges are the evidence there, not the probe.)
+
+So a mirror-symmetric pose has `hip_yaw` and `hip_roll` at **opposite signs** — their residual is
+`left + right` — while `hip_pitch`, `knee` and `ankle` should be **equal** — residual `left − right`. The
+residual is also given as a percentage of the pair's own mean magnitude, which saturates at **200 %** when
+the two values sit on opposite sides of zero, i.e. the worst disagreement possible.
+
+| Pair | Convention | `sitstand` @0.085 m: left / right | Residual | % |
+| --- | --- | --- | --- | --- |
+| `hip_yaw` | mirrored (opposite signs) | −95.55° / −23.77° | **−119.32°** | **200 %** |
+| `hip_roll` | mirrored (opposite signs) | +19.84° / −20.39° | −0.55° | 2.7 % |
+| `hip_pitch` | same sign | +128.29° / −45.26° | **+173.54°** | **200 %** |
+| `knee` | same sign | −17.77° / −17.25° | −0.52° | 3.0 % |
+| `ankle` | same sign | −93.97° / +48.36° | **−142.33°** | **200 %** |
+
+At the sitting height, `hip_roll` and `knee` match to within **0.6°**, and the other three do not match at
+all: on `hip_yaw`, `hip_pitch` and `ankle` the two legs are on **opposite sides of zero** — the left hip is
+flexed **+128.29°** while the right hip is extended **−45.26°**, and the left ankle is **−93.97°** against a
+right ankle of **+48.36°**. That is a twisted pose, not a mirrored one, and the residual being **200 %** means
+it is the largest disagreement the pairing can express.
+
+The same measurement at the standing height shows the buzz also ends in a staggered stance — one leg forward,
+one leg back — and the `stand` policy is the control that shows the convention is being applied correctly:
+
+| Pair | `sitstand` @0.175 m: residual | `sitstand` @0.085 m: residual | `stand`: residual |
+| --- | --- | --- | --- |
+| `hip_yaw` | +1.74° (11.5 %) | −119.32° (200 %) | −2.32° |
+| `hip_roll` | −4.61° (89.6 %) | −0.55° (2.7 %) | +0.20° |
+| `hip_pitch` | +76.14° (200 %) | +173.54° (200 %) | −0.23° |
+| `knee` | −27.40° (200 %) | −0.52° (3.0 %) | +0.43° |
+| `ankle` | −56.18° (200 %) | −142.33° (200 %) | −0.59° |
+
+The `stand` policy keeps every pair within **0.6°** in absolute terms, so the convention is right and a
+symmetric pose is achievable in this model. **Read the absolute degrees, not the percentage, whenever both
+values are near zero** — three of the five `stand` pairs also print **200 %**, on values of a fifth of a
+degree, because a percentage of nothing is not a measurement.
+
+**The user's expectation, written so it can be tested.** This repository has **no** definition of a target
+sitting pose, so the three statements below are the report's expectation restated as assertions, not a
+measured target and not a threshold we are proposing to train against. Where a tolerance is quoted it is one
+this repository already uses, and the tolerance for the third statement is not decided here.
+
+1. **At a 0.085 m height command, the trunk and the head are vertical:** base tilt and the `head_roll_link`
+   up-axis are near **0°** — the strict-standing row on this page already calls tilt below **8°** "upright",
+   and the current values are **25.89°** and **25.62°**, i.e. **3.2×** outside it. (The full strict-standing
+   criterion does not apply to a sitting pose: it also requires a base height above 0.15 m, which a 0.085 m
+   sit command can never satisfy.)
+2. **The pose is mirror-symmetric:** for `hip_pitch`, `knee` and `ankle` the left and right values agree, and
+   for `hip_roll` and `hip_yaw` they agree after the mirror-sign correction above. The current residuals are
+   **173.54°**, **−0.52°**, **−142.33°**, **−0.55°** and **−119.32°** — so two of the five pairs pass and
+   three fail by more than **100°**.
+3. **Both legs support the robot and brace outward:** both soles flat on the ground, the weight carried by
+   the feet, and the hips abducted away from the midline. The current pose has the pelvis on the ground for
+   **100 %** of the last 1.0 s carrying **19.4 %** of the weight and a right foot on a single edge contact.
+   No tolerance is quoted for this one; it was not measured as a bracing force, only as the contacts above.
+   This repository already has precedent for checks of that shape — the strict-standing criterion asks for
+   both soles rather than being propped up on a knee, shoulder or head, and the get-up delivery criterion
+   fails a pose whose head chain presses the ground with more than **2 N** — but neither of those thresholds
+   is stated for the pelvis, so none is applied here.
+
+**Status: known, and not fixed.** Both issues are recorded here as measured, with no fix in this release.
+The training-side work they imply has not been done.
 
 ## How standing is judged
 
@@ -154,9 +323,10 @@ Two things that statement does not mean. It is not a hardware rating: 2.2 N·m i
 ## What this page does not claim
 
 - **No hardware results.** Every number is simulated. The physical robot's mass, friction, compliance, and sensor chain are not in these numbers.
-- **Not reproducible from this repository.** The scene, the measurement protocols, and the measuring tools are private. Five of the policies are now published as ONNX files with a CPU runner ([simulation guide](simulation.md)), so you can re-run the *behaviour* — but this page is a measurement report, and the numbers above come from a different simulator and a protocol that is not published.
+- **Not reproducible from this repository.** The scene, the measurement protocols, and the measuring tools are private. Five of the policies are now published as ONNX files with a CPU runner ([simulation guide](simulation.md)), so you can re-run the *behaviour* — but this page is a measurement report, and the numbers above come from a different simulator and a protocol that is not published. The one exception is [the sit/stand section](#the-two-known-sitstand-issues-as-measured), which is explicitly marked as our own CPU Sim2Sim measurement and is reproducible with the commands given there.
 - **No perception, thermal, or endurance results.** Nothing here covers the camera, the runtime software, duty cycles, or long-duration reliability.
 - **The get-up strict criterion is not met** (0/64), and **walking side-stepping and in-place turning do not work**. Those are open items, not rounding errors.
+- **Sit/stand has two measured, unfixed issues** — it buzzes in place while standing, and its sitting posture is neither upright nor left/right symmetric. The numbers are in [section 6](#6-sit--stand), and no fix is claimed for either.
 - **The training model is not the published model.** The results describe the simulation model used for training, which currently differs from the published URDF in measured-mass updates.
 
 The areas where documentation is deliberately still thin are tracked in the [roadmap](roadmap.md).

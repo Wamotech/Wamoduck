@@ -16,10 +16,11 @@ it takes, both at startup and after every switch.
 policy was trained on. There are **no hardware results anywhere in this repository**, nothing here has been
 tested on a physical robot, and "it stands in MuJoCo" is not a claim that it stands on hardware.
 
-**Three limits worth knowing before you start.** Walking cannot turn in place, and a sideways command drags
-the robot round. `getup` stands up, but it does not settle into the saved nominal pose. And nothing on this
-page was measured on hardware. All three are written out in full, with numbers, under
-[Known gaps, stated plainly](#known-gaps-stated-plainly).
+**Four limits worth knowing before you start.** Walking cannot turn in place, and a sideways command drags
+the robot round. `getup` stands up, but it does not settle into the saved nominal pose. `sitstand` buzzes in
+place while standing, and the pose it holds when you ask it to sit down is neither upright nor left/right
+symmetric. And nothing on this page was measured on hardware. All four are written out in full, with numbers,
+under [Known gaps, stated plainly](#known-gaps-stated-plainly).
 
 ## Quick start
 
@@ -308,6 +309,54 @@ python wamoduck_sim.py --policy rough --terrain-level 3 --vx 0.3 --headless --st
   flat floor, so that switching between the two changes the terrain as well as the policy. `--terrain-level N`
   still overrides both, and then every policy runs on N curbs.
 
+#### `sitstand` at length: the two issues a user reported
+
+A user playing the published demo reported that `sitstand` **buzzes in place while standing**, and that
+sitting down does not give the pose the report described as "head and torso vertical to the ground, left and
+right legs braced symmetrically". Both were measured afterwards with this same runner — CPU only, MuJoCo
+**3.10.0**, ONNX Runtime **1.30.0**, NumPy **2.5.3**, 500 control steps (**10.0 s**), spawn `nominal`, flat
+floor — by running the two commands beside the `stand` policy:
+
+```bash
+python wamoduck_sim.py --policy sitstand --target-height 0.175 --headless --steps 500
+python wamoduck_sim.py --policy sitstand --target-height 0.085 --headless --steps 500
+python wamoduck_sim.py --policy stand                      --headless --steps 500
+```
+
+The run reproduces the two figures already on this page — **0.094 m** held against a 0.085 m command, and a
+**~26°** lean — and adds two that were not recorded before. **None of it is fixed.**
+
+- **At the standing command (0.175 m) the robot buzzes in place.** It is upright (final tilt **0.44°**, base
+  height **0.1762 m**) and it never settles: action jitter, `mean abs(delta a)` per control step, is **0.229**
+  over the whole 10 s, **0.235** after the first 1.0 s and **0.236** in the last 1.0 s, with a maximum single
+  step of **1.313**. The `stand` policy, on the same metric and the same run length, gives **9.9e-5**,
+  **2.9e-7** and **4.1e-8** on those same three windows — roughly six orders of magnitude quieter. Tilt std is **0.403°**
+  (**0.396°** in the last 1.0 s, so it is a sustained limit cycle, not a settling transient), base-height std
+  is **1.10 mm**, and mean absolute joint velocity is **1.69 rad/s** with a peak of **10.11 rad/s**. Both soles
+  are down in only **92.2 %** of the steps after the first 1.0 s, the feet carry **45.46 N** on average against
+  a **36.80 N** weight, and "in place" is approximate: it also travels **0.263 m** in the 10 s.
+- **At the sitting command (0.085 m) the pose is neither upright nor symmetric.** Unlike the standing command,
+  this one is **quiet** — it reaches a static pose inside about 1.0 s (`mean abs(delta a)` **4.4e-7** in the last
+  1.0 s), so the buzz is a standing-height problem only. But the pose it settles into is a **25.89°** lean
+  (roll **−15.99°**, pitch **+20.64°**), measured **0.0943 m** instead of 0.085 m (**+9.3 mm**), with the
+  **head** — `head_roll_link` — **25.62°** off vertical and the neck **25.44°** off, because the head chain's own
+  joints are all within **0.6°** of zero and simply inherit the trunk's lean. It rests on its **pelvis**:
+  `base_link_body_collision` is in contact with the floor in **100 %** of the last 1.0 s, carrying **7.16 N**
+  of the **36.83 N** total. And the two legs are not mirrors of each other — on `hip_pitch`, `hip_yaw` and
+  `ankle` the left and right values sit on **opposite sides of zero** (left hip **+128.29°** against a right hip
+  of **−45.26°**, left ankle **−93.97°** against **+48.36°**), while `hip_roll` and `knee` agree to within
+  **0.6°**. `stand` keeps every one of those five pairs within **0.6°**, so the sign convention is being applied
+  correctly and a symmetric pose is reachable in this model.
+
+The full tables — the per-run jitter comparison, all 14 joint angles, the left/right residuals with the
+mirror-sign convention stated, the contact census, and the user's expectation written as three testable
+statements — are on the [measured capability page](capabilities.md#the-two-known-sitstand-issues-as-measured).
+That page states the sign convention in full: the MJCF mirrors the ranges of the two `hip_yaw` and `hip_roll`
+joints, and a probe confirms a positive `hip_roll` is outward on the left leg and inward on the right, so a
+mirrored pose has those two pairs at **opposite signs** while `hip_pitch`, `knee` and `ankle` should be equal.
+This repository **defines no target sitting pose**, so nothing here says what the sit pose should look like
+beyond restating the user's expectation.
+
 ### The demo switching all five policies: `--cycle-test`
 
 ```
@@ -403,7 +452,23 @@ even with the wrong action order — but across all five spawns that advantage d
   this page quotes only our own CPU Sim2Sim displacement for it and claims nothing else.
 - **`getup` does not reach the strict nominal pose** (52° of joint deviation at the end). It gets up and
   stands; it does not settle into the all-zeros stance.
-- **`sitstand` holds 0.094 m when asked for 0.085 m** and leans ~26° while crouched.
+- **`sitstand` holds 0.094 m when asked for 0.085 m** and leans **~26°** while crouched. Two more issues in
+  the same policy were reported by a user in this demo and then measured here, and **neither is fixed**:
+  - **It buzzes in place at the standing command.** At `--target-height 0.175`, action jitter
+    (`mean abs(delta a)` per control step) is **0.235** after the first 1.0 s — the `stand` policy gives
+    **2.9e-7** on the same metric — tilt std is **0.403°**, mean absolute joint velocity is **1.69 rad/s**, both
+    soles are down in only **92.2 %** of the steps, and the feet carry **45.46 N** on average against a
+    **36.80 N** weight. It does not decay: the last 1.0 s is as restless as the average.
+  - **The sitting posture is neither upright nor left/right symmetric.** At `--target-height 0.085` it is quiet
+    but wrong: base tilt **25.89°** with the head **25.62°** off vertical, base height **0.0943 m** against the
+    commanded 0.085 m, `base_link_body_collision` (the pelvis) on the floor for **100 %** of the last 1.0 s
+    carrying **19.4 %** of the weight, and on three of the five leg-joint pairs the left and right values sit on
+    **opposite sides of zero** (residuals of **119°** to **174°**), where `stand` keeps every pair inside
+    **0.6°**.
+
+  Numbers, commands, the mirror-sign convention and the user's expectation written as three testable statements
+  are under [`sitstand` at length](#sitstand-at-length-the-two-issues-a-user-reported) and on the
+  [measured capability page](capabilities.md#the-two-known-sitstand-issues-as-measured).
 - **The policies were measured in one simulator, on one machine, on one day.** None of the internal
   measurement protocols are published, so nothing here can re-derive the internal rates.
 - **`rough` was checked with 3 hand-placed curbs, not the training terrain generator.** The internal

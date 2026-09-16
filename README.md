@@ -57,7 +57,7 @@ files you can run on your own machine.
 | Gets up from a random lying pose | `getup_v18` | Standing at the end: **64/64** (loose criterion). |
 | Walks on flat ground | `walk_v4r` | Forward walking works. **Turning and side-stepping do not.** |
 | Walks over 1 cm rough terrain | `rough_v2` | **51/64 (79.7 %)** survive 12 s at a 0.3 m/s command. Mean speed is **61 %** of the command. |
-| Sits down and stands back up | `sit_stand_v2` | Interactive height control. No acceptance numbers in this batch. |
+| Sits down and stands back up | `sit_stand_v2` | Interactive height control. No acceptance numbers in this batch. **Two known issues:** it buzzes in place while standing, and the pose it holds when sitting is neither upright nor left/right symmetric. |
 
 ### What still does not work
 
@@ -68,6 +68,14 @@ files you can run on your own machine.
 - **Get-up does not reach the saved nominal pose.** It gets up and stands reliably — 64/64 — but the
   strict criterion "back to the saved nominal pose" is still **0/64**. The remaining error is concentrated
   in the second link of the head chain.
+- **Sit/stand has two reported issues, both measured and neither fixed.** Switch to `sitstand` and the robot
+  **buzzes in place while standing**: action jitter `mean abs(delta a)` per control step is **0.235** at the
+  0.175 m command, against **2.9e-7** for `stand`, with **1.69 rad/s** of mean joint velocity that never
+  decays. Ask it to **sit** (0.085 m) and the pose it holds is a **25.89°** lean — the head is **25.62°** off
+  vertical — at **0.0943 m** instead of 0.085 m, resting partly on its own pelvis, with the left and right
+  legs on opposite sides of zero on three of the five leg pairs (residuals of **119°** to **174°**). Run the
+  two commands in [the simulation guide](docs/simulation.md#sitstand-at-length-the-two-issues-a-user-reported)
+  and you get exactly these numbers.
 - **There is no hardware data at all.** Nothing in this repository was measured on a physical robot.
 
 These are the parts we would rather state than let you discover. The full protocols, the tools behind
