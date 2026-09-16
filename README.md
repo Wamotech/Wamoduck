@@ -51,9 +51,10 @@ This architecture is also being experimentally applied to **intelligent wearable
 
 - **Mechanical prototyping and integration:** prototype fabrication and hardware/software debugging are in progress.
 - **MuJoCo simulation:** simulation work has been completed. The project supports an ONNX deployment approach combining remote-control commands with policy-driven autonomous actions, similar in approach to [Microduck](https://github.com/pollen-robotics/microduck) and [microduck_rl](https://github.com/pollen-robotics/microduck_rl). Integration on the physical robot is ongoing.
-- **Reference gait:** a walking reference trajectory for this URDF is published with the model, together with a MATLAB player. See [Try the reference gait in MATLAB](#try-the-reference-gait-in-matlab).
+- **Trained policies, measured (simulation):** six behaviours are trained and playable from one internal menu — standing against pushes, knock-down recovery, get-up from a random lying pose, keyboard walking, 1 cm rough terrain, and sit/stand. Latest measured, on 2026-09-16: a **40.5 N** push threshold while standing, **5/5** end-to-end knock-down → get-up → nominal-stance trials, **79.7 %** survival across 1 cm terrain, and get-up reaching a standing pose in **64/64** environments while the strict "back to the saved nominal pose" criterion is still **0/64**. Side-stepping and in-place turning are still broken. The figures, the tools that produced them, and the definition of "standing" are documented in [measured capabilities](docs/capabilities.md).
+- **Reference gait:** a walking reference trajectory for this URDF is published with the model, together with a MATLAB player. See [Try the reference gait in MATLAB](#try-the-reference-gait-in-matlab). It is a plan, not one of the trained policies above.
 - **3D printing:** the [standing calibration fixture](hardware/fixtures/standing-zero/README.md) includes four parts and an H2D PLA project. A separate [160 mm A1 mini figurine](hardware/printable/wamoduck-a1mini-standing/README.md) provides a single-piece display model.
-- **Public materials:** this repository currently contains simplified CAD, the URDF and meshes, model parameters, a reference gait with its player, and bilingual documentation. Simulation/training code, ONNX policy files, runtime software, electronics, and a complete build guide are not yet included here.
+- **Public materials:** this repository currently contains simplified CAD, the URDF and meshes, model parameters, a reference gait with its player, and bilingual documentation. Simulation/training code, ONNX policy files, the checkpoints behind the measured results, their evaluation tools, runtime software, electronics, and a complete build guide are not yet included here.
 - **Ongoing updates:** we will continue sharing mechanical revisions, integration progress, and software and hardware documentation as the project develops. Follow the [roadmap](docs/roadmap.md) for the next steps.
 
 The project progress above and the files currently published are different scopes. The bundled [validation record](models/wmduck/validation.json) covers this URDF package's structural and import checks, rather than the project's full simulation or physical-robot validation.
@@ -113,6 +114,7 @@ The reference trajectory uses small alternating foot lifts. Its model-based play
 | View the robot and inspect its joints | [URDF and meshes](models/wmduck/) · [Model guide](docs/model.en.md) |
 | Watch the reference gait / play with it in MATLAB | [Gait guide](docs/matlab.en.md) · [MATLAB player](tools/matlab/) · [Walk video](assets/wamoduck-gait-walk.mp4) |
 | Understand the modeled components | [Component inventory](docs/components.md) |
+| See what the trained policies can actually do, and what still fails | [Measured capabilities](docs/capabilities.md) |
 | Help improve the project | [Contributing](CONTRIBUTING.md) · [Roadmap](docs/roadmap.md) |
 
 Download or clone the complete repository before opening an assembly or URDF. Those files need the parts or meshes supplied alongside them.
@@ -126,9 +128,14 @@ Download or clone the complete repository before opening an assembly or URDF. Th
 | Geometry | 20 simplified STEP part models; 20 STL meshes for the URDF |
 | Approximate model envelope at the saved pose | 181.5 × 221.2 × 390.8 mm (X × Y × Z) |
 | Estimated model mass | 3.751 kg; CAD values with a measured motor mass override, not a measured robot weight |
+| Head-chain share of that mass | 1.654 kg = 44.1 %: `neck_pitch_link` through `mouth_link` |
 | Model units | m, kg, rad; STEP files declare mm |
+| Trained policies (simulated) | 6: standing against pushes, knock-down recovery, get-up, keyboard walking, 1 cm rough terrain, sit/stand |
+| Push threshold while standing (simulated) | 40.5 N: the smallest single horizontal 0.2 s shove that topples at least half of 64 environments (40 N topples 45.3 %) |
+| Knocked down → get up → nominal stance (simulated) | 5/5 trials; "did not fall again after standing up" 4/5 |
+| 1 cm rough terrain (simulated) | 51/64 (79.7 %) survive 12 s at a 0.3 m/s command; mean speed 61 % of the command |
 
-The mass and envelope describe the supplied model, not certified hardware specifications. See the [model assumptions](docs/model.en.md) before using its inertias, motor values, or joint ranges.
+The mass and envelope describe the supplied model, not certified hardware specifications. See the [model assumptions](docs/model.en.md) before using its inertias, motor values, or joint ranges. The last four rows are simulation results for the trained policies, measured on 2026-09-16 in the private development environment; they are **not hardware measurements** and are not reproducible from this repository. See [measured capabilities](docs/capabilities.md) for the methods, the tools, and the parts that do not work.
 
 ## What is included
 
@@ -143,7 +150,7 @@ Wamoduck/
 ├── models/wmduck/        # URDF, meshes, joint data, and import checks
 ├── tools/matlab/         # Reference-gait data and the MATLAB player
 ├── assets/              # Model preview and gait preview
-├── docs/                # Bilingual mechanical, model, and gait guides
+├── docs/                # Bilingual guides: mechanical, model, gait, capabilities, roadmap
 ├── CONTRIBUTING.md
 └── LICENSE
 ```
