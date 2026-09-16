@@ -1,14 +1,16 @@
 {
   "schema_version": 1,
   "prepared_on": "2026-09-14",
-  "scope": "Selected mechanical, robot-description, reference-gait, and print-package assets; excludes this manifest.",
+  "scope": "Selected mechanical, robot-description, reference-gait, print-package, trained-policy, and simulation-runner assets; excludes this manifest.",
   "sources": {
     "simplified_design": "Maintainer-supplied simplified mechanical design set",
     "robot_description": "Selected files from the maintainer-supplied wmduck_urdf export",
     "standing_zero_fixture": "Maintainer-updated P01 and H2D project, with fresh read-only SolidWorks 2025 STEP exports.",
     "static_display_print": "Separate A1 mini task: fused and reinforced q=0 URDF display geometry; see package reports.",
     "reference_gait": "Previously published trajectory CSVs and MATLAB player, retained unchanged; documentation scope clarified.",
-    "branding": "Maintainer-supplied Wamotech logo and wordmark; copied without image changes."
+    "branding": "Maintainer-supplied Wamotech logo and wordmark; copied without image changes.",
+    "trained_policy_mjcf": "MuJoCo models the published policies were trained in, taken from the private development repository; meshdir repointed at this repository's existing meshes.",
+    "trained_policy": "ONNX actors exported by the training runs, published unchanged, plus the runner and policy index written for this repository."
   },
   "assets": [
     {
@@ -1051,6 +1053,97 @@
       "bytes": 19509,
       "sha256": "568e021c8d06b490e7b262e54ace82dd95e3760470029f0605afc19bd570284c",
       "transformation": "none; existing implementation and CSV retained"
+    },
+    {
+      "path": "models/wmduck/mjcf/robot_walk.xml",
+      "source_set": "trained_policy_mjcf",
+      "source_file": "robot_walk.xml",
+      "bytes": 21548,
+      "sha256": "7fa26a59ea0f962c60dd801e50488a5afc5b479af154fec533fd4cf0787f68d7",
+      "source_sha256": "52c3bd7aff65017f8c21c653586848919f987b36c2ef4c067545307e378112d4",
+      "transformation": "The training-time MJCF. One attribute changed: meshdir \".\" -> \"..\" so the model loads the 20 meshes already published under models/wmduck/meshes/ instead of a private copy; text line endings normalized to LF. Inertias, joints, actuators, sensors, contact parameters and the <option> block are otherwise byte-identical to the training file, and the model compiles to identical state."
+    },
+    {
+      "path": "models/wmduck/mjcf/robot_groundcontact.xml",
+      "source_set": "trained_policy_mjcf",
+      "source_file": "robot_groundcontact.xml",
+      "bytes": 30958,
+      "sha256": "93fa8f6244bb79beda8c74ed96f976fb5d9d480efda973397b29adb45fa3b54f",
+      "source_sha256": "99e1542e9f4a8e50d026c523677177cb490361c4a8e19db3ea9f0fb8d52d3881",
+      "transformation": "The training-time MJCF. One attribute changed: meshdir \".\" -> \"..\" so the model loads the 20 meshes already published under models/wmduck/meshes/ instead of a private copy; text line endings normalized to LF. Inertias, joints, actuators, sensors, contact parameters and the <option> block are otherwise byte-identical to the training file, and the model compiles to identical state."
+    },
+    {
+      "path": "models/wmduck/mjcf/README.md",
+      "source_set": "trained_policy_mjcf",
+      "source_file": "README.md",
+      "bytes": 3666,
+      "sha256": "b5b4a9dda0a121ebac447d41107e2d4a0290c5a00f7f469b538367eb74c24179",
+      "source_sha256": "b5b4a9dda0a121ebac447d41107e2d4a0290c5a00f7f469b538367eb74c24179",
+      "transformation": "Authored for this repository; no external source. Text line endings are LF."
+    },
+    {
+      "path": "policies/wamoduck-stand-stand_v3.onnx",
+      "source_set": "trained_policy",
+      "source_file": "2026-09-12_08-32-26_stand_v3.onnx",
+      "bytes": 766915,
+      "sha256": "3ec3397ae9c17743ee4214234864da392562f7550ca7459ef1bd09dd2f44262f",
+      "source_sha256": "3ec3397ae9c17743ee4214234864da392562f7550ca7459ef1bd09dd2f44262f",
+      "transformation": "none; copied byte-for-byte from the training run's ONNX export (checkpoint model_1499.pt)."
+    },
+    {
+      "path": "policies/wamoduck-getup-getup_v18.onnx",
+      "source_set": "trained_policy",
+      "source_file": "2026-09-15_17-37-06_getup_v18.onnx",
+      "bytes": 766915,
+      "sha256": "804d2cee90881d6eb4756f9306d27bd3e19c8e9aa3f903bec65089787e323bf5",
+      "source_sha256": "804d2cee90881d6eb4756f9306d27bd3e19c8e9aa3f903bec65089787e323bf5",
+      "transformation": "none; copied byte-for-byte from the training run's ONNX export (checkpoint model_3999.pt)."
+    },
+    {
+      "path": "policies/wamoduck-sitstand-sit_stand_v2.onnx",
+      "source_set": "trained_policy",
+      "source_file": "2026-09-12_11-18-34_sit_stand_v2.onnx",
+      "bytes": 768992,
+      "sha256": "26e40f7a20f333c52816e53cb092b945f677c526d8f1685bf886d321c21a680d",
+      "source_sha256": "26e40f7a20f333c52816e53cb092b945f677c526d8f1685bf886d321c21a680d",
+      "transformation": "none; copied byte-for-byte from the training run's ONNX export (checkpoint model_2499.pt)."
+    },
+    {
+      "path": "policies/wamoduck-walk-walk_v4r.onnx",
+      "source_set": "trained_policy",
+      "source_file": "2026-09-16_12-01-21_walk_v4r.onnx",
+      "bytes": 773096,
+      "sha256": "ff1379550b1c107ab1287dd85627466dae235580e96da8e4d1b77033305d393d",
+      "source_sha256": "ff1379550b1c107ab1287dd85627466dae235580e96da8e4d1b77033305d393d",
+      "transformation": "none; copied byte-for-byte from the training run's ONNX export (final checkpoint model_6000.pt)."
+    },
+    {
+      "path": "policies/wamoduck-rough-rough_v2.onnx",
+      "source_set": "trained_policy",
+      "source_file": "2026-09-16_00-00-04_rough_v2.onnx",
+      "bytes": 773096,
+      "sha256": "811d79ea78a0ba3d349f5b7709fe6ffaf382c3929d61b13f47b43a0fac4a425b",
+      "source_sha256": "811d79ea78a0ba3d349f5b7709fe6ffaf382c3929d61b13f47b43a0fac4a425b",
+      "transformation": "none; copied byte-for-byte from the training run's ONNX export (checkpoint model_5999.pt)."
+    },
+    {
+      "path": "policies/README.md",
+      "source_set": "trained_policy",
+      "source_file": "README.md",
+      "bytes": 4476,
+      "sha256": "e00a9c8cbe6dea95c8943b35ed5b40c3bc94929b8ce5e21f02b61ca631b02721",
+      "source_sha256": "e00a9c8cbe6dea95c8943b35ed5b40c3bc94929b8ce5e21f02b61ca631b02721",
+      "transformation": "Authored for this repository; no external source. Text line endings are LF."
+    },
+    {
+      "path": "wamoduck_sim.py",
+      "source_set": "trained_policy",
+      "source_file": "wamoduck_sim.py",
+      "bytes": 36937,
+      "sha256": "8a03e7c31d59c42e259eaac0f3bd94fc14fe9ca7f0b26f1a0a856316b200dac4",
+      "source_sha256": "8a03e7c31d59c42e259eaac0f3bd94fc14fe9ca7f0b26f1a0a856316b200dac4",
+      "transformation": "Authored for this repository; no external source. Text line endings are LF."
     }
-  ]
+  ],
+  "updated_on": "2026-09-16"
 }

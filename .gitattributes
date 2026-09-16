@@ -6,6 +6,7 @@
 *.SLDASM binary
 *.stl binary
 *.3mf binary
+*.onnx binary
 *.png binary
 *.jpg binary
 *.gif binary

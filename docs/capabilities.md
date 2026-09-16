@@ -1,10 +1,12 @@
 # Measured capabilities / 实测能力清单
 
-[Home](../README.md) · English | [简体中文](capabilities.zh-CN.md) · [Roadmap](roadmap.md)
+[Home](../README.md) · English | [简体中文](capabilities.zh-CN.md) · [Simulation guide](simulation.md) · [Roadmap](roadmap.md)
 
 This page is one honest board of what the trained policies actually do. Every figure was measured in simulation on **2026-09-16** and copied from a measurement log, with the tool that produced it named beside it. Nothing here is extrapolated, estimated, or carried over from a different run without saying so, and the parts that do not work are listed with the same weight as the parts that do.
 
 **Scope: simulation only.** The policies run in a MuJoCo / mjlab environment on one laptop GPU, normally **64 parallel environments** per measurement (32 for the walking table), with the round named in each row. There are no hardware measurements on this page. The training code, the scene generator, the checkpoints, and the measurement tools live in the private development repository and are **not** published here — so this page reports measurements rather than offering a reproduction recipe. Re-measure before quoting it.
+
+**Five of these policies are now published** as ONNX files, with the MJCF model they were trained on and a CPU runner — so their behaviour can be re-run, though **not** the measurement protocols behind the numbers below. See [Run the trained policies in MuJoCo](simulation.md) / [在 MuJoCo 里跑训练好的策略](simulation.zh-CN.md) for the observation and action contract, the joint ordering, our own CPU check results, and the parts that still do not work.
 
 ## Summary
 
@@ -17,7 +19,7 @@ This page is one honest board of what the trained policies actually do. Every fi
 | 5 | 1 cm rough terrain | `rough_v2` (`model_5999.pt`) | Survival **51/64 (79.7 %)**; mean speed **61 %** of the command |
 | 6 | Sit / stand | `sit_stand_v2` (`model_2499.pt`, shipped) | Interactive height control; no acceptance numbers in this batch |
 
-A policy marked *shipped* is the checkpoint the interactive demos load by default in the development repository; it is not in this repository.
+A policy marked *shipped* is the checkpoint the interactive demos load by default in the development repository. As of this release, five of the six rows also have a published ONNX file you can run yourself: `stand_v3`, `getup_v18`, `sit_stand_v2`, and `rough_v2` are the exact checkpoints on this page, while the published walking policy is `walk_v4r` rather than the `walk_r3` this page measured — see [row 4](#4-flat-ground-walking) and the [simulation guide](simulation.md).
 
 ## 1. Standing against a push
 
@@ -87,8 +89,14 @@ Read this row with more care than the others, because **the numbers and the poli
 
 Two warnings, both about honesty rather than capability:
 
-- The shipped `walk_r3` checkpoint was trained under a different command range from the one the current configuration uses, so measurements of it under the current range are **not directly comparable** with the fresh table. Its behaviour is best judged by driving the interactive keyboard demo, not by quoting either table. Walking is being retrained (`walk_v4r`).
+- The shipped `walk_r3` checkpoint was trained under a different command range from the one the current configuration uses, so measurements of it under the current range are **not directly comparable** with the fresh table. Its behaviour is best judged by driving the interactive keyboard demo, not by quoting either table. Walking has since been retrained: `walk_v4r` reached its iteration limit of 6000 on 2026-09-16 and **its final checkpoint `model_6000.pt` is the walking policy published in this repository** — that ONNX is not the checkpoint this table measured.
 - The ruler itself was replaced for this round. The old criterion used the net world-frame displacement, which cannot tell "cannot walk" from "walked in a circle"; the numbers above are body-frame integrals of the same quantity the training reward uses, and the tool validates itself against analytic trajectories before measuring anything.
+
+What our own CPU check of the published `walk_v4r` policy shows, through the published
+[simulation runner](simulation.md), is consistent with the two failures above: at a +0.30 m/s forward command it
+travelled **1.482 m** of the commanded 1.500 m in 5 s and never fell, but drifted **0.328 m** sideways while
+being commanded to go straight. That is a Sim2Sim check on plain CPU MuJoCo, not a re-measurement of this
+table, and the two are not comparable.
 
 ## 5. 1 cm rough terrain
 
@@ -139,7 +147,7 @@ Two things that statement does not mean. It is not a hardware rating: 2.2 N·m i
 ## What this page does not claim
 
 - **No hardware results.** Every number is simulated. The physical robot's mass, friction, compliance, and sensor chain are not in these numbers.
-- **Not reproducible from this repository.** The policies, the scene, and the measuring tools are private. This page is a measurement report.
+- **Not reproducible from this repository.** The scene, the measurement protocols, and the measuring tools are private. Five of the policies are now published as ONNX files with a CPU runner ([simulation guide](simulation.md)), so you can re-run the *behaviour* — but this page is a measurement report, and the numbers above come from a different simulator and a protocol that is not published.
 - **No perception, thermal, or endurance results.** Nothing here covers the camera, the runtime software, duty cycles, or long-duration reliability.
 - **The get-up strict criterion is not met** (0/64), and **walking side-stepping and in-place turning do not work**. Those are open items, not rounding errors.
 - **The training model is not the published model.** The results describe the simulation model used for training, which currently differs from the published URDF in measured-mass updates.

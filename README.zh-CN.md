@@ -52,9 +52,10 @@ flowchart LR
 - **结构打样与实机联调：** 正在进行样机结构制作和软硬件联合调试。
 - **MuJoCo 仿真：** 已完成仿真工作，支持将遥控指令与策略驱动的自主动作结合的 ONNX 部署方式，思路类似 [Microduck](https://github.com/pollen-robotics/microduck) 与 [microduck_rl](https://github.com/pollen-robotics/microduck_rl)。面向实机的集成与调试仍在推进。
 - **已训练策略与实测结果（仿真）：** 已有六项训练出来的能力，可在内部菜单里逐项操作——站立抗扰、推倒恢复、随机躺姿起身、键盘行走、1 cm 越障、坐/站。2026-09-16 的最新实测：站立抗推临界 **40.5 N**；推倒→自己起身→站回标称的端到端接力 **5/5**；1 cm 地形存活 **79.7 %**；起身有 **64/64** 的环境最终站住，但"回到保存的标称姿态"这条严格口径仍是 **0/64**；侧移与原地转仍不可用。数字、产出它们的工具，以及"站稳"的判定口径见[实测能力清单](docs/capabilities.zh-CN.md)。
+- **可以自己跑的已训练策略（仿真）：** 其中五项已在本仓库以 ONNX 文件公开，并随附它们**训练时用的 MJCF 模型**与一个单文件 CPU 运行器。`pip install mujoco onnxruntime numpy`，然后 `python wamoduck_sim.py --policy stand`。入口见[在 MuJoCo 里跑训练好的策略](docs/simulation.zh-CN.md)：该页逐项写明观测与动作契约，并给出我们自己 CPU 复核测到的结果。这仍然只是 Sim2Sim —— 本仓库没有任何实机结果。
 - **参考步态：** 已随模型公开一条针对本 URDF 的行走参考轨迹，并附带 MATLAB 回放器，见[在 MATLAB 里试走参考步态](#在-matlab-里试走参考步态)。它是规划结果，不属于上面那些训练策略。
 - **3D 打印：** [站姿标定工装](hardware/fixtures/standing-zero/README.zh-CN.md)提供四个分件与 H2D PLA 工程；另有独立的 [160 mm A1 mini 展示模型](hardware/printable/wamoduck-a1mini-standing/README_打印说明.md)，可一体打印。
-- **当前公开资料：** 仓库已包含简化 CAD、URDF 与网格、模型参数、参考步态与回放器，以及中英文文档。仿真／训练代码、ONNX 策略文件、上述实测结果背后的检查点及其评估工具、运行软件、电子系统和完整搭建教程尚未在本仓库提供。
+- **当前公开资料：** 仓库已包含简化 CAD、URDF 与网格、模型参数、参考步态与回放器、**五个训练好的 ONNX 策略及其训练用 MJCF 与 CPU 运行器**，以及中英文文档。仿真／训练代码、上述实测结果背后的检查点及其评估工具、运行软件、电子系统和完整搭建教程尚未在本仓库提供。
 - **持续更新：** 后续会随着项目推进，陆续更新结构版本、联调进展及软硬件资料，具体方向见[路线图](docs/roadmap.md)。
 
 以上项目进展与仓库当前公开文件的范围有所不同。随附[验证记录](models/wmduck/validation.json)只覆盖本 URDF 包的结构与导入检查，不代表项目全部仿真或实机验证结果。
@@ -107,6 +108,28 @@ wamoduck_play(true)    % 无界面自检：单位、关节限位、脚底贴地
 
 参考轨迹包含小幅交替抬脚，模型回放本身不能证明动态平衡。原规划分析指出模型的重心横移能力有限，且没有踝侧摆关节；分析口径与已知限制见[步态指南](docs/matlab.zh-CN.md)，这些数据不是实机测量结果。
 
+## 在 MuJoCo 里跑训练好的策略
+
+其中五项已训练策略以 ONNX 文件公开，每个都随附它训练时用的 MJCF 模型，另有单文件运行器。运行器只依赖
+`mujoco`、`onnxruntime`、`numpy` —— 不需要 GPU，也不需要训练框架：
+
+```bash
+pip install mujoco onnxruntime numpy
+python wamoduck_sim.py --list                 # 站立、起身、坐/站、行走、1 cm 越障
+python wamoduck_sim.py --policy stand         # 打开交互窗口
+python wamoduck_sim.py --policy walk --vx 0.3
+python wamoduck_sim.py --policy getup --spawn lie-back
+```
+
+我们自己的 CPU 复核走的就是这条公开代码路径，结果是：`stand` 在 5 s 内保持 **0.54°** 倾角与 1 mm 漂移
+（连严格的"标称站姿"口径都通过）；`getup` 能从公开的五个躺姿在 6 s 内站起来；`walk` 在 0.3 m/s 指令下
+走完指令 1.500 m 中的 **1.482 m**。
+
+使用这些文件前请先读[中文仿真指南](docs/simulation.zh-CN.md)／[英文版](docs/simulation.md)：该页逐项写明观测
+布局与动作换算、说明为什么 ONNX 里已含观测归一化、说明为什么**必须用随附的 MJCF 而不是 URDF**，并列出已知
+不足 —— 包括行走的原地转与侧移都不可用。**这里只是 Sim2Sim。** 本仓库没有任何实机结果，也没有任何策略在实物
+机器人上测过。
+
 ## 从这里开始
 
 | 你想做什么 | 对应入口 |
@@ -116,6 +139,7 @@ wamoduck_play(true)    % 无界面自检：单位、关节限位、脚底贴地
 | 打印小型固定展示模型 | [160 mm A1 mini 一体打印版](hardware/printable/wamoduck-a1mini-standing/README_打印说明.md) |
 | 查看原生装配关系 | [SolidWorks 文件](hardware/solidworks/) · [打开方法](docs/mechanical.zh-CN.md#solidworks-装配体) |
 | 查看整机和关节运动 | [URDF 与网格](models/wmduck/) · [模型指南](docs/model.zh-CN.md) |
+| **自己在 MuJoCo 里跑训练好的策略** | [仿真指南](docs/simulation.zh-CN.md) · [ONNX 策略](policies/) · [`wamoduck_sim.py`](wamoduck_sim.py) |
 | 看参考步态 / 在 MATLAB 里自己播 | [步态指南](docs/matlab.zh-CN.md) · [MATLAB 回放器](tools/matlab/) · [行走视频](assets/wamoduck-gait-walk.mp4) |
 | 了解模型中包含的部件 | [组件清单](docs/components.md) |
 | 看训练策略实际能做到什么、哪些还不行 | [实测能力清单](docs/capabilities.zh-CN.md) |
@@ -141,7 +165,7 @@ wamoduck_play(true)    % 无界面自检：单位、关节限位、脚底贴地
 | 推倒 → 起身 → 标称站姿（仿真） | 5/5 次试验；"起身后没有再次摔倒" 4/5 |
 | 1 cm 越障（仿真） | 0.3 m/s 指令下跑 12 s，存活 51/64（79.7 %）；平均速度是指令的 61 % |
 
-质量和包络描述的是所附模型，并非经过实物验证的规格。使用惯量、电机参数或关节范围前，请先阅读[模型假设](docs/model.zh-CN.md)。最后四行是训练策略的仿真实测结果，测量于 2026-09-16 的内部研发环境，**不是实机数据**，也无法从本仓库复现。方法、工具与仍不可用的部分见[实测能力清单](docs/capabilities.zh-CN.md)。
+质量和包络描述的是所附模型，并非经过实物验证的规格。使用惯量、电机参数或关节范围前，请先阅读[模型假设](docs/model.zh-CN.md)。最后四行是训练策略的仿真实测结果，测量于 2026-09-16 的内部研发环境，**不是实机数据**。其中五项策略现已随运行器公开，因此它们的行为可以在本仓库里以仿真方式重跑 —— 具体哪些能复现、哪些不能，见[仿真指南](docs/simulation.zh-CN.md) —— 但内部的测量协议与工具仍未公开。方法、工具与仍不可用的部分见[实测能力清单](docs/capabilities.zh-CN.md)。
 
 ## 本次包含什么
 
@@ -154,9 +178,12 @@ Wamoduck/
 │   ├── fixtures/standing-zero/ # 四个 STEP、四个打印 STL 与 H2D 工程
 │   └── printable/        # 固定展示模型与 A1 mini 工程
 ├── models/wmduck/        # URDF、网格、关节数据与导入检查
+│   └── mjcf/             # 策略训练时用的 MJCF 模型
+├── policies/             # 五个训练好的 ONNX 策略
+├── wamoduck_sim.py       # 单文件 CPU 运行器（mujoco + onnxruntime + numpy）
 ├── tools/matlab/         # 参考步态数据与 MATLAB 回放器
 ├── assets/              # 模型预览图与步态预览
-├── docs/                # 中英文指南：机械、模型、步态、实测能力、路线图
+├── docs/                # 中英文指南：机械、模型、步态、仿真、实测能力、路线图
 ├── CONTRIBUTING.md
 └── LICENSE
 ```
