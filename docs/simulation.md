@@ -53,6 +53,11 @@ Controls are typed into the terminal that launched the script, not into the view
 | `h` / `?` | print the key table again | every policy |
 | `x` | quit | every policy |
 
+**The viewer window names the policy too.** Top-left it writes `policy: walk` — the policy that is running —
+and bottom-left `selected: walk`, the one that was last asked for, beside the observation size, the MJCF and
+terrain, and the live command values, so "what is it doing right now" is on screen and not only in the
+terminal. The two names differ only when a switch was refused, which is exactly when seeing it matters.
+
 **No key is ignored in silence.** The twist keys only exist in the observation of `walk` and `rough`, and `m`
 only exists for `sitstand`; pressing a key the current policy has no channel for prints what the key would
 need and what the policy actually observes, and a key the runner does not bind at all says so too:

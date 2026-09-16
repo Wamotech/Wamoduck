@@ -123,10 +123,11 @@ python wamoduck_sim.py --policy walk --vx 0.3
 python wamoduck_sim.py --policy getup --spawn lie-back
 ```
 
-Keys `1`-`5` switch policy (`stand`, `getup`, `sitstand`, `walk`, `rough`) inside that one window; the twist
-keys (`↑`/`w`, `↓`/`s`, `←`/`a`, `→`/`d`, `e`, `z`, `space`) drive `walk` and `rough`, and `m` toggles sit/stand
-on `sitstand`. Switching between the four policies that share `robot_walk.xml` keeps the robot's pose and
-velocity; entering or leaving `getup` reloads its own MJCF and re-spawns the robot, and the runner prints why.
+Keys `1`-`5` switch policy (`stand`, `getup`, `sitstand`, `walk`, `rough`) inside that one window — the window
+itself writes the running policy's name on screen — and the twist keys (`↑`/`w`, `↓`/`s`, `←`/`a`, `→`/`d`, `e`,
+`z`, `space`) drive `walk` and `rough` while `m` toggles sit/stand on `sitstand`. Switching between the four
+policies that share `robot_walk.xml` keeps the robot's pose and velocity; entering or leaving `getup` reloads
+its own MJCF and re-spawns the robot, and the runner prints why.
 
 Our own CPU checks, run through this published code path, give: `stand` holding **0.54°** of tilt and
 1 mm of drift over 5 s (passing even the strict "nominal stance" criterion), `getup` standing up from all

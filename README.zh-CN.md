@@ -122,10 +122,10 @@ python wamoduck_sim.py --policy walk --vx 0.3
 python wamoduck_sim.py --policy getup --spawn lie-back
 ```
 
-`1`-`5` 切换策略（`stand`、`getup`、`sitstand`、`walk`、`rough`）；速度键（`↑`／`w`、`↓`／`s`、`←`／`a`、
-`→`／`d`、`e`、`z`、`space`）驱动 `walk` 与 `rough`，`m` 在 `sitstand` 上切换坐／站。共用
-`robot_walk.xml` 的四个策略之间切换会**保留**机器人的姿态与速度；进入或离开 `getup` 会重新加载它自己的
-MJCF 并让机器人重新出生，运行器会把原因打印出来。
+`1`-`5` 切换策略（`stand`、`getup`、`sitstand`、`walk`、`rough`）—— 窗口角上会写着**正在运行的策略名**；
+速度键（`↑`／`w`、`↓`／`s`、`←`／`a`、`→`／`d`、`e`、`z`、`space`）驱动 `walk` 与 `rough`，`m` 在 `sitstand`
+上切换坐／站。共用 `robot_walk.xml` 的四个策略之间切换会**保留**机器人的姿态与速度；进入或离开 `getup` 会重新
+加载它自己的 MJCF 并让机器人重新出生，运行器会把原因打印出来。
 
 我们自己的 CPU 复核走的就是这条公开代码路径，结果是：`stand` 在 5 s 内保持 **0.54°** 倾角与 1 mm 漂移
 （连严格的"标称站姿"口径都通过）；`getup` 能从公开的五个躺姿在 6 s 内站起来；`walk` 在 0.3 m/s 指令下

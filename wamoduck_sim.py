@@ -831,6 +831,42 @@ def print_policy_state(bot: "Wamoduck", tag: str = "policy") -> None:
           f"{bot.onnx_path.name}  act {N_ACT}-D")
 
 
+def describe_command_short(bot: "Wamoduck") -> str:
+    """The command value in as few characters as the viewer overlay can take."""
+    if bot.spec.command == "twist":
+        return (f"cmd  vx {bot.command[0]:+.2f}  vy {bot.command[1]:+.2f}  "
+                f"wz {bot.command[2]:+.2f}")
+    if bot.spec.command == "height":
+        return f"height  {bot.height_command:.3f} m"
+    return "no command channel on this policy"
+
+
+def viewer_status_texts(bot: "Wamoduck", selected: str) -> list | None:
+    """The status lines drawn *inside* the viewer window.
+
+    Top row: the policy that is running, and its observation size. Bottom row: the
+    policy that was selected (they differ only if a switch was refused, which is
+    exactly when it is worth seeing), the key hint, and the command values. Returns
+    ``None`` when this MuJoCo build has no viewer overlay API, so the caller can
+    fall back to the terminal.
+    """
+    import mujoco
+
+    try:
+        font = mujoco.mjtFontScale.mjFONTSCALE_150
+        top = mujoco.mjtGridPos.mjGRID_TOPLEFT
+        bottom = mujoco.mjtGridPos.mjGRID_BOTTOMLEFT
+    except AttributeError:                       # very old MuJoCo
+        return None
+    terrain = "flat" if bot.terrain_level == 0 else f"{bot.terrain_level} x 1 cm curbs"
+    return [
+        (font, top, f"policy: {bot.spec.name}",
+         f"obs {bot.spec.obs_dim}-D   act {N_ACT}-D   {bot.spec.mjcf}   terrain: {terrain}"),
+        (font, bottom, f"selected: {selected}   (1-5 / Tab / n switches policy)",
+         describe_command_short(bot)),
+    ]
+
+
 # Which keys the runner binds, and which policies each one can act on. This is the
 # single source of the key table: it is printed at startup, again on `h`, and it is
 # what the "no effect with this policy" notes are derived from.
@@ -911,6 +947,9 @@ class Demo:
         self.args = args
         self.rng = np.random.default_rng(args.seed)
         self.bot: Wamoduck | None = None
+        #: The policy the user asked for. It tracks :attr:`bot.spec` unless a switch
+        #: was refused, and the viewer window shows both so that is visible.
+        self.selected = args.policy
         self.first_load = True
         self.restart_viewer = False
         self.quit = False
@@ -982,8 +1021,10 @@ class Demo:
             return
         new_spec = POLICIES[name]
         if name == old_spec.name:
+            self.selected = name
             print(f"[switch] '{name}' is already running -- nothing changed")
             return
+        self.selected = name
         try:
             if new_spec.mjcf == old_spec.mjcf:
                 # Same physical model: swap the actor and the observation assembly
@@ -1380,6 +1421,8 @@ def run_viewer(demo: Demo) -> int:
                       f"model, or keep using --headless / --cycle-test")
                 return 1
             launched_once = True
+            status_shown: list | None = None
+            overlay_missing = False
             with viewer:
                 n = 0
                 while viewer.is_running() and not demo.quit and not demo.restart_viewer:
@@ -1394,12 +1437,26 @@ def run_viewer(demo: Demo) -> int:
                     if bot.policy_on:
                         bot.apply(bot.act(bot.observe()))
                     bot.step()
+                    # Keep the policy name on screen: the window is where the user is
+                    # looking while pressing 1-5, and a switch that reloads the MJCF
+                    # reopens the window, so this is refreshed per window.
+                    texts = viewer_status_texts(bot, demo.selected)
+                    if texts is None or getattr(viewer, "set_texts", None) is None:
+                        if not overlay_missing:
+                            overlay_missing = True
+                            print("[viewer] this MuJoCo build has no viewer text overlay -- "
+                                  "the policy name is printed in this terminal instead")
+                    elif texts != status_shown:
+                        viewer.set_texts(texts)
+                        status_shown = texts
                     viewer.sync()
                     n += 1
                     if n % int(CONTROL_HZ * 5) == 0:
                         st = bot.status()
                         print(f"  t={n / CONTROL_HZ:6.1f}s " + format_status("run", st)
                               + f"  policy={bot.spec.name}"
+                              + (f"  selected={demo.selected}"
+                                 if demo.selected != bot.spec.name else "")
                               + (f"  cmd=({bot.command[0]:+.2f},{bot.command[1]:+.2f},"
                                  f"{bot.command[2]:+.2f})"
                                  if bot.spec.command == "twist" else "")
