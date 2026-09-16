@@ -110,16 +110,22 @@ wamoduck_play(true)    % 无界面自检：单位、关节限位、脚底贴地
 
 ## 在 MuJoCo 里跑训练好的策略
 
-其中五项已训练策略以 ONNX 文件公开，每个都随附它训练时用的 MJCF 模型，另有单文件运行器。运行器只依赖
-`mujoco`、`onnxruntime`、`numpy` —— 不需要 GPU，也不需要训练框架：
+其中五项已训练策略以 ONNX 文件公开，每个都随附它训练时用的 MJCF 模型，另有单文件运行器。**五个策略跑在同一个
+demo 里，运行中就能切换** —— 按 `1`-`5`，或按 `Tab`／`n` 切到下一个。运行器只依赖 `mujoco`、`onnxruntime`、
+`numpy` —— 不需要 GPU，也不需要训练框架：
 
 ```bash
 pip install mujoco onnxruntime numpy
 python wamoduck_sim.py --list                 # 站立、起身、坐/站、行走、1 cm 越障
-python wamoduck_sim.py --policy stand         # 打开交互窗口
+python wamoduck_sim.py                        # 一个窗口，五个策略
 python wamoduck_sim.py --policy walk --vx 0.3
 python wamoduck_sim.py --policy getup --spawn lie-back
 ```
+
+`1`-`5` 切换策略（`stand`、`getup`、`sitstand`、`walk`、`rough`）；速度键（`↑`／`w`、`↓`／`s`、`←`／`a`、
+`→`／`d`、`e`、`z`、`space`）驱动 `walk` 与 `rough`，`m` 在 `sitstand` 上切换坐／站。共用
+`robot_walk.xml` 的四个策略之间切换会**保留**机器人的姿态与速度；进入或离开 `getup` 会重新加载它自己的
+MJCF 并让机器人重新出生，运行器会把原因打印出来。
 
 我们自己的 CPU 复核走的就是这条公开代码路径，结果是：`stand` 在 5 s 内保持 **0.54°** 倾角与 1 mm 漂移
 （连严格的"标称站姿"口径都通过）；`getup` 能从公开的五个躺姿在 6 s 内站起来；`walk` 在 0.3 m/s 指令下
@@ -180,7 +186,7 @@ Wamoduck/
 ├── models/wmduck/        # URDF、网格、关节数据与导入检查
 │   └── mjcf/             # 策略训练时用的 MJCF 模型
 ├── policies/             # 五个训练好的 ONNX 策略
-├── wamoduck_sim.py       # 单文件 CPU 运行器（mujoco + onnxruntime + numpy）
+├── wamoduck_sim.py       # 单文件 CPU 运行器：一个 demo 跑五个策略（mujoco + onnxruntime + numpy）
 ├── tools/matlab/         # 参考步态数据与 MATLAB 回放器
 ├── assets/              # 模型预览图与步态预览
 ├── docs/                # 中英文指南：机械、模型、步态、仿真、实测能力、路线图

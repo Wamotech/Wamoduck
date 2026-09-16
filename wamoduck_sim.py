@@ -1,11 +1,16 @@
 #!/usr/bin/env python3
 """Run the trained Wamoduck policies in plain MuJoCo, on CPU.
 
-This is a **Sim2Sim** tool: it loads one of the ONNX policies published in
+This is a **Sim2Sim** tool: it loads the ONNX policies published in
 ``policies/`` together with the **training-time MJCF** in
-``models/wmduck/mjcf/`` and runs the same observation/action contract the policy
+``models/wmduck/mjcf/`` and runs the same observation/action contract each policy
 was trained with, at the same 50 Hz control rate. It is not hardware code, and
 nothing here has been validated on a physical robot.
+
+**One demo, all five policies.** The viewer starts on ``--policy`` (``stand`` by
+default) and the number keys switch between every published policy while it
+runs, so walking, sitting down, standing up, and the rough-terrain policy are all
+reachable in the same window -- no restart, no second script.
 
 Dependencies: ``mujoco``, ``onnxruntime``, ``numpy``. Nothing else -- no mjlab,
 no torch, no rsl_rl, no GPU.
@@ -14,23 +19,50 @@ Quick start
 -----------
     pip install mujoco onnxruntime numpy
     python wamoduck_sim.py --list
-    python wamoduck_sim.py --policy stand
+    python wamoduck_sim.py                                 # one window, all five
     python wamoduck_sim.py --policy getup --spawn lie-back
     python wamoduck_sim.py --policy walk --vx 0.3
     python wamoduck_sim.py --policy stand --check          # contract self-test
     python wamoduck_sim.py --policy stand --headless --steps 250
+    python wamoduck_sim.py --cycle-test                    # headless switching test
 
 Controls (type into the terminal that launched the script, not the viewer window)
 --------------------------------------------------------------------------------
-    up / w      vx += 0.1 m/s          down / s    vx -= 0.1 m/s
-    left / a    vy += 0.1 m/s          right / d   vy -= 0.1 m/s
-    e           wz += 0.1 rad/s        z           wz -= 0.1 rad/s
-    space       zero the twist command
-    m           sit / stand toggle (only the ``sitstand`` policy)
-    r           reset (re-spawn)
+    1 2 3 4 5   switch policy: 1=stand  2=getup  3=sitstand  4=walk  5=rough
+    Tab / n     switch to the next policy in that order
+    up / w      vx += 0.1 m/s          down / s    vx -= 0.1 m/s   (walk, rough)
+    left / a    vy += 0.1 m/s          right / d   vy -= 0.1 m/s   (walk, rough)
+    e           wz += 0.1 rad/s        z           wz -= 0.1 rad/s (walk, rough)
+    space       zero the twist command                             (walk, rough)
+    m           sit / stand toggle: 0.085 m sit / 0.175 m stand    (sitstand)
+    r           reset (re-spawn the current policy)
     k           toggle the policy (hold the zero action instead)
     q           reset with a random push
+    h / ?       print the key table again
     x           quit
+
+The twist keys only exist in the observation of ``walk`` and ``rough``, and ``m``
+only exists for ``sitstand``. A key that the current policy has no channel for is
+**not ignored in silence**: the runner says which command the key would need and
+which one the policy actually observes. A key that is not bound at all says so
+too, and points at ``h``.
+
+Switching policies
+------------------
+    stand, sitstand, walk, rough        same MJCF, ``robot_walk.xml``
+        The ONNX actor and the observation assembly (48 / 49 / 51 values) are
+        swapped **in place**: the robot keeps its pose, its velocity, and the
+        command state. ``last_action`` is zeroed, because that observation is the
+        new policy's own memory and a fresh policy has no history.
+    getup                               ``robot_groundcontact.xml``
+        Entering or leaving ``getup`` **reloads the MJCF**, so the robot state
+        cannot be kept: it is a different physical model (the head chain
+        collides, which is what lets the robot lie down). The runner says so on
+        screen, and re-spawns into ``getup`` lying down and out of ``getup`` in
+        the nominal stance.
+    walk <-> rough                      terrain, not the MJCF
+        The 1 cm curbs are moved to (or away from) the robot's own position, so
+        the model is not reloaded and the state is kept.
 
 The observation contract (this is the part that silently breaks everything if
 it is wrong) is assembled in :meth:`Wamoduck.observe` and documented in
@@ -89,7 +121,21 @@ CMD_STEP = {"vx": 0.1, "vy": 0.1, "wz": 0.1}
 # Body-height command of the sit/stand task: BodyHeightCommandCfg.height_range.
 SIT_HEIGHT, TALL_HEIGHT = 0.085, 0.175
 
+# The rough task was trained on 1 cm curbs (STEP_HEIGHT = 1 cm in the cfg), spaced
+# 0.3 m apart and starting 0.3 m ahead of the robot. The runner always compiles
+# MAX_CURBS of them into the model and parks the unused ones below the floor with
+# their collision switched off, so `walk` <-> `rough` can change the terrain
+# without reloading the MJCF.
+MAX_CURBS = 3
+CURB_HALF_HEIGHT = 0.005      # 1 cm curb
+CURB_SPACING = 0.3
+CURB_FIRST_AHEAD = 0.3
+CURB_PARKED_Z = -1.0          # below the floor: out of sight and out of contact
+DEFAULT_TERRAIN = {"rough": MAX_CURBS}
+
 OBS_GROUPS = ["base_ang_vel", "projected_gravity", "joint_pos", "joint_vel", "last_action"]
+OBS_SIZES = [3, 3, 14, 14, 14]
+CMD_INDEX = {"vx": 0, "vy": 1, "wz": 2}
 
 
 @dataclass(frozen=True)
@@ -167,6 +213,10 @@ POLICIES: dict[str, PolicySpec] = {
     ),
 }
 
+# The five published policies, in the order the number keys switch through them.
+POLICY_ORDER = ["stand", "getup", "sitstand", "walk", "rough"]
+POLICY_KEYS = {str(i + 1): name for i, name in enumerate(POLICY_ORDER)}
+
 # Deterministic lying poses, as a rotation applied to the base link:
 #   (roll, pitch, yaw) in radians, composed as Rz @ Ry @ Rx.
 # `pitch = +pi/2` lays the body axis down horizontally with the belly up (supine);
@@ -213,6 +263,11 @@ def tilt_deg_from_quat(w: float, x: float, y: float, z: float) -> float:
     """Angle between the base's local +Z and world +Z, in degrees."""
     up_z = 1.0 - 2.0 * (x * x + y * y)
     return math.degrees(math.acos(max(-1.0, min(1.0, up_z))))
+
+
+def yaw_deg_from_quat(w: float, x: float, y: float, z: float) -> float:
+    """Heading of the base's local +X in the world XY plane, in degrees."""
+    return math.degrees(math.atan2(2.0 * (w * z + x * y), 1.0 - 2.0 * (y * y + z * z)))
 
 
 class TerminalInput:
@@ -284,13 +339,15 @@ class TerminalInput:
 class Wamoduck:
     """The MJCF + ONNX pair, and the observation/action contract between them."""
 
-    def __init__(self, spec: PolicySpec, onnx_path: Path, terrain_level: int = 0) -> None:
+    def __init__(self, spec: PolicySpec, onnx_path: Path, terrain_level: int = 0,
+                 n_curbs: int | None = None) -> None:
         import mujoco
-        import onnxruntime as ort
 
         self.mujoco = mujoco
         self.spec = spec
-        self.terrain_level = int(terrain_level)
+        self.terrain_level = int(terrain_level)   # curbs that are *active* now
+        self.n_curbs = int(n_curbs if n_curbs is not None
+                           else max(MAX_CURBS, self.terrain_level))
 
         xml = MJCF_DIR / spec.mjcf
         if not xml.is_file():
@@ -304,18 +361,7 @@ class Wamoduck:
 
         if not onnx_path.is_file():
             raise SystemExit(f"missing ONNX policy {onnx_path}")
-        self.session = ort.InferenceSession(str(onnx_path), providers=["CPUExecutionProvider"])
-        self.in_name = self.session.get_inputs()[0].name
-        self.out_name = self.session.get_outputs()[0].name
-        shape = self.session.get_inputs()[0].shape
-        dim = shape[-1] if isinstance(shape[-1], int) else None
-        if dim is not None and dim != spec.obs_dim:
-            raise SystemExit(
-                f"{onnx_path.name} expects {dim} observation values but the "
-                f"{spec.name!r} contract builds {spec.obs_dim}. Wrong pairing of "
-                "policy and task."
-            )
-        self.onnx_path = onnx_path
+        self._load_onnx(spec, onnx_path)
 
         # ---- joint / actuator ordering -------------------------------------
         # The observation uses **joint-tree order** (`robot.joint_names`, which is
@@ -363,14 +409,98 @@ class Wamoduck:
         self.settle_steps = 40
         self.reset()
 
+    # ---- policy in / out (same MJCF) -------------------------------------
+    def _load_onnx(self, spec: PolicySpec, onnx_path: Path) -> None:
+        """Open an ONNX actor and check it against the observation contract.
+
+        Nothing on ``self`` is touched until the session is open and the input
+        width has been checked, so a bad pairing cannot leave the runner half
+        switched to a policy it cannot drive.
+        """
+        import onnxruntime as ort
+
+        if not onnx_path.is_file():
+            raise SystemExit(f"missing ONNX policy {onnx_path}")
+        session = ort.InferenceSession(str(onnx_path), providers=["CPUExecutionProvider"])
+        shape = session.get_inputs()[0].shape
+        dim = shape[-1] if isinstance(shape[-1], int) else None
+        if dim is not None and dim != spec.obs_dim:
+            raise SystemExit(
+                f"{onnx_path.name} expects {dim} observation values but the "
+                f"{spec.name!r} contract builds {spec.obs_dim}. Wrong pairing of "
+                "policy and task."
+            )
+        self.session = session
+        self.in_name = session.get_inputs()[0].name
+        self.out_name = session.get_outputs()[0].name
+        self.onnx_path = onnx_path
+
+    def load_policy(self, spec: PolicySpec, onnx_path: Path | None = None) -> None:
+        """Switch to another policy that shares this MJCF, keeping the robot state.
+
+        Only the actor and the observation assembly change: the pose, the velocity,
+        the twist command and the height command all survive, because the physics
+        model -- and therefore the meaning of that state -- is the same.
+        ``last_action`` is zeroed: that observation term is the *new* policy's own
+        memory of its previous output, and a freshly loaded policy has no history.
+        """
+        path = onnx_path or (POLICY_DIR / spec.onnx)
+        self._load_onnx(spec, path)
+        self.spec = spec
+        self.last_action[:] = 0.0
+
+    # ---- terrain (same MJCF) ---------------------------------------------
+    def _curb_id(self, i: int) -> int:
+        return self.mujoco.mj_name2id(self.model, self.mujoco.mjtObj.mjOBJ_GEOM, f"curb_{i}")
+
+    def set_terrain(self, level: int) -> str:
+        """Make `level` curbs active, parked in front of where the robot is now.
+
+        The curbs are compiled into the model once (see ``MAX_CURBS``) and only
+        moved, so a flat-ground policy and the rough-terrain policy can share one
+        model and one running robot. Active curbs are placed starting 0.3 m ahead
+        of the robot's current ``x``; the rest are parked below the floor with
+        their collision switched off. Returns a one-line description.
+        """
+        level = max(0, min(int(level), self.n_curbs))
+        changed = level != self.terrain_level
+        self.terrain_level = level
+        base_x, base_y = self._place_curbs()
+        if level == 0:
+            desc = "flat floor (no curbs)"
+        else:
+            desc = (f"{level} x 1 cm curb(s), {CURB_SPACING:.2f} m apart, starting "
+                    f"{CURB_FIRST_AHEAD:.2f} m ahead of x={base_x:+.2f}")
+        return desc if changed else desc + " (unchanged)"
+
+    def _place_curbs(self) -> tuple[float, float]:
+        """Position the active curbs ahead of the robot and park the others."""
+        base_x = float(self.data.qpos[0])
+        base_y = float(self.data.qpos[1])
+        for i in range(self.n_curbs):
+            gid = self._curb_id(i)
+            if gid < 0:
+                continue
+            if i < self.terrain_level:
+                self.model.geom_pos[gid] = [
+                    base_x + CURB_FIRST_AHEAD + CURB_SPACING * i, base_y, CURB_HALF_HEIGHT,
+                ]
+                self.model.geom_contype[gid] = 1
+                self.model.geom_conaffinity[gid] = 1
+            else:
+                self.model.geom_pos[gid] = [base_x, base_y, CURB_PARKED_Z]
+                self.model.geom_contype[gid] = 0
+                self.model.geom_conaffinity[gid] = 0
+        return base_x, base_y
+
     # ---- model -----------------------------------------------------------
     def _build_model(self, xml: Path):
         """Compile the training MJCF and add the scene it expects (floor, light).
 
         The published XML files are the training models with exactly one change:
         ``meshdir`` points at ``../meshes`` so they use the meshes already in this
-        repository. The floor, the light and the optional curbs are added here, at
-        load time, so the XML files stay byte-comparable with training.
+        repository. The floor, the light and the curbs are added here, at load
+        time, so the XML files stay byte-comparable with training.
         """
         mujoco = self.mujoco
         spec = mujoco.MjSpec.from_file(str(xml))
@@ -383,16 +513,24 @@ class Wamoduck:
         light.pos = [1.0, -1.0, 2.5]
         light.dir = [-0.4, 0.4, -1.0]
         light.castshadow = False
-        # `--terrain-level N`: N consecutive 1 cm curbs, the same obstacle family
-        # the rough task was trained on (STEP_HEIGHT = 1 cm in the cfg). Level 0
-        # is a flat floor.
-        for i in range(max(0, self.terrain_level)):
+        # The curbs of the rough task (STEP_HEIGHT = 1 cm in the cfg) are always
+        # compiled in, so that `walk` <-> `rough` can swap terrain without
+        # reloading the MJCF. Those that are not active start parked below the
+        # floor with their collision switched off; :meth:`set_terrain` moves them.
+        for i in range(max(0, self.n_curbs)):
             curb = spec.worldbody.add_geom()
             curb.name = f"curb_{i}"
             curb.type = mujoco.mjtGeom.mjGEOM_BOX
-            curb.size = [0.15, 1.0, 0.005]
-            curb.pos = [0.3 + 0.3 * i, 0.0, 0.005]
+            curb.size = [CURB_SPACING / 2.0, 1.0, CURB_HALF_HEIGHT]
             curb.rgba = [0.45, 0.42, 0.38, 1.0]
+            if i < self.terrain_level:
+                curb.pos = [CURB_FIRST_AHEAD + CURB_SPACING * i, 0.0, CURB_HALF_HEIGHT]
+                curb.contype = 1
+                curb.conaffinity = 1
+            else:
+                curb.pos = [0.0, 0.0, CURB_PARKED_Z]
+                curb.contype = 0
+                curb.conaffinity = 0
         return spec.compile()
 
     # ---- reset / spawn ---------------------------------------------------
@@ -439,6 +577,9 @@ class Wamoduck:
         self.data.ctrl[:] = self.default_q
         self.last_action[:] = 0.0
         self.command[:] = 0.0
+        # The robot is back at the origin, so any active curbs have to come with
+        # it -- otherwise `r` under `rough` would leave the terrain behind.
+        self._place_curbs()
         mujoco.mj_forward(self.model, self.data)
 
     # ---- observation -----------------------------------------------------
@@ -502,15 +643,17 @@ class Wamoduck:
     def base_z(self) -> float:
         return float(self.data.qpos[2])
 
+    def yaw_deg(self) -> float:
+        return yaw_deg_from_quat(*self.base_quat)
+
     def max_joint_dev_deg(self) -> float:
         return float(np.degrees(np.abs(self.data.qpos[self.qadr] - self.default_q)).max())
 
     def feet_down(self) -> tuple[bool, bool]:
-        """Which soles are touching the floor (or a curb)."""
+        """Which soles are touching the floor (or an active curb)."""
         left = right = False
         ground = {self.floor_geom} | {
-            self.mujoco.mj_name2id(self.model, self.mujoco.mjtObj.mjOBJ_GEOM, f"curb_{i}")
-            for i in range(self.terrain_level)
+            self._curb_id(i) for i in range(self.n_curbs) if i < self.terrain_level
         }
         for c in range(self.data.ncon):
             g1, g2 = int(self.data.contact[c].geom[0]), int(self.data.contact[c].geom[1])
@@ -649,6 +792,90 @@ def format_status(tag: str, st: dict) -> str:
     )
 
 
+def describe_obs(spec: PolicySpec) -> str:
+    """The observation vector, term by term, for the policy in use."""
+    parts = [f"{n}({s})" for n, s in zip(OBS_GROUPS, OBS_SIZES)]
+    if spec.command == "twist":
+        parts.append("command(3)")
+    elif spec.command == "height":
+        parts.append("height_command(1)")
+    return f"{spec.obs_dim}-D = " + " | ".join(parts)
+
+
+def describe_command(spec: PolicySpec, bot: "Wamoduck | None" = None) -> str:
+    """Which command channel the policy observes, with its current value."""
+    if spec.command == "twist":
+        keys = "arrow/WASD keys, e/z, space"
+        if bot is None:
+            return f"vx/vy/wz twist ({keys})"
+        return (f"vx/vy/wz twist -- vx={bot.command[0]:+.2f} vy={bot.command[1]:+.2f} m/s, "
+                f"wz={bot.command[2]:+.2f} rad/s ({keys})")
+    if spec.command == "height":
+        keys = "'m' toggles"
+        if bot is None:
+            return (f"body height -- {SIT_HEIGHT:.3f} m sit / {TALL_HEIGHT:.3f} m stand ({keys})")
+        posture = "stand" if bot.height_command > (SIT_HEIGHT + TALL_HEIGHT) / 2.0 else "sit"
+        return (f"body height -- {bot.height_command:.3f} m ({posture}), "
+                f"{SIT_HEIGHT:.3f} / {TALL_HEIGHT:.3f} m ({keys})")
+    return "none -- this policy has no command input, so the twist keys and 'm' do nothing"
+
+
+def print_policy_state(bot: "Wamoduck", tag: str = "policy") -> None:
+    """Say which policy is loaded, what it observes, and what it can be told."""
+    spec = bot.spec
+    terrain = "flat floor" if bot.terrain_level == 0 else f"{bot.terrain_level} x 1 cm curbs"
+    print(f"[{tag}] current   : {spec.name} -- {spec.summary}")
+    print(f"[{tag}] obs       : {describe_obs(spec)}")
+    print(f"[{tag}] command   : {describe_command(spec, bot)}")
+    print(f"[{tag}] model     : {spec.mjcf}  terrain: {terrain}  "
+          f"{bot.onnx_path.name}  act {N_ACT}-D")
+
+
+# Which keys the runner binds, and which policies each one can act on. This is the
+# single source of the key table: it is printed at startup, again on `h`, and it is
+# what the "no effect with this policy" notes are derived from.
+KEY_TABLE: list[tuple[str, str, str]] = [
+    ("1 2 3 4 5", "switch policy: 1=stand 2=getup 3=sitstand 4=walk 5=rough", "always"),
+    ("Tab / n", "switch to the next policy in that order", "always"),
+    ("up / w", f"vx += {CMD_STEP['vx']:.1f} m/s", "twist"),
+    ("down / s", f"vx -= {CMD_STEP['vx']:.1f} m/s", "twist"),
+    ("left / a", f"vy += {CMD_STEP['vy']:.1f} m/s", "twist"),
+    ("right / d", f"vy -= {CMD_STEP['vy']:.1f} m/s", "twist"),
+    ("e", f"wz += {CMD_STEP['wz']:.1f} rad/s", "twist"),
+    ("z", f"wz -= {CMD_STEP['wz']:.1f} rad/s", "twist"),
+    ("space", "zero the twist command", "twist"),
+    ("m", f"sit / stand toggle ({SIT_HEIGHT:.3f} / {TALL_HEIGHT:.3f} m)", "height"),
+    ("r", "reset (re-spawn the current policy)", "always"),
+    ("k", "toggle the policy (hold the zero action instead)", "always"),
+    ("q", "reset with a random push", "always"),
+    ("h / ?", "print this key table", "always"),
+    ("x", "quit", "always"),
+]
+
+KEY_SCOPE = {"twist": "walk, rough", "height": "sitstand"}
+
+
+def key_applies(kind: str, spec: PolicySpec) -> bool:
+    if kind == "always":
+        return True
+    return spec.command == kind
+
+
+def print_keys(spec: PolicySpec) -> None:
+    """Print the key table, marking every key the current policy cannot use."""
+    print("[keys] keys are typed into the terminal that launched this script, "
+          "not into the viewer window")
+    for keys, action, kind in KEY_TABLE:
+        scope = KEY_SCOPE.get(kind, "every policy")
+        if key_applies(kind, spec):
+            status = "active"
+        else:
+            status = f"NO EFFECT with '{spec.name}' -- it has no such command"
+        print(f"[keys]   {keys:<12s} {action:<48s} ({scope:<12s}) {status}")
+    print("[keys] switch policies with 1-5 or Tab/n; the runner prints what changed "
+          "on every switch. Press h for this table again.")
+
+
 def list_policies() -> int:
     print(f"Control rate: {CONTROL_HZ:.0f} Hz  (decimation {DECIMATION} x timestep {TIMESTEP})")
     print(f"{'name':10s} {'obs':>4s} {'MJCF':24s} {'ONNX':38s} present")
@@ -658,117 +885,145 @@ def list_policies() -> int:
         present = "yes" if (p.is_file() and xml.is_file()) else "NO"
         print(f"{spec.name:10s} {spec.obs_dim:4d} {spec.mjcf:24s} {spec.onnx:38s} {present}")
         print(f"{'':10s} {'':4s} {spec.summary}")
+    print("\nKeys '1'..'5' switch between these five policies inside one running demo:")
+    for key, name in POLICY_KEYS.items():
+        print(f"  {key} = {name:9s} {POLICIES[name].summary}")
+    print("  Tab / n = the next one in that order")
     return 0
 
 
-# ------------------------------------------------------------------- main -----
-def main() -> int:
-    ap = argparse.ArgumentParser(
-        description="Run the published Wamoduck ONNX policies in plain MuJoCo (CPU).",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="Example: python wamoduck_sim.py --policy getup --spawn lie-back",
-    )
-    ap.add_argument("--policy", default="stand", help="one of: " + ", ".join(POLICIES))
-    ap.add_argument("--onnx", default=None, help="override the bundled ONNX file")
-    ap.add_argument("--spawn", default=None,
-                    help="initial pose: " + ", ".join(sorted(SPAWNS)) + ", random")
-    ap.add_argument("--seed", type=int, default=0, help="seed for --spawn random")
-    ap.add_argument("--terrain-level", type=int, default=0,
-                    help="0 = flat floor; N = N consecutive 1 cm curbs")
-    ap.add_argument("--vx", type=float, default=None, help="initial forward command (m/s)")
-    ap.add_argument("--vy", type=float, default=None, help="initial lateral command (m/s)")
-    ap.add_argument("--wz", type=float, default=None, help="initial yaw-rate command (rad/s)")
-    ap.add_argument("--target-height", type=float, default=None,
-                    help=f"body-height command for --policy sitstand "
-                         f"({SIT_HEIGHT} sit .. {TALL_HEIGHT} stand)")
-    ap.add_argument("--headless", action="store_true", help="no viewer; run --steps control steps")
-    ap.add_argument("--steps", type=int, default=250, help="control steps in --headless mode")
-    ap.add_argument("--settle", type=int, default=40, help=argparse.SUPPRESS)
-    ap.add_argument("--check", action="store_true", help="run the observation/action contract self-test")
-    ap.add_argument("--list", action="store_true", help="list the published policies and exit")
-    args = ap.parse_args()
+# ------------------------------------------------------------------- demo -----
+class Demo:
+    """One window, all five policies: the current policy and what every key does.
 
-    if args.list:
-        return list_policies()
-    if args.policy not in POLICIES:
-        raise SystemExit(f"unknown --policy {args.policy!r}; choose from {', '.join(POLICIES)}")
-    spec = POLICIES[args.policy]
+    The demo owns the robot (a :class:`Wamoduck`) and swaps it when a policy needs
+    a different MJCF. Both the interactive viewer and the headless ``--cycle-test``
+    drive it through :meth:`on_key`, so the switching code under test is the same
+    code the keyboard uses.
+    """
 
-    print(f"Wamoduck Sim2Sim runner -- policy {spec.name!r} ({spec.summary})")
-    print("This is a MuJoCo simulation of a trained policy. It is NOT hardware, and "
-          "nothing here is a physical-robot result.")
+    #: Keys that only mean something when the policy observes a twist command.
+    TWIST_KEYS = ("up", "w", "down", "s", "left", "a", "right", "d", "e", "z", " ")
+    #: Tab arrives as "\t" from either the Windows or the POSIX reader.
+    NEXT_KEYS = ("tab", "\t", "n")
 
-    onnx_path = Path(args.onnx) if args.onnx else POLICY_DIR / spec.onnx
-    bot = Wamoduck(spec, onnx_path, terrain_level=args.terrain_level)
-    bot.settle_steps = args.settle
+    def __init__(self, args: argparse.Namespace) -> None:
+        self.args = args
+        self.rng = np.random.default_rng(args.seed)
+        self.bot: Wamoduck | None = None
+        self.first_load = True
+        self.restart_viewer = False
+        self.quit = False
+        self.load(POLICIES[args.policy])
+        self.apply_initial_commands()
 
-    if args.check:
-        return bot.self_check()
+    # ---- what the CLI asked for ------------------------------------------
+    def terrain_for(self, spec: PolicySpec) -> int:
+        """Active curbs for `spec`: ``--terrain-level`` if given, else its default."""
+        if self.args.terrain_level is not None:
+            return max(0, self.args.terrain_level)
+        return DEFAULT_TERRAIN.get(spec.name, 0)
 
-    rng = np.random.default_rng(args.seed)
-    spawn = args.spawn or spec.default_spawn
-    bot.reset(spawn=spawn, rng=rng)
-    if spec.command == "twist":
-        for k, v in (("vx", args.vx), ("vy", args.vy), ("wz", args.wz)):
-            if v is not None:
-                lo, hi = CMD_LIMITS[k]
-                clamped = max(lo, min(hi, float(v)))
-                if clamped != v:
-                    print(f"[cmd] {k}={v} clamped to {clamped} (trained command range {lo}..{hi})")
-                bot.command[{"vx": 0, "vy": 1, "wz": 2}[k]] = clamped
-    if spec.command == "height":
-        bot.height_command = max(SIT_HEIGHT, min(TALL_HEIGHT, args.target_height or TALL_HEIGHT))
+    def spawn_for(self, spec: PolicySpec) -> str:
+        """`--spawn` when the user named one, otherwise the policy's own spawn."""
+        return self.args.spawn or spec.default_spawn
 
-    print(f"[setup] MJCF        : {spec.mjcf} (terrain level {args.terrain_level})")
-    print(f"[setup] ONNX        : {onnx_path.name}  in {bot.session.get_inputs()[0].shape} "
-          f"out {bot.session.get_outputs()[0].shape}")
-    print(f"[setup] spawn       : {spawn}")
-    print(f"[setup] control     : {CONTROL_HZ:.0f} Hz  obs {spec.obs_dim}-D  act {N_ACT}-D")
-    if spec.command == "twist":
-        print(f"[setup] command     : vx={bot.command[0]:+.2f} vy={bot.command[1]:+.2f} "
-              f"wz={bot.command[2]:+.2f}")
-    if spec.command == "height":
-        print(f"[setup] height cmd  : {bot.height_command:.3f} m")
-    print("[setup] " + format_status("start", bot.status()))
+    def onnx_for(self, spec: PolicySpec) -> Path:
+        """`--onnx` replaces only the policy named on the command line."""
+        if self.first_load and self.args.onnx and spec.name == self.args.policy:
+            return Path(self.args.onnx)
+        return POLICY_DIR / spec.onnx
 
-    if args.headless:
-        start_xy = bot.data.qpos[0:2].copy()
-        initial_z = bot.base_z()
-        lowest_tilt = bot.status()["tilt_deg"]
-        ever_standing = bot.status()["standing"]
-        for i in range(args.steps):
-            obs = bot.observe()
-            bot.apply(bot.act(obs))
-            bot.step()
-            st = bot.status()
-            lowest_tilt = min(lowest_tilt, st["tilt_deg"])
-            ever_standing = ever_standing or st["standing"]
-            if i % max(1, args.steps // 8) == 0:
-                print(f"  t={i * DECIMATION * TIMESTEP:5.2f}s " + format_status("run", st))
-        st = bot.status()
-        moved = bot.data.qpos[0:2] - start_xy
-        print(format_status("final", st))
-        print(f"[final] simulated {args.steps * DECIMATION * TIMESTEP:.2f} s "
-              f"({args.steps} control steps)")
-        print(f"[final] base_z {initial_z:.4f} -> {st['base_z']:.4f} m")
-        print(f"[final] displacement dx={moved[0]:+.3f} m dy={moved[1]:+.3f} m "
-              f"|d|={float(np.linalg.norm(moved)):.3f} m")
-        if spec.command == "twist" and abs(bot.command[0]) > 1e-9:
-            expected = float(bot.command[0]) * args.steps * DECIMATION * TIMESTEP
-            print(f"[final] commanded vx={bot.command[0]:+.2f} m/s -> {expected:+.3f} m "
-                  f"in {args.steps * DECIMATION * TIMESTEP:.1f} s")
-        print(f"[final] ever stood (tilt<{STAND_TILT_DEG:.0f} deg and base_z>{STAND_Z} m): "
-              f"{ever_standing}")
-        print(f"[final] lowest tilt seen: {lowest_tilt:.2f} deg")
-        print(f"[final] VERDICT: {'standing' if st['standing'] else 'NOT standing'} / "
-              f"{'nominal stance' if st['recovered_to_nominal'] else 'not the strict nominal stance'}")
-        return 0
+    # ---- construction ----------------------------------------------------
+    def load(self, spec: PolicySpec) -> None:
+        """Build the runner for `spec` and reset the robot to its spawn.
 
-    term = TerminalInput()
+        Either the whole thing works or ``self.bot`` is left exactly as it was, so
+        a broken switch cannot leave the demo holding half a policy.
+        """
+        old = self.bot
+        level = self.terrain_for(spec)
+        bot = Wamoduck(spec, self.onnx_for(spec), terrain_level=level,
+                       n_curbs=max(MAX_CURBS, level))
+        bot.settle_steps = self.args.settle
+        bot.reset(spawn=self.spawn_for(spec), rng=self.rng)
+        if old is not None:
+            # The robot state is reset by the reload; the *commands* the user set
+            # are not part of the robot, so they carry over.
+            bot.command[:] = old.command
+            bot.height_command = old.height_command
+            bot.policy_on = old.policy_on
+        self.bot = bot
+        self.first_load = False
 
-    def handle(k: str) -> bool:
-        """Returns True when the user asked to quit."""
-        if k in ("up", "w") and spec.command == "twist":
+    def apply_initial_commands(self) -> None:
+        """``--vx``/``--vy``/``--wz``/``--target-height`` for the starting policy."""
+        bot, spec = self.bot, self.bot.spec
+        if spec.command == "twist":
+            for k, v in (("vx", self.args.vx), ("vy", self.args.vy), ("wz", self.args.wz)):
+                if v is not None:
+                    lo, hi = CMD_LIMITS[k]
+                    clamped = max(lo, min(hi, float(v)))
+                    if clamped != v:
+                        print(f"[cmd] {k}={v} clamped to {clamped} "
+                              f"(trained command range {lo}..{hi})")
+                    bot.command[CMD_INDEX[k]] = clamped
+        if spec.command == "height" and self.args.target_height is not None:
+            bot.height_command = max(SIT_HEIGHT, min(TALL_HEIGHT, self.args.target_height))
+
+    # ---- switching -------------------------------------------------------
+    def switch(self, name: str) -> None:
+        """Switch policy, keeping the robot state whenever the MJCF allows it."""
+        bot = self.bot
+        old_spec = bot.spec
+        if name not in POLICIES:
+            print(f"[switch] unknown policy {name!r}; the choices are "
+                  f"{', '.join(POLICY_ORDER)}")
+            return
+        new_spec = POLICIES[name]
+        if name == old_spec.name:
+            print(f"[switch] '{name}' is already running -- nothing changed")
+            return
+        try:
+            if new_spec.mjcf == old_spec.mjcf:
+                # Same physical model: swap the actor and the observation assembly
+                # under the running robot.
+                bot.load_policy(new_spec, self.onnx_for(new_spec))
+                terrain = bot.set_terrain(self.terrain_for(new_spec))
+                print(f"[switch] {old_spec.name} -> {new_spec.name}  "
+                      f"(same MJCF '{new_spec.mjcf}' -- the robot state is KEPT: pose, "
+                      f"velocity and commands all survive)")
+                print(f"[switch] obs        : {describe_obs(new_spec)}")
+                print(f"[switch] last_action: zeroed (a freshly loaded policy has no "
+                      f"action history)")
+                print(f"[switch] terrain    : {terrain}")
+            else:
+                self.load(new_spec)
+                print(f"[switch] {old_spec.name} -> {new_spec.name}  "
+                      f"(different MJCF: '{old_spec.mjcf}' -> '{new_spec.mjcf}')")
+                print(f"[switch] this is a different physical model, so the robot state "
+                      f"cannot be carried over -- the MJCF is RELOADED and the state is "
+                      f"RESET (a policy is a function of the model it was trained in)")
+                print(f"[switch] re-spawned '{self.spawn_for(new_spec)}' in the new model "
+                      f"(<-- the model-reload path: entering or leaving 'getup')")
+                self.restart_viewer = True
+        except (SystemExit, Exception) as exc:      # a switch must never kill the demo
+            print(f"[switch] FAILED to switch to '{name}': {exc}")
+            print_policy_state(self.bot, "policy")
+            return
+        print_policy_state(self.bot, "policy")
+
+    # ---- keys ------------------------------------------------------------
+    def on_key(self, k: str) -> bool:
+        """Handle one keypress. Returns True when the user asked to quit."""
+        bot, spec = self.bot, self.bot.spec
+        if k in POLICY_KEYS:
+            self.switch(POLICY_KEYS[k])
+        elif k in self.NEXT_KEYS:
+            self.switch(POLICY_ORDER[(POLICY_ORDER.index(spec.name) + 1) % len(POLICY_ORDER)])
+        elif k in ("h", "?"):
+            print_keys(spec)
+        elif k in ("up", "w") and spec.command == "twist":
             bot.command[0] = min(CMD_LIMITS["vx"][1], bot.command[0] + CMD_STEP["vx"])
         elif k in ("down", "s") and spec.command == "twist":
             bot.command[0] = max(CMD_LIMITS["vx"][0], bot.command[0] - CMD_STEP["vx"])
@@ -783,52 +1038,381 @@ def main() -> int:
         elif k == " " and spec.command == "twist":
             bot.command[:] = 0.0
         elif k == "m" and spec.command == "height":
-            bot.height_command = SIT_HEIGHT if bot.height_command > (SIT_HEIGHT + TALL_HEIGHT) / 2 else TALL_HEIGHT
+            bot.height_command = (SIT_HEIGHT if bot.height_command > (SIT_HEIGHT + TALL_HEIGHT) / 2
+                                  else TALL_HEIGHT)
+            posture = "stand" if bot.height_command > (SIT_HEIGHT + TALL_HEIGHT) / 2 else "sit"
+            print(f"[key] height command -> {bot.height_command:.3f} m ({posture})")
+        elif ((k in self.TWIST_KEYS and spec.command != "twist")
+              or (k == "m" and spec.command != "height")):
+            # A key that IS recognised but does not apply to the policy in use used to
+            # be dropped in silence, which reads as "this key is broken" -- a user hit
+            # exactly that pressing `m` on the walking policy (2026-09-16). The mapping
+            # is symmetric: under the sit/stand policy the arrow keys are the ones that
+            # do nothing. Say what happened instead of doing nothing.
+            need = "body-height" if k == "m" else "vx/vy/wz (twist)"
+            have = {"twist": "vx/vy/wz", "height": "body-height"}.get(spec.command, "no command")
+            print(f"[key] '{k}' needs a {need} command, but the current policy {spec.name!r} "
+                  f"observes {have} -- ignored (nothing changed)")
+            print(f"[key] press 1-5 or Tab/n to switch to a policy that has that channel "
+                  f"(h for the key table)")
         elif k == "r":
-            bot.reset(spawn=spawn, rng=rng)
-            print("[key] reset")
+            bot.reset(spawn=self.spawn_for(spec), rng=self.rng)
+            print(f"[key] reset ('{spec.name}' re-spawned at '{self.spawn_for(spec)}')")
         elif k == "k":
             bot.policy_on = not bot.policy_on
-            print(f"[key] policy {'ON' if bot.policy_on else 'OFF'}")
+            print(f"[key] policy {'ON' if bot.policy_on else 'OFF'} "
+                  f"(OFF holds the zero action)")
         elif k == "q":
-            ang = rng.uniform(0.0, 2.0 * math.pi)
+            ang = self.rng.uniform(0.0, 2.0 * math.pi)
             bot.data.qvel[0] = 0.3 * math.cos(ang)
             bot.data.qvel[1] = 0.3 * math.sin(ang)
             print("[key] push")
         elif k == "x":
             return True
+        elif k.strip():
+            print(f"[key] {k!r} is not a key this runner binds -- press h for the key table")
         return False
 
-    print("[keys] arrows/WASD = vx,vy   E/Z = yaw   space = stop   "
-          + ("m = sit/stand   " if spec.command == "height" else "")
-          + "r = reset   k = toggle policy   q = push   x = quit")
 
-    control_dt = DECIMATION * TIMESTEP
+# ------------------------------------------------------------------- main -----
+def main() -> int:
+    ap = argparse.ArgumentParser(
+        description="Run the published Wamoduck ONNX policies in plain MuJoCo (CPU). "
+                    "One demo, all five policies: press 1-5 to switch while it runs.",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="Example: python wamoduck_sim.py            # then press 1..5 or Tab to switch\n"
+               "         python wamoduck_sim.py --policy getup --spawn lie-back",
+    )
+    ap.add_argument("--policy", default="stand",
+                    help="the policy the demo starts on; one of: " + ", ".join(POLICIES)
+                         + " (keys 1-5 and Tab/n switch from there)")
+    ap.add_argument("--onnx", default=None,
+                    help="override the bundled ONNX file of --policy "
+                         "(switching always uses the bundled files)")
+    ap.add_argument("--spawn", default=None,
+                    help="spawn pose for --policy and for every later switch: "
+                         + ", ".join(sorted(SPAWNS)) + ", random")
+    ap.add_argument("--seed", type=int, default=0, help="seed for --spawn random")
+    ap.add_argument("--terrain-level", type=int, default=None,
+                    help="0 = flat floor; N = N consecutive 1 cm curbs. Default: 0 for "
+                         f"every policy except rough ({DEFAULT_TERRAIN['rough']}), so that "
+                         "walk <-> rough switches terrain as well as policy")
+    ap.add_argument("--vx", type=float, default=None, help="initial forward command (m/s)")
+    ap.add_argument("--vy", type=float, default=None, help="initial lateral command (m/s)")
+    ap.add_argument("--wz", type=float, default=None, help="initial yaw-rate command (rad/s)")
+    ap.add_argument("--target-height", type=float, default=None,
+                    help=f"body-height command for --policy sitstand "
+                         f"({SIT_HEIGHT} sit .. {TALL_HEIGHT} stand)")
+    ap.add_argument("--headless", action="store_true", help="no viewer; run --steps control steps")
+    ap.add_argument("--steps", type=int, default=250, help="control steps in --headless mode")
+    ap.add_argument("--cycle-test", action="store_true",
+                    help="no viewer; switch stand->getup->sitstand->walk->rough with the "
+                         "switch keys and check each segment (see --cycle-steps)")
+    ap.add_argument("--cycle-steps", type=int, default=300,
+                    help="control steps per policy in --cycle-test (>=150 recommended; "
+                         "300 = 6.0 s, the length of the documented get-up run)")
+    ap.add_argument("--settle", type=int, default=40, help=argparse.SUPPRESS)
+    ap.add_argument("--check", action="store_true", help="run the observation/action contract self-test")
+    ap.add_argument("--list", action="store_true", help="list the published policies and exit")
+    args = ap.parse_args()
+
+    if args.list:
+        return list_policies()
+    if args.policy not in POLICIES:
+        raise SystemExit(f"unknown --policy {args.policy!r}; choose from {', '.join(POLICIES)}")
+
+    print("Wamoduck Sim2Sim runner -- one demo, all five policies "
+          "(stand, getup, sitstand, walk, rough)")
+    print("This is a MuJoCo simulation of trained policies. It is NOT hardware, and "
+          "nothing here is a physical-robot result.")
+
+    if args.check:
+        # The contract self-test is per policy and needs no viewer, so it stays a
+        # direct build of the policy named on the command line.
+        spec = POLICIES[args.policy]
+        onnx_path = Path(args.onnx) if args.onnx else POLICY_DIR / spec.onnx
+        bot = Wamoduck(spec, onnx_path, terrain_level=args.terrain_level or 0)
+        bot.settle_steps = args.settle
+        print(f"[check] started on --policy {spec.name!r}; --check tests that one policy "
+              f"(run it once per policy to cover all five)")
+        return bot.self_check()
+
+    demo = Demo(args)
+    bot, spec = demo.bot, demo.bot.spec
+
+    print(f"[setup] MJCF        : {spec.mjcf}  terrain: "
+          + ("flat floor" if bot.terrain_level == 0 else f"{bot.terrain_level} x 1 cm curbs"))
+    print(f"[setup] ONNX        : {bot.onnx_path.name}  in {bot.session.get_inputs()[0].shape} "
+          f"out {bot.session.get_outputs()[0].shape}")
+    print(f"[setup] spawn       : {demo.spawn_for(spec)}")
+    print(f"[setup] control     : {CONTROL_HZ:.0f} Hz  obs {spec.obs_dim}-D  act {N_ACT}-D")
+    print(f"[setup] command     : {describe_command(spec, bot)}")
+    print("[setup] " + format_status("start", bot.status()))
+    print("[setup] the demo can switch policies while it runs: 1-5, or Tab/n for the next one")
+    print_keys(spec)
+
+    if args.cycle_test:
+        return run_cycle_test(demo, args)
+    if args.headless:
+        return run_headless(bot, args.steps)
+    return run_viewer(demo)
+
+
+def run_headless(bot: Wamoduck, steps: int) -> int:
+    """Run one policy for `steps` control steps without a viewer."""
+    spec = bot.spec
+    start_xy = bot.data.qpos[0:2].copy()
+    initial_z = bot.base_z()
+    lowest_tilt = bot.status()["tilt_deg"]
+    ever_standing = bot.status()["standing"]
+    for i in range(steps):
+        obs = bot.observe()
+        bot.apply(bot.act(obs))
+        bot.step()
+        st = bot.status()
+        lowest_tilt = min(lowest_tilt, st["tilt_deg"])
+        ever_standing = ever_standing or st["standing"]
+        if i % max(1, steps // 8) == 0:
+            print(f"  t={i * DECIMATION * TIMESTEP:5.2f}s " + format_status("run", st))
+    st = bot.status()
+    moved = bot.data.qpos[0:2] - start_xy
+    print(format_status("final", st))
+    print(f"[final] simulated {steps * DECIMATION * TIMESTEP:.2f} s "
+          f"({steps} control steps)")
+    print(f"[final] base_z {initial_z:.4f} -> {st['base_z']:.4f} m")
+    print(f"[final] displacement dx={moved[0]:+.3f} m dy={moved[1]:+.3f} m "
+          f"|d|={float(np.linalg.norm(moved)):.3f} m")
+    if spec.command == "twist" and abs(bot.command[0]) > 1e-9:
+        expected = float(bot.command[0]) * steps * DECIMATION * TIMESTEP
+        print(f"[final] commanded vx={bot.command[0]:+.2f} m/s -> {expected:+.3f} m "
+              f"in {steps * DECIMATION * TIMESTEP:.1f} s")
+    print(f"[final] ever stood (tilt<{STAND_TILT_DEG:.0f} deg and base_z>{STAND_Z} m): "
+          f"{ever_standing}")
+    print(f"[final] lowest tilt seen: {lowest_tilt:.2f} deg")
+    print(f"[final] VERDICT: {'standing' if st['standing'] else 'NOT standing'} / "
+          f"{'nominal stance' if st['recovered_to_nominal'] else 'not the strict nominal stance'}")
+    return 0
+
+
+# ---------------------------------------------- headless policy switching ----
+def run_cycle_test(demo: Demo, args: argparse.Namespace) -> int:
+    """Switch stand -> getup -> sitstand -> walk -> rough and check every segment.
+
+    This is the headless version of what a user does in the viewer: the switches go
+    through :meth:`Demo.on_key`, the same path the keyboard uses, so the
+    state-keeping and the model-reload paths are the ones under test. Each segment
+    runs long enough for the new policy to be judged, and every segment ends in the
+    state that policy is supposed to reach.
+    """
+    steps = max(1, args.cycle_steps)
+    checks: list[tuple[str, bool, str]] = []
+
+    def check(label: str, ok: bool, detail: str = "") -> None:
+        checks.append((label, bool(ok), detail))
+        print(f"[cycle] {'OK  ' if ok else 'FAIL'} {label}{('  ' + detail) if detail else ''}")
+
+    def run_segment(label: str, n: int) -> dict:
+        bot = demo.bot
+        x0, y0 = float(bot.data.qpos[0]), float(bot.data.qpos[1])
+        yaw0 = bot.yaw_deg()
+        z0 = bot.base_z()
+        z_lo = z_hi = z0
+        tilt_hi = bot.tilt_deg()
+        for i in range(n):
+            bot.apply(bot.act(bot.observe()))
+            bot.step()
+            z = bot.base_z()
+            z_lo, z_hi = min(z_lo, z), max(z_hi, z)
+            tilt_hi = max(tilt_hi, bot.tilt_deg())
+            if (i + 1) % max(1, n // 4) == 0 or i + 1 == n:
+                print(f"[cycle]   t={(i + 1) * DECIMATION * TIMESTEP:5.2f}s "
+                      + format_status("seg", bot.status()))
+        st = bot.status()
+        moved = np.array([float(bot.data.qpos[0]) - x0, float(bot.data.qpos[1]) - y0])
+        dyaw = (bot.yaw_deg() - yaw0 + 180.0) % 360.0 - 180.0
+        print(f"[cycle] {label}: {n} control steps ({n * DECIMATION * TIMESTEP:.2f} s), "
+              f"policy '{bot.spec.name}', obs {bot.spec.obs_dim}-D")
+        print("  " + format_status("end", st))
+        print(f"[cycle]   base_z {z0:.4f} -> {st['base_z']:.4f} m "
+              f"(min {z_lo:.4f}, max {z_hi:.4f})")
+        print(f"[cycle]   displacement dx={moved[0]:+.3f} dy={moved[1]:+.3f} "
+              f"|d|={float(np.linalg.norm(moved)):.3f} m   heading change {dyaw:+.1f} deg   "
+              f"worst tilt {tilt_hi:.2f} deg")
+        return {"st": st, "moved": moved, "z0": z0, "z_lo": z_lo, "z_hi": z_hi,
+                "tilt_hi": tilt_hi, "n": n, "dyaw": dyaw}
+
+    def command_vx(vx: float) -> None:
+        """Set the twist command through the keys, not by writing bot.command."""
+        demo.on_key(" ")
+        taps = int(round(vx / CMD_STEP["vx"]))
+        for _ in range(taps):
+            demo.on_key("up")
+        print(f"[cycle] twist command set with the keys: space, then 'up' x{taps} -> "
+              f"vx={demo.bot.command[0]:+.2f} m/s")
+
+    print()
+    print(f"[cycle] headless switching self-test: stand -> getup -> sitstand -> walk -> rough, "
+          f"{steps} control steps per segment ({steps * DECIMATION * TIMESTEP:.1f} s)")
+
+    # 1 -- stand. Same MJCF as the starting policy, so this is the in-place switch.
+    demo.on_key("1")
+    stand = run_segment("1 stand", steps)
+    check("stand ends upright (tilt < 10 deg and base_z > 0.15 m)",
+          stand["st"]["tilt_deg"] < 10.0 and stand["st"]["base_z"] > 0.15,
+          f"tilt {stand['st']['tilt_deg']:.2f} deg, base_z {stand['st']['base_z']:.4f} m, "
+          f"worst tilt {stand['tilt_hi']:.2f} deg")
+
+    # 2 -- getup. Different MJCF: this switch must reload the model and re-spawn.
+    demo.on_key("2")
+    getup = run_segment("2 getup", steps)
+    check("getup gets up from the lying spawn (base_z > 0.15 m)",
+          getup["st"]["base_z"] > 0.15,
+          f"base_z {getup['z0']:.4f} -> {getup['st']['base_z']:.4f} m "
+          f"(max {getup['z_hi']:.4f}), tilt {getup['st']['tilt_deg']:.2f} deg")
+
+    # 3 -- sitstand. Back to robot_walk.xml (another reload), then toggle with 'm'.
+    demo.on_key("3")
+    half = max(1, steps // 2)
+    tall = run_segment("3 sitstand (tall, command 0.175 m)", half)
+    demo.on_key("m")
+    print(f"[cycle] pressed 'm': height command is now {demo.bot.height_command:.3f} m")
+    sit = run_segment("3 sitstand (after 'm', command 0.085 m)", half)
+    drop = tall["st"]["base_z"] - sit["st"]["base_z"]
+    check("sitstand changes height after 'm' (>= 0.03 m lower)",
+          drop >= 0.03,
+          f"base_z {tall['z0']:.4f} -> {tall['st']['base_z']:.4f} m (tall) -> "
+          f"{sit['st']['base_z']:.4f} m (sit): {drop:.4f} m lower")
+
+    # 4 -- walk. Same MJCF, so the crouched state is kept, then vx = 0.3 via the keys.
+    demo.on_key("4")
+    print(f"[cycle] state kept across the sitstand -> walk switch: "
+          f"base_z={demo.bot.base_z():.4f} m tilt={demo.bot.tilt_deg():.2f} deg "
+          f"height cmd={demo.bot.height_command:.3f} m")
+    command_vx(0.3)
+    walk = run_segment("4 walk (vx=+0.30 m/s)", steps)
+    check("walk moves with vx = +0.30 m/s (>= 0.20 m of travel)",
+          float(np.linalg.norm(walk["moved"])) >= 0.20,
+          f"|d|={float(np.linalg.norm(walk['moved'])):.3f} m (dx={walk['moved'][0]:+.3f} "
+          f"dy={walk['moved'][1]:+.3f}, heading {walk['dyaw']:+.1f} deg) in "
+          f"{steps * DECIMATION * TIMESTEP:.1f} s, commanded "
+          f"{0.3 * steps * DECIMATION * TIMESTEP:.3f} m, tilt {walk['st']['tilt_deg']:.2f} deg")
+    if abs(walk["dyaw"]) > 20.0:
+        print(f"[cycle] note: this segment started from the crouch the sit/stand segment left "
+              f"behind (state KEPT by design), and the walk policy turned "
+              f"{walk['dyaw']:+.1f} deg while recovering from it -- most of that travel is along "
+              f"its own new heading, not +x. That is the uncommanded-rotation weakness this "
+              f"walking checkpoint is already known for; the forward check below measures +x "
+              f"from a fresh spawn.")
+
+    # 5 -- rough. Same MJCF; only the curbs move, so the state is kept again.
+    demo.on_key("5")
+    print(f"[cycle] terrain after the walk -> rough switch: "
+          f"{demo.bot.terrain_level} active 1 cm curb(s)")
+    command_vx(0.3)
+    rough = run_segment("5 rough (vx=+0.30 m/s over curbs)", steps)
+    check("rough moves with vx = +0.30 m/s (>= 0.20 m of travel)",
+          float(np.linalg.norm(rough["moved"])) >= 0.20,
+          f"|d|={float(np.linalg.norm(rough['moved'])):.3f} m (dx={rough['moved'][0]:+.3f} "
+          f"dy={rough['moved'][1]:+.3f}, heading {rough['dyaw']:+.1f} deg) in "
+          f"{steps * DECIMATION * TIMESTEP:.1f} s, commanded "
+          f"{0.3 * steps * DECIMATION * TIMESTEP:.3f} m, tilt {rough['st']['tilt_deg']:.2f} deg")
+
+    # Keys the current policy has no channel for must say so, never be silent.
+    print()
+    print("[cycle] keys that 'rough' has no channel for, and what they print:")
+    demo.on_key("m")
+    print("[cycle] ...and a key this runner does not bind at all:")
+    demo.on_key("j")
+    print("[cycle] ...and the key table itself:")
+    demo.on_key("h")
+
+    # After all five switches (two of which reloaded the MJCF): go back to walking,
+    # re-spawn to the nominal stance, and check that plain forward walking still does
+    # what the single-policy run does -- the documented `--policy walk --vx 0.3
+    # --headless --steps 250` travels dx = +1.482 m. This is a post-switch sanity
+    # check, not one of the five policy segments above.
+    print()
+    demo.on_key("4")
+    demo.on_key("r")
+    command_vx(0.3)
+    fwd_steps = max(150, min(steps, 250))
+    fwd = run_segment("6 walk, forward check after 'r' (fresh nominal spawn)", fwd_steps)
+    check("after five switches a fresh walk run still goes forward (dx > 0.5 m)",
+          fwd["moved"][0] > 0.5,
+          f"dx={fwd['moved'][0]:+.3f} m dy={fwd['moved'][1]:+.3f} m in "
+          f"{fwd_steps * DECIMATION * TIMESTEP:.1f} s at vx=+0.30 (single-policy run: "
+          f"dx=+1.482 m in 5.0 s), heading {fwd['dyaw']:+.1f} deg")
+
+    print()
+    print("[cycle] ---- assertions ----")
+    for label, ok, detail in checks:
+        print(f"[cycle]   {'OK  ' if ok else 'FAIL'} {label}{('  ' + detail) if detail else ''}")
+    failed = [c for c in checks if not c[1]]
+    print(f"[cycle] cycle test: {len(checks) - len(failed)}/{len(checks)} checks passed"
+          + ("" if not failed else " -- FAILED"))
+    return 0 if not failed else 1
+
+
+# --------------------------------------------------------------- viewer -------
+def run_viewer(demo: Demo) -> int:
+    """Interactive loop. The viewer is relaunched when a switch reloads the MJCF."""
     import mujoco.viewer
 
-    with mujoco.viewer.launch_passive(bot.model, bot.data, show_left_ui=False,
-                                      show_right_ui=False) as viewer:
-        n = 0
-        while viewer.is_running():
-            t0 = time.perf_counter()
-            for k in term.get_keys():
-                if k and handle(k):
-                    term.close()
-                    return 0
-            if bot.policy_on:
-                bot.apply(bot.act(bot.observe()))
-            bot.step()
-            viewer.sync()
-            n += 1
-            if n % int(CONTROL_HZ * 5) == 0:
-                st = bot.status()
-                print(f"  t={n / CONTROL_HZ:6.1f}s " + format_status("run", st)
-                      + (f"  cmd=({bot.command[0]:+.2f},{bot.command[1]:+.2f},{bot.command[2]:+.2f})"
-                         if spec.command == "twist" else ""))
-            sleep = control_dt - (time.perf_counter() - t0)
-            if sleep > 0:
-                time.sleep(sleep)
-    term.close()
+    control_dt = DECIMATION * TIMESTEP
+    term = TerminalInput()
+    launched_once = False
+    try:
+        while not demo.quit:
+            demo.restart_viewer = False
+            bot = demo.bot
+            try:
+                viewer = mujoco.viewer.launch_passive(bot.model, bot.data, show_left_ui=False,
+                                                      show_right_ui=False)
+            except Exception as exc:
+                # A first window that will not open (no display, no GLFW) stays loud. A
+                # window that will not REOPEN after a model reload must not look like a
+                # switch that crashed the demo, so say what happened and what is left.
+                if not launched_once:
+                    raise
+                print(f"[viewer] could not reopen the window for the reloaded MJCF: {exc}")
+                print(f"[viewer] the demo itself is fine and is on policy "
+                      f"'{bot.spec.name}'; restart the script to get a window for the new "
+                      f"model, or keep using --headless / --cycle-test")
+                return 1
+            launched_once = True
+            with viewer:
+                n = 0
+                while viewer.is_running() and not demo.quit and not demo.restart_viewer:
+                    t0 = time.perf_counter()
+                    for k in term.get_keys():
+                        if k and demo.on_key(k):
+                            demo.quit = True
+                            break
+                    if demo.quit or demo.restart_viewer:
+                        break           # the switch that just ran owns the next model
+                    bot = demo.bot       # in-place switches keep the same bot object
+                    if bot.policy_on:
+                        bot.apply(bot.act(bot.observe()))
+                    bot.step()
+                    viewer.sync()
+                    n += 1
+                    if n % int(CONTROL_HZ * 5) == 0:
+                        st = bot.status()
+                        print(f"  t={n / CONTROL_HZ:6.1f}s " + format_status("run", st)
+                              + f"  policy={bot.spec.name}"
+                              + (f"  cmd=({bot.command[0]:+.2f},{bot.command[1]:+.2f},"
+                                 f"{bot.command[2]:+.2f})"
+                                 if bot.spec.command == "twist" else "")
+                              + (f"  height={bot.height_command:.3f}"
+                                 if bot.spec.command == "height" else ""))
+                    sleep = control_dt - (time.perf_counter() - t0)
+                    if sleep > 0:
+                        time.sleep(sleep)
+            if demo.restart_viewer and not demo.quit:
+                print("[viewer] reopening the window: the MJCF was reloaded, and a viewer "
+                      "cannot be re-pointed at another model in place")
+    finally:
+        term.close()
     return 0
 
 

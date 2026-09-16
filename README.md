@@ -52,7 +52,7 @@ This architecture is also being experimentally applied to **intelligent wearable
 - **Mechanical prototyping and integration:** prototype fabrication and hardware/software debugging are in progress.
 - **MuJoCo simulation:** simulation work has been completed. The project supports an ONNX deployment approach combining remote-control commands with policy-driven autonomous actions, similar in approach to [Microduck](https://github.com/pollen-robotics/microduck) and [microduck_rl](https://github.com/pollen-robotics/microduck_rl). Integration on the physical robot is ongoing.
 - **Trained policies, measured (simulation):** six behaviours are trained and playable from one internal menu — standing against pushes, knock-down recovery, get-up from a random lying pose, keyboard walking, 1 cm rough terrain, and sit/stand. Latest measured, on 2026-09-16: a **40.5 N** push threshold while standing, **5/5** end-to-end knock-down → get-up → nominal-stance trials, **79.7 %** survival across 1 cm terrain, and get-up reaching a standing pose in **64/64** environments while the strict "back to the saved nominal pose" criterion is still **0/64**. Side-stepping and in-place turning are still broken. The figures, the tools that produced them, and the definition of "standing" are documented in [measured capabilities](docs/capabilities.md).
-- **Trained policies you can run (simulation):** five of them are published here as ONNX files, together with the **MJCF model they were trained on** and a single-file CPU runner. `pip install mujoco onnxruntime numpy`, then `python wamoduck_sim.py --policy stand`. Start at [Run the trained policies in MuJoCo](docs/simulation.md); it writes out the observation and action contract item by item and reports what our own CPU checks measured. This is still Sim2Sim — there are no hardware results in this repository.
+- **Trained policies you can run (simulation):** five of them are published here as ONNX files, together with the **MJCF model they were trained on** and a single-file CPU runner that switches between all five while it runs. `pip install mujoco onnxruntime numpy`, then `python wamoduck_sim.py`. Start at [Run the trained policies in MuJoCo](docs/simulation.md); it writes out the observation and action contract item by item and reports what our own CPU checks measured. This is still Sim2Sim — there are no hardware results in this repository.
 - **Reference gait:** a walking reference trajectory for this URDF is published with the model, together with a MATLAB player. See [Try the reference gait in MATLAB](#try-the-reference-gait-in-matlab). It is a plan, not one of the trained policies above.
 - **3D printing:** the [standing calibration fixture](hardware/fixtures/standing-zero/README.md) includes four parts and an H2D PLA project. A separate [160 mm A1 mini figurine](hardware/printable/wamoduck-a1mini-standing/README.md) provides a single-piece display model.
 - **Public materials:** this repository currently contains simplified CAD, the URDF and meshes, model parameters, a reference gait with its player, **five trained ONNX policies with the MJCF they were trained on and a CPU runner**, and bilingual documentation. The simulation/training code, the checkpoints behind the measured results, their evaluation tools, runtime software, electronics, and a complete build guide are not yet included here.
@@ -111,15 +111,22 @@ The reference trajectory uses small alternating foot lifts. Its model-based play
 ## Run the trained policies in MuJoCo
 
 Five of the trained policies are published as ONNX files, each with the MJCF model it was trained on, plus a
-single-file runner. The runner needs only `mujoco`, `onnxruntime` and `numpy` — no GPU, no training stack:
+single-file runner. **All five run in one demo, and it switches between them while it runs** — press `1`-`5`,
+or `Tab`/`n` for the next one. The runner needs only `mujoco`, `onnxruntime` and `numpy` — no GPU, no training
+stack:
 
 ```bash
 pip install mujoco onnxruntime numpy
 python wamoduck_sim.py --list                 # standing, get-up, sit/stand, walking, 1 cm terrain
-python wamoduck_sim.py --policy stand         # interactive viewer
+python wamoduck_sim.py                        # one window, all five policies
 python wamoduck_sim.py --policy walk --vx 0.3
 python wamoduck_sim.py --policy getup --spawn lie-back
 ```
+
+Keys `1`-`5` switch policy (`stand`, `getup`, `sitstand`, `walk`, `rough`) inside that one window; the twist
+keys (`↑`/`w`, `↓`/`s`, `←`/`a`, `→`/`d`, `e`, `z`, `space`) drive `walk` and `rough`, and `m` toggles sit/stand
+on `sitstand`. Switching between the four policies that share `robot_walk.xml` keeps the robot's pose and
+velocity; entering or leaving `getup` reloads its own MJCF and re-spawns the robot, and the runner prints why.
 
 Our own CPU checks, run through this published code path, give: `stand` holding **0.54°** of tilt and
 1 mm of drift over 5 s (passing even the strict "nominal stance" criterion), `getup` standing up from all
@@ -180,7 +187,7 @@ Wamoduck/
 ├── models/wmduck/        # URDF, meshes, joint data, and import checks
 │   └── mjcf/             # The MJCF models the policies were trained on
 ├── policies/             # Five trained ONNX policies
-├── wamoduck_sim.py       # Single-file CPU runner (mujoco + onnxruntime + numpy)
+├── wamoduck_sim.py       # Single-file CPU runner: one demo, all five policies (mujoco + onnxruntime + numpy)
 ├── tools/matlab/         # Reference-gait data and the MATLAB player
 ├── assets/              # Model preview and gait preview
 ├── docs/                # Bilingual guides: mechanical, model, gait, simulation, capabilities, roadmap

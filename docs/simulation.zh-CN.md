@@ -6,6 +6,10 @@
 每个策略都以 ONNX 文件发布，并随附它训练时用的 **MJCF 模型**与一个单文件运行器，因此你可以在自己的电脑上用
 纯 MuJoCo、不需要 GPU 跑起来。
 
+**五个策略都在同一个 demo 里。** 同一个窗口在运行中就能切换：走路、坐下、起身、越障都不必重启脚本 —— 按
+`1`-`5`，或按 `Tab`／`n` 切到下一个。运行器会在启动时、以及**每次切换之后**打印当前策略、观测维度与它接受的
+指令通道。
+
 **范围：仅仿真（Sim2Sim）。** 本页所有内容都在 CPU 上用 MuJoCo 运行，模型就是策略训练时用的那个。
 **本仓库没有任何实机结果**，没有在实物机器人上验证过任何内容，"在 MuJoCo 里能站住"不等于"在硬件上能站住"。
 
@@ -18,24 +22,50 @@ git clone <本仓库>
 cd Wamoduck
 
 python wamoduck_sim.py --list                 # 看发布了什么
-python wamoduck_sim.py --policy stand         # 打开交互窗口
-python wamoduck_sim.py --policy walk --vx 0.3
+python wamoduck_sim.py                        # 一个窗口，五个策略
 python wamoduck_sim.py --policy getup --spawn lie-back
+python wamoduck_sim.py --policy walk --vx 0.3
 python wamoduck_sim.py --policy stand --check # 契约自检，不开窗口
+python wamoduck_sim.py --cycle-test           # 无界面切换自检
 ```
 
+`--policy` 指定 demo **启动时**用哪个策略（默认 `stand`）；之后用 `1`-`5` 切换。
 `wamoduck_sim.py` **只**依赖 `mujoco`、`onnxruntime`、`numpy` —— 不含 mjlab、torch、rsl_rl，也不需要 CUDA。
 
 按键要打在启动脚本的那个终端里，不是打在查看器窗口里：
 
-| 按键 | 作用 |
-| --- | --- |
-| `↑` / `w`、`↓` / `s` | `vx` ± 0.1 m/s（walk、rough） |
-| `←` / `a`、`→` / `d` | `vy` ± 0.1 m/s（walk、rough） |
-| `e` / `z` | `wz` ± 0.1 rad/s（walk、rough） |
-| `m` | 坐／站切换（sitstand） |
-| `space` | 速度指令清零 |
-| `r` / `k` / `q` / `x` | 复位／开关策略／推一把／退出 |
+| 按键 | 作用 | 对哪些策略有效 |
+| --- | --- | --- |
+| `1` `2` `3` `4` `5` | 切换策略：`stand`／`getup`／`sitstand`／`walk`／`rough` | 全部策略 |
+| `Tab`／`n` | 按上面的顺序切到下一个策略 | 全部策略 |
+| `↑`／`w`、`↓`／`s` | `vx` ± 0.1 m/s | `walk`、`rough` |
+| `←`／`a`、`→`／`d` | `vy` ± 0.1 m/s | `walk`、`rough` |
+| `e`／`z` | `wz` ± 0.1 rad/s | `walk`、`rough` |
+| `space` | 速度指令清零 | `walk`、`rough` |
+| `m` | 坐／站切换（0.085 m／0.175 m） | `sitstand` |
+| `r` | 复位（按当前策略重新出生） | 全部策略 |
+| `k` | 开关策略（关掉时保持零动作） | 全部策略 |
+| `q` | 复位并随机推一把 | 全部策略 |
+| `h`／`?` | 再打印一次键表 | 全部策略 |
+| `x` | 退出 | 全部策略 |
+
+**没有任何按键会被静默忽略。** 速度键只存在于 `walk` 与 `rough` 的观测里，`m` 只存在于 `sitstand` 里；
+在当前策略没有对应通道时按键会打印"这个键需要哪种指令、当前策略实际观测哪种指令"，完全没绑定的键也会说明：
+
+```text
+[key] 'm' needs a body-height command, but the current policy 'walk' observes vx/vy/wz -- ignored (nothing changed)
+```
+
+### 切换时保留什么、什么时候必须重置
+
+| 切换 | MJCF | 机器人状态会怎样 |
+| --- | --- | --- |
+| `stand` ↔ `sitstand` ↔ `walk` ↔ `rough` | 不变（`robot_walk.xml`） | **保留状态。** 只换 ONNX actor 与观测装配（48／49／51 维），因此姿态、速度、速度指令与高度指令都留下来了。`last_action` 归零 —— 那一项观测是**新策略**对自己上一步输出的记忆。 |
+| 进入或离开 `getup` | 重新加载（`robot_groundcontact.xml` ↔ `robot_walk.xml`） | **状态被重置，而且运行器会说明原因。** `getup` 是唯一用"头链会碰撞"的模型训练出来的策略，因此它需要另一个物理模型；策略是"它所训练的模型"的函数，把一个模型的状态搬进另一个模型没有意义。进入 `getup` 时机器人以躺姿重出生（`lie-back`），离开时以标称站姿重出生。 |
+| `walk` ↔ `rough` | 不变 | **保留状态。** 1 cm 台阶本来就编译在模型里，只做移动：从机器人当前 `x` 前方 0.3 m 起、间距 0.3 m 摆好，没用到的那些停在地面以下并关掉碰撞。不重新加载任何东西。 |
+
+命令行给了 `--spawn` 时，它覆盖**每一个**策略的出生姿态，包括模型重载之后的那次重置；不给时每个策略用
+自己的默认出生姿态：`getup` 用 `lie-back`，其余用 `nominal`。
 
 无界面自检跑完会打印末态倾角、基座高度、关节偏差与脚底接触：
 
@@ -243,6 +273,41 @@ python wamoduck_sim.py --policy rough --terrain-level 3 --vx 0.3 --headless --st
   但没有精确达到指令高度，而且蹲着的时候是歪的。
 - `rough`：在 3 个连续的 1 cm 台阶上以 vx = 0.3 前进，5 s 走了 **1.384 m**，保持站立（倾角 5.3°）。
   `--terrain-level N` 会添加 N 个台阶，从前方 0.3 m 处开始、间距 0.3 m。
+  自从 demo 支持切换策略之后，`rough` **默认**就带这 3 个台阶，而 `walk` 保持平地，这样在两者之间切换时
+  地形与策略会一起变。`--terrain-level N` 仍然覆盖两者，此时每个策略都在 N 个台阶上跑。
+
+### 一个 demo 切换全部五个策略：`--cycle-test`
+
+```
+python wamoduck_sim.py --cycle-test
+```
+
+`--cycle-test` 就是用户在窗口里那套操作的无界面版本：它通过**键盘用的同一个按键处理函数**依次按下
+`1`、`2`、`3`、`4`、`5`，因此"保留状态"与"重载模型"两条路径都被走到，并对每一段做断言。每个策略 300 个控制步
+（6.0 s），两个行走策略给 `vx = +0.30 m/s`，坐／站段中间按一次 `m`：
+
+| 段 | 进入方式 | 末态倾角 | 末态 `base_z` | 位移 | 朝向变化 |
+| --- | --- | ---: | ---: | ---: | ---: |
+| `1 stand` | 原地切换（与起始策略同一 MJCF） | 0.54° | 0.1770 m | 0.001 m | +1.0° |
+| `2 getup` | **重载**（`robot_groundcontact.xml`，出生点 `lie-back`） | 8.14° | 0.1782 m（起 0.0920） | 0.071 m | +33.8° |
+| `3 sitstand` | **重载**回 `robot_walk.xml`，出生点 `nominal` | 25.74° | 按 `m` 后 0.0945 m（此前 0.1748） | 0.038 m | +26.2° |
+| `4 walk` | 原地切换（保留蹲姿状态） | 4.49° | 0.1841 m | 指令 1.800 m 中走了 1.730 m | **−112.2°** |
+| `5 rough` | 原地切换，台阶摆到机器人前方 | 3.28° | 0.1904 m | 指令 1.800 m 中走了 1.774 m | −64.4° |
+| `6 walk`（前进复核） | 按 `4` 再按 `r`：从标称姿重新出生，5.0 s | 6.14° | 0.1770 m → 0.1864 m | dx **+1.482 m**、dy −0.328 m | −19.6° |
+
+六条断言全部通过，而对 demo 最关键的两点在表里就能看出来：重载确实会重置机器人（`getup` 从躺着的
+0.0920 m 起到 0.1782 m），原地切换确实会保留状态（`walk` 这一段就是从坐／站段留下的 0.0945 m 蹲姿开始的）。
+
+**第 4 段要连着"朝向变化"一列一起看。** 因为 sitstand → walk 这次切换按设计**保留状态**，行走策略接手时机器人
+是**蹲着的、倾角 25.7°，而且 0.085 m 的高度指令仍然生效**，所以这一段前半程实际上是在恢复：它先转了 **112°**
+才进入正常行走，因此那 1.730 m 大部分是沿着它自己**转向后的前方**走的，而不是沿 `+x`。这正是这个行走检查点
+已知的"未指令自转"弱点；该断言断言的是**有位移**，不是朝向。第 6 段就是它的对照：在五次切换（其中两次重载
+MJCF）之后，把 demo 切回 `walk`、按 `r` 重新出生，它**完全复现**单策略运行的结果 —— 5.0 s 内
+`dx = +1.482 m`、`dy = −0.328 m`，与上面 `walk` 一节里的数字一模一样。
+
+这些数字测于 **MuJoCo 3.12.0、ONNX Runtime 1.28.0、NumPy 2.4.6**，也就是加这项切换自检时我们机器上的版本；
+而前面三节里的运行测于 MuJoCo 3.10、ONNX Runtime 1.30、NumPy 2.5 —— 这正是像 `getup` 末态高度这种接触丰富的
+数字会在最后两位上有差别的原因。两组都是纯 CPU 的 MuJoCo。
 
 ### `--check`：契约自检
 
@@ -304,7 +369,8 @@ python wamoduck_sim.py --policy rough --terrain-level 3 --vx 0.3 --headless --st
 
 ```text
 Wamoduck/
-├── wamoduck_sim.py                  # 运行器（只依赖 mujoco + onnxruntime + numpy）
+├── wamoduck_sim.py                  # 运行器：一个 demo 跑五个策略
+│                                    #   （只依赖 mujoco + onnxruntime + numpy）
 ├── policies/
 │   ├── wamoduck-stand-stand_v3.onnx
 │   ├── wamoduck-getup-getup_v18.onnx

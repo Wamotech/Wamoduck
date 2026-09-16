@@ -7,6 +7,11 @@ sit/stand, flat-ground walking, and 1 cm rough terrain. Each one ships as an ONN
 **training-time MJCF** it was trained on and a single-file runner, so you can run them on your own machine
 with plain MuJoCo and no GPU.
 
+**All five run in one demo.** The same viewer switches between them while it runs: walking, sitting down,
+standing up, and the rough-terrain policy are all reachable without restarting the script — press `1`-`5`,
+or `Tab`/`n` for the next one. The runner prints which policy is loaded, what it observes, and which command
+it takes, both at startup and after every switch.
+
 **Scope: simulation only (Sim2Sim).** Everything here runs in MuJoCo on the CPU against the same model the
 policy was trained on. There are **no hardware results anywhere in this repository**, nothing here has been
 tested on a physical robot, and "it stands in MuJoCo" is not a claim that it stands on hardware.
@@ -20,25 +25,52 @@ git clone <this repo>
 cd Wamoduck
 
 python wamoduck_sim.py --list                 # what is published
-python wamoduck_sim.py --policy stand         # interactive viewer
-python wamoduck_sim.py --policy walk --vx 0.3
+python wamoduck_sim.py                        # one window, all five policies
 python wamoduck_sim.py --policy getup --spawn lie-back
+python wamoduck_sim.py --policy walk --vx 0.3
 python wamoduck_sim.py --policy stand --check # contract self-test, no viewer
+python wamoduck_sim.py --cycle-test           # headless switching self-test
 ```
 
+`--policy` names the policy the demo **starts** on (`stand` by default); keys `1`-`5` switch from there.
 `wamoduck_sim.py` imports **only** `mujoco`, `onnxruntime`, and `numpy` — no mjlab, no torch, no rsl_rl,
 no CUDA.
 
 Controls are typed into the terminal that launched the script, not into the viewer window:
 
-| Key | Action |
-| --- | --- |
-| `↑` / `w`, `↓` / `s` | `vx` ± 0.1 m/s (walk, rough) |
-| `←` / `a`, `→` / `d` | `vy` ± 0.1 m/s (walk, rough) |
-| `e` / `z` | `wz` ± 0.1 rad/s (walk, rough) |
-| `m` | sit / stand toggle (sitstand) |
-| `space` | zero the twist command |
-| `r` / `k` / `q` / `x` | reset / toggle policy / push / quit |
+| Key | Action | Applies to |
+| --- | --- | --- |
+| `1` `2` `3` `4` `5` | switch policy: `stand` / `getup` / `sitstand` / `walk` / `rough` | every policy |
+| `Tab` / `n` | switch to the next policy in that order | every policy |
+| `↑` / `w`, `↓` / `s` | `vx` ± 0.1 m/s | `walk`, `rough` |
+| `←` / `a`, `→` / `d` | `vy` ± 0.1 m/s | `walk`, `rough` |
+| `e` / `z` | `wz` ± 0.1 rad/s | `walk`, `rough` |
+| `space` | zero the twist command | `walk`, `rough` |
+| `m` | sit / stand toggle (0.085 m / 0.175 m) | `sitstand` |
+| `r` | reset (re-spawn the current policy) | every policy |
+| `k` | toggle the policy (hold the zero action instead) | every policy |
+| `q` | reset with a random push | every policy |
+| `h` / `?` | print the key table again | every policy |
+| `x` | quit | every policy |
+
+**No key is ignored in silence.** The twist keys only exist in the observation of `walk` and `rough`, and `m`
+only exists for `sitstand`; pressing a key the current policy has no channel for prints what the key would
+need and what the policy actually observes, and a key the runner does not bind at all says so too:
+
+```text
+[key] 'm' needs a body-height command, but the current policy 'walk' observes vx/vy/wz -- ignored (nothing changed)
+```
+
+### What a switch keeps, and what it has to reset
+
+| Switch | MJCF | What happens to the robot |
+| --- | --- | --- |
+| `stand` ↔ `sitstand` ↔ `walk` ↔ `rough` | unchanged (`robot_walk.xml`) | **State kept.** Only the ONNX actor and the observation assembly (48 / 49 / 51 values) are swapped, so the pose, the velocity, the twist command, and the height command all survive. `last_action` is zeroed — that observation term is the new policy's own memory of its previous output. |
+| into or out of `getup` | reloaded (`robot_groundcontact.xml` ↔ `robot_walk.xml`) | **State reset, and the runner says why.** `getup` is the only policy trained with the head chain colliding, so it needs a different physical model; a policy is a function of the model it was trained in, and there is no meaningful way to carry one model's state into another. Entering `getup` re-spawns the robot lying down (`lie-back`), leaving it re-spawns the nominal stance. |
+| `walk` ↔ `rough` | unchanged | **State kept.** The 1 cm curbs are compiled into the model and moved: they are placed 0.3 m apart starting 0.3 m ahead of the robot's current `x`, and the unused ones are parked below the floor with their collision switched off. Nothing is reloaded. |
+
+`--spawn` (when given) overrides the spawn of every policy, including the reset that follows a model reload;
+by default each policy uses its own: `lie-back` for `getup`, `nominal` for the rest.
 
 Headless self-test runs print the tilt angle, base height, joint deviation, and foot contact at the end:
 
@@ -262,6 +294,47 @@ python wamoduck_sim.py --policy rough --terrain-level 3 --vx 0.3 --headless --st
   holds the crouch; it does not hit the commanded height exactly. It leans while doing so.
 - `rough`: over 3 consecutive 1 cm curbs at vx = 0.3, it travelled **1.384 m** in 5 s and stayed standing
   (tilt 5.3°). The `--terrain-level N` option adds N curbs spaced 0.3 m apart, starting 0.3 m ahead.
+  Since the demo gained policy switching, `rough` gets those 3 curbs **by default** and `walk` stays on the
+  flat floor, so that switching between the two changes the terrain as well as the policy. `--terrain-level N`
+  still overrides both, and then every policy runs on N curbs.
+
+### The demo switching all five policies: `--cycle-test`
+
+```
+python wamoduck_sim.py --cycle-test
+```
+
+`--cycle-test` is the headless version of what a user does in the viewer: it presses `1`, `2`, `3`, `4`, `5`
+through the same key handler the keyboard uses, so the state-keeping path and the model-reload path are both
+exercised, and it checks each segment. 300 control steps (6.0 s) per policy, `vx = +0.30 m/s` on the two
+walking policies, and `m` in the middle of the sit/stand segment:
+
+| Segment | Switch into it | End tilt | End `base_z` | Travel | Heading change |
+| --- | --- | ---: | ---: | ---: | ---: |
+| `1 stand` | in place (same MJCF, from the starting policy) | 0.54° | 0.1770 m | 0.001 m | +1.0° |
+| `2 getup` | **reload** (`robot_groundcontact.xml`, spawn `lie-back`) | 8.14° | 0.1782 m (from 0.0920) | 0.071 m | +33.8° |
+| `3 sitstand` | **reload** back to `robot_walk.xml`, spawn `nominal` | 25.74° | 0.0945 m after `m` (from 0.1748) | 0.038 m | +26.2° |
+| `4 walk` | in place (state kept from the crouch) | 4.49° | 0.1841 m | 1.730 m of 1.800 m commanded | **−112.2°** |
+| `5 rough` | in place, curbs moved in front of the robot | 3.28° | 0.1904 m | 1.774 m of 1.800 m commanded | −64.4° |
+| `6 walk` (forward check) | `4` then `r`: fresh nominal spawn, 5.0 s | 6.14° | 0.1770 m → 0.1864 m | dx **+1.482 m**, dy −0.328 m | −19.6° |
+
+All six checks pass, and the two that matter most for the demo are visible above: the model reload really
+does reset the robot (`getup` starts lying at 0.0920 m and ends at 0.1782 m), and the in-place switches really
+do keep it (`walk` starts its segment from the 0.0945 m crouch the sit/stand segment left behind).
+
+**Read segment 4 with its heading column.** Because the sitstand → walk switch keeps the state by design, the
+walk policy picks the robot up **crouched at 25.7° of tilt with a 0.085 m height command still in effect**,
+and it spends that segment recovering: it turns **112°** before it settles into walking, so most of its
+1.730 m is travelled along its own new heading rather than along `+x`. That is the uncommanded-rotation
+weakness this walking checkpoint is already documented with; the assertion is about travel, not about a
+heading. Segment 6 is the control for it — after all five switches (two of them MJCF reloads) the demo is
+pressed back to `walk`, re-spawned with `r`, and it reproduces the single-policy run **exactly**:
+`dx = +1.482 m, dy = −0.328 m` in 5.0 s, the same numbers as the `walk` section above.
+
+These numbers were measured on **MuJoCo 3.12.0, ONNX Runtime 1.28.0, NumPy 2.4.6**, the versions on our
+machine when the switching test was added; the runs in the three sections above were measured on
+MuJoCo 3.10, ONNX Runtime 1.30, NumPy 2.5, which is why a contact-rich number such as `getup`'s final height
+differs in the last two digits. Both sets are CPU-only MuJoCo.
 
 ### `--check`: the contract self-test
 
@@ -331,7 +404,8 @@ even with the wrong action order — but across all five spawns that advantage d
 
 ```text
 Wamoduck/
-├── wamoduck_sim.py                  # the runner (mujoco + onnxruntime + numpy only)
+├── wamoduck_sim.py                  # the runner: one demo, all five policies
+│                                    #   (mujoco + onnxruntime + numpy only)
 ├── policies/
 │   ├── wamoduck-stand-stand_v3.onnx
 │   ├── wamoduck-getup-getup_v18.onnx
