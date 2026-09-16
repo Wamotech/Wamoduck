@@ -135,6 +135,15 @@ Reproducibility and self-check: plain MuJoCo on CPU, training MJCF unmodified, t
 
 The 61 % is a real loss of speed, and it is measured against the commanded speed, not against the policy's flat-ground speed. **No flat-ground control run was made in the same batch**, so this page does not attribute the loss to the terrain alone.
 
+**Our own CPU control, added 2026-09-16, separates two things that this row had left together.** Running the published policy in the bundled runner — CPU MuJoCo, 600 control steps (12 s), `vx = +0.30 m/s`, commanded **3.600 m** — on a flat floor and over 3 consecutive 1 cm curbs:
+
+| Setup | Forward travel | Of the command |
+| --- | --- | --- |
+| Flat floor (`--terrain-level 0`) | **+3.458 m** | **96.1 %** |
+| 3 consecutive 1 cm curbs (`--terrain-level 3`) | **+3.316 m** | **92.1 %** |
+
+So in this runner's own setup the curbs cost about **4 percentage points**, not 39. That does **not** overturn the 61 % above: that number comes from the development repository's **generated** terrain at difficulty rows 0–5 (denser, with step-downs), which is harder than three hand-placed curbs, and it was measured in a different simulator with a different protocol. What it does show is that the loss is **specific to the harder terrain**, rather than the policy being unable to hold speed whenever the ground is uneven. The two runs are ours, on CPU, and are not a re-measurement of the internal batch.
+
 ## 6. Sit / stand
 
 | Field | Value |
