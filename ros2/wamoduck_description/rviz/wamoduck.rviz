@@ -1,0 +1,122 @@
+# RViz2 configuration for the Wamoduck description.
+#
+# Fixed Frame: base_link
+#   Use this one when NOTHING publishes a world -> base_link transform, i.e. for
+#   `ros2 launch wamoduck_description display.launch.py` and for the joint-slider GUI.
+#   The robot then sits at the origin and only its joints move.
+#
+# For gait replay, where gait_player broadcasts world -> base_link so the base trajectory in
+# the CSV is visible, use wamoduck_world.rviz instead (Fixed Frame: world).
+#
+# Displays: RobotModel (from /robot_description via robot_state_publisher) and TF, plus a
+# Grid for scale. Nothing else is enabled on purpose -- this stage has no physics, so there
+# is no contact, no force and no sensor display to show.
+
+Visualization Manager:
+  Class: ""
+  Displays:
+    - Class: rviz_default_plugins/Grid
+      Enabled: true
+      Name: Grid
+      Alpha: 0.5
+      Cell Size: 0.05
+      Plane Cell Count: 20
+      Color: 160; 160; 164
+      Plane: XY
+      Offset:
+        X: 0
+        Y: 0
+        Z: 0
+      Line Style:
+        Line Width: 0.01
+        Value: Lines
+      Normal Cell Count: 0
+      Reference Frame: <Fixed Frame>
+      Value: true
+
+    - Class: rviz_default_plugins/RobotModel
+      Enabled: true
+      Name: RobotModel
+      Description Source: Topic
+      Description Topic:
+        Value: /robot_description
+        Depth: 1
+        Durability Policy: Transient Local
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+      Visual Enabled: true
+      Collision Enabled: false
+      Update Interval: 0
+      Alpha: 1
+      TF Prefix: ""
+      Links:
+        All Links Enabled: true
+        Expand Joint Details: false
+        Expand Link Details: false
+        Expand Tree: false
+        Link Tree Style: Links in Alphabetic Order
+      Value: true
+
+    - Class: rviz_default_plugins/TF
+      Enabled: true
+      Name: TF
+      Marker Scale: 0.05
+      Show Names: false
+      Show Axes: true
+      Show Arrows: false
+      Frame Timeout: 15
+      Frames:
+        All Enabled: true
+      Update Interval: 0
+      Value: true
+
+  Enabled: true
+  Global Options:
+    Background Color: 48; 48; 48
+    Fixed Frame: base_link
+    Frame Rate: 30
+  # The robot is ~0.39 m tall and, with Fixed Frame base_link, spans z = -0.178 .. +0.213,
+  # so the RViz default orbit distance of 10 m would render it as a few pixels. 0.85 m at a
+  # slight elevation with the focal point at mid-body frames the whole robot.
+  Views:
+    Current:
+      Class: rviz_default_plugins/Orbit
+      Distance: 0.85
+      Enable Stereo Rendering:
+        Stereo Eye Separation: 0.06
+        Stereo Focal Distance: 1
+        Swap Stereo Eyes: false
+        Value: false
+      Focal Point:
+        X: 0
+        Y: 0
+        Z: 0.02
+      Focal Shape Fixed Size: true
+      Focal Shape Size: 0.05
+      Invert Z Axis: false
+      Name: Current View
+      Near Clip Distance: 0.01
+      Pitch: 0.22
+      Target Frame: <Fixed Frame>
+      Value: Orbit (rviz)
+      Yaw: 0.7
+    Saved: ~
+  Tools:
+    - Class: rviz_default_plugins/Interact
+    - Class: rviz_default_plugins/MoveCamera
+    - Class: rviz_default_plugins/Select
+    - Class: rviz_default_plugins/FocusCamera
+    - Class: rviz_default_plugins/Measure
+      Line color: 128; 128; 0
+  Transformation:
+    Current:
+      Class: rviz_default_plugins/TF
+  Value: true
+
+Window Geometry:
+  Height: 900
+  Width: 1400
+  Displays:
+    collapsed: false
+  Hide Left Dock: false
+  Hide Right Dock: false

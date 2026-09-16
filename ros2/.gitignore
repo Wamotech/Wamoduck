@@ -1,0 +1,15 @@
+# colcon build artifacts. The workspace should live outside the repository, but these
+# patterns catch an accidental in-tree build (colcon build run from inside ros2/).
+build/
+install/
+log/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# Generated during a build; the canonical URDF and meshes stay at models/wmduck/.
+wamoduck_description/urdf/*.urdf
+wamoduck_description/urdf/*.manifest.json

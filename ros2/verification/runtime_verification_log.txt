@@ -1,0 +1,318 @@
+########################################################################
+# 1. packages and entry points
+########################################################################
+$ ros2 pkg list | grep wamoduck
+wamoduck_description
+wamoduck_msgs
+wamoduck_ros2
+
+$ ros2 pkg executables wamoduck_ros2
+wamoduck_ros2 bridge_stub
+wamoduck_ros2 gait_player
+wamoduck_ros2 policy_node
+
+########################################################################
+# 2. robot_state_publisher + gait_player (via the real launch file)
+########################################################################
+$ ros2 launch wamoduck_ros2 gait_display.launch.py rviz:=false loop:=true csv_path:=<gait_cycle_2s_50Hz.csv>
+launch pid 1479
+/joint_states appeared after ~0 s
+
+--- launch log (filtered: gait_player and robot_state_publisher) ---
+  [INFO] [robot_state_publisher-1]: process started with pid [1487]
+  [INFO] [gait_player-2]: process started with pid [1488]
+  [robot_state_publisher-1] [WARN] [1789545435.754410433] [kdl_parser]: The root link base_link has an inertia specified in the URDF, but KDL does not support a root link with an inertia.  As a workaround, you can add an extra dummy link to your URDF.
+  [robot_state_publisher-1] [INFO] [1789545435.754562611] [robot_state_publisher]: Robot initialized
+  [gait_player-2] [INFO] [1789545436.213821332] [gait_player]: CSV            : /home/sim/ws_wamoduck/install/wamoduck_ros2/share/wamoduck_ros2/data/gait_cycle_2s_50Hz.csv
+  [gait_player-2] [INFO] [1789545436.214189081] [gait_player]:                  100 samples, 1.980 s, 50.000 Hz nominal, uniform_dt=True
+  [gait_player-2] [INFO] [1789545436.214390869] [gait_player]: URDF           : /home/sim/ws_wamoduck/install/wamoduck_description/share/wamoduck_description/urdf/wmduck.urdf
+  [gait_player-2] [INFO] [1789545436.214631824] [gait_player]:                  15 movable joints in URDF document order: left_hip_yaw, right_hip_yaw, left_hip_roll, right_hip_roll, left_hip_pitch, right_hip_pitch, left_knee, right_knee, left_ankle, right_ankle, neck_pitch, head_pitch, head_yaw, head_roll, mouth
+  [gait_player-2] [INFO] [1789545436.214934564] [gait_player]: publishing     : 15 CSV-driven joints in URDF order, timer 50.0 Hz
+  [gait_player-2] [INFO] [1789545436.215180673] [gait_player]: base TF        : world -> base_link from base_x/y/z + base_roll_rad
+  [gait_player-2] [INFO] [1789545436.215431739] [gait_player]: contract check : URDF document order == contract joint_order ? False (false is expected and fine; see model_contract.py)
+  [gait_player-2] [INFO] [1789545439.203221263] [gait_player]: restarting the 1.980 s track (loop enabled)
+
+--- ros2 node list ---
+/gait_player
+/robot_state_publisher
+
+--- ros2 topic list ---
+/joint_states
+/parameter_events
+/robot_description
+/rosout
+/tf
+/tf_static
+
+--- ros2 topic info /joint_states -v (first 25 lines) ---
+Type: sensor_msgs/msg/JointState
+
+Publisher count: 1
+
+Node name: gait_player
+Node namespace: /
+Topic type: sensor_msgs/msg/JointState
+Topic type hash: RIHS01_a13ee3a330e346c9d87b5aa18d24e11690752bd33a0350f11c5882bc9179260e
+Endpoint type: PUBLISHER
+GID: 01.0f.f2.62.d0.05.61.7a.00.00.00.00.00.00.13.03
+QoS profile:
+  Reliability: RELIABLE
+  History (Depth): UNKNOWN
+  Durability: VOLATILE
+  Lifespan: Infinite
+  Deadline: Infinite
+  Liveliness: AUTOMATIC
+  Liveliness lease duration: Infinite
+
+Subscription count: 1
+
+Node name: robot_state_publisher
+Node namespace: /
+Topic type: sensor_msgs/msg/JointState
+Topic type hash: RIHS01_a13ee3a330e346c9d87b5aa18d24e11690752bd33a0350f11c5882bc9179260e
+
+--- ros2 topic info /tf ---
+Type: tf2_msgs/msg/TFMessage
+Publisher count: 2
+Subscription count: 0
+
+########################################################################
+# 3. ros2 topic echo /joint_states --once
+########################################################################
+header:
+  stamp:
+    sec: 1789545442
+    nanosec: 2792622
+  frame_id: base_link
+name:
+- left_hip_yaw
+- right_hip_yaw
+- left_hip_roll
+- right_hip_roll
+- left_hip_pitch
+- right_hip_pitch
+- left_knee
+- right_knee
+- left_ankle
+- right_ankle
+- neck_pitch
+- head_pitch
+- head_yaw
+- head_roll
+- mouth
+position:
+- -0.083999
+- -0.245634
+- -0.011794
+- 0.002143
+- 0.088942
+- 0.26098
+- -0.301914
+- -0.298705
+- 0.211886
+- 0.038051
+- 0.0
+- 0.0
+- 0.0
+- -0.0
+- 0.0
+velocity:
+- 0.10859999999999992
+- -0.10174999999999966
+- -0.01947499999999999
+- -0.026124999999999975
+- 0.10619999999999995
+- 0.0012749999999991924
+- -0.07249999999999888
+- 0.0847250000000007
+- -0.03417500000000015
+- -0.09202499999999984
+- 0.0
+- 0.0
+- 0.0
+- 0.0
+- 0.0
+effort:
+- 0.392989
+- 1.280627
+- 0.06378
+- 0.002485
+- -0.448915
+- -1.31181
+- 1.478134
+- 1.461709
+- -1.02382
+- -0.148225
+- 0.0
+- 0.0
+- -0.0
+- 0.0
+- 0.0
+---
+
+########################################################################
+# 4. ros2 topic echo /tf --once  (world -> base_link from the CSV base columns)
+########################################################################
+transforms:
+- header:
+    stamp:
+      sec: 1789545443
+      nanosec: 122681068
+    frame_id: world
+  child_frame_id: base_link
+  transform:
+    translation:
+      x: 0.039
+      y: 0.0
+      z: 0.169618
+    rotation:
+      x: -0.0
+      y: 0.0
+      z: 0.0
+      w: 1.0
+---
+
+########################################################################
+# 5. achieved publish rate
+########################################################################
+$ timeout 12 ros2 topic hz /joint_states
+	min: 0.018s max: 0.022s std dev: 0.00026s window: 404
+average rate: 49.998
+	min: 0.018s max: 0.022s std dev: 0.00026s window: 455
+average rate: 49.999
+	min: 0.018s max: 0.022s std dev: 0.00026s window: 506
+
+--- gait_player self-reported rate ---
+  [gait_player-2] [INFO] [1789545441.203682072] [gait_player]: published 200 messages, achieved 50.00 Hz (target 50.00 Hz)
+  [gait_player-2] [INFO] [1789545446.203532559] [gait_player]: published 450 messages, achieved 50.00 Hz (target 50.00 Hz)
+  [gait_player-2] [INFO] [1789545451.203394787] [gait_player]: published 700 messages, achieved 50.00 Hz (target 50.00 Hz)
+
+########################################################################
+# 6. independent subscriber check: names, widths, ranges
+########################################################################
+samples received in 6 s : 202
+name count              : 15
+names                   : left_hip_yaw, right_hip_yaw, left_hip_roll, right_hip_roll, left_hip_pitch, right_hip_pitch, left_knee, right_knee, left_ankle, right_ankle, neck_pitch, head_pitch, head_yaw, head_roll, mouth
+names == URDF document order : True
+position width          : 15
+velocity width          : 15
+effort width            : 15
+total published positions in window: 3030
+position range over window: [-0.482773, 0.345952] rad
+all positions zero      : False   <- must be False, or nothing is animating
+all positions finite    : True
+observed rate           : 50.001 Hz
+all samples stamped     : True
+subscriber check exit code: 0
+
+########################################################################
+# 7. RViz headless (Xvfb + llvmpipe): the screenshot evidence
+########################################################################
+Xvfb pid 1770 on :99
+$ glxinfo (software renderer check)
+  OpenGL vendor string: Mesa
+  OpenGL renderer string: llvmpipe (LLVM 20.1.2, 256 bits)
+  OpenGL version string: 4.5 (Compatibility Profile) Mesa 25.2.8-0ubuntu0.24.04.2
+
+$ ros2 launch wamoduck_ros2 gait_display.launch.py  (DISPLAY=:99, LIBGL_ALWAYS_SOFTWARE=1, QT_QPA_PLATFORM=xcb)
+rviz launch pid 1831
+RViz window present after ~5 s
+--- rviz log (tail) ---
+  [rviz2-2] [INFO] [1789545465.841261574] [rviz2]: Stereo is NOT SUPPORTED
+  [rviz2-2] [INFO] [1789545465.841591246] [rviz2]: OpenGl version: 4.5 (GLSL 4.5)
+  [rviz2-2] [INFO] [1789545465.881006998] [rviz2]: Stereo is NOT SUPPORTED
+  [gait_player-3] [INFO] [1789545466.094716703] [gait_player]: CSV            : /home/sim/ws_wamoduck/install/wamoduck_ros2/share/wamoduck_ros2/data/gait_cycle_2s_50Hz.csv
+  [gait_player-3] [INFO] [1789545466.095166442] [gait_player]:                  100 samples, 1.980 s, 50.000 Hz nominal, uniform_dt=True
+  [gait_player-3] [INFO] [1789545466.095373928] [gait_player]: URDF           : /home/sim/ws_wamoduck/install/wamoduck_description/share/wamoduck_description/urdf/wmduck.urdf
+  [gait_player-3] [INFO] [1789545466.095579058] [gait_player]:                  15 movable joints in URDF document order: left_hip_yaw, right_hip_yaw, left_hip_roll, right_hip_roll, left_hip_pitch, right_hip_pitch, left_knee, right_knee, left_ankle, right_ankle, neck_pitch, head_pitch, head_yaw, head_roll, mouth
+  [gait_player-3] [INFO] [1789545466.095830608] [gait_player]: publishing     : 15 CSV-driven joints in URDF order, timer 50.0 Hz
+  [gait_player-3] [INFO] [1789545466.096083137] [gait_player]: base TF        : world -> base_link from base_x/y/z + base_roll_rad
+  [gait_player-3] [INFO] [1789545466.096346568] [gait_player]: contract check : URDF document order == contract joint_order ? False (false is expected and fine; see model_contract.py)
+  [gait_player-3] [INFO] [1789545469.083057591] [gait_player]: restarting the 1.980 s track (loop enabled)
+  [gait_player-3] [INFO] [1789545471.082839490] [gait_player]: restarting the 1.980 s track (loop enabled)
+  [gait_player-3] [INFO] [1789545471.083510165] [gait_player]: published 199 messages, achieved 50.00 Hz (target 50.00 Hz)
+  [gait_player-3] [INFO] [1789545473.082775169] [gait_player]: restarting the 1.980 s track (loop enabled)
+  [gait_player-3] [INFO] [1789545475.063057257] [gait_player]: restarting the 1.980 s track (loop enabled)
+  [gait_player-3] [INFO] [1789545476.083512548] [gait_player]: published 449 messages, achieved 50.00 Hz (target 50.00 Hz)
+  [gait_player-3] [INFO] [1789545477.062795073] [gait_player]: restarting the 1.980 s track (loop enabled)
+  [gait_player-3] [INFO] [1789545479.042874026] [gait_player]: restarting the 1.980 s track (loop enabled)
+  [gait_player-3] [INFO] [1789545481.042867221] [gait_player]: restarting the 1.980 s track (loop enabled)
+  [gait_player-3] [INFO] [1789545481.083176766] [gait_player]: published 699 messages, achieved 50.00 Hz (target 50.00 Hz)
+  [gait_player-3] [INFO] [1789545483.022850237] [gait_player]: restarting the 1.980 s track (loop enabled)
+  [gait_player-3] [INFO] [1789545485.024128054] [gait_player]: restarting the 1.980 s track (loop enabled)
+  [gait_player-3] [INFO] [1789545486.083271133] [gait_player]: published 949 messages, achieved 50.00 Hz (target 50.00 Hz)
+  [gait_player-3] [INFO] [1789545487.003968806] [gait_player]: restarting the 1.980 s track (loop enabled)
+  [gait_player-3] [INFO] [1789545489.003380384] [gait_player]: restarting the 1.980 s track (loop enabled)
+
+--- X windows on :99 ---
+  
+  xwininfo: Window id: 0x21f (the root window) (has no name)
+  
+    Root window id: 0x21f (the root window) (has no name)
+    Parent window id: 0x0 (none)
+       4 children:
+       0x200106 "/home/sim/ws_wamoduck/install/wamoduck_description/share/wamoduck_description/rviz/wamoduck_world.rviz - RViz": ("rviz2" "rviz2")  1400x900+0+0  +0+0
+       0x400001 (has no name): ()  1x1+0+0  +0+0
+       0x200008 "rviz2": ()  1x1+0+0  +0+0
+       0x200004 "Qt Selection Owner for rviz2": ()  3x3+0+0  +0+0
+  
+
+--- screenshot: import -display :99 -window root ---
+-rwxrwxrwx 1 sim sim 66106 Sep 16 15:58 /mnt/e/Github/Wamoduck/ros2/verification/rviz_gait_xvfb.png
+  /mnt/e/Github/Wamoduck/ros2/verification/rviz_gait_xvfb.png PNG 1400x900 1400x900+0+0 8-bit sRGB 66106B 0.000u 0:00.009
+
+--- screenshot content analysis (ImageMagick, no extra dependency) ---
+size=1400x900  unique_colours=2346  mean_intensity=0.290257
+  most common colours:
+           1048492: (47.9572,47.9533,47.965) #303030 srgb(18.8067%,18.8052%,18.8098%)
+            148937: (240.144,240.171,240.105) #F0F0F0 srgb(94.1741%,94.1848%,94.1588%)
+             38068: (103.786,103.794,109.086) #68686D srgb(40.7004%,40.7034%,42.7787%)
+             15410: (124.105,124.163,131.463) #7C7C83 srgb(48.6687%,48.6915%,51.5541%)
+              5604: (153.171,154.198,159.198) #999A9F srgb(60.0671%,60.47%,62.4308%)
+              2710: (62.5214,47.7588,63.9261) #3F3040 srgb(24.5182%,18.7289%,25.069%)
+               407: (39.3152,96.0623,166.716) #2760A7 srgb(15.4177%,37.6715%,65.3788%)
+               372: (154.677,139.821,114.996) #9B8C73 srgb(60.6577%,54.8318%,45.0965%)
+
+########################################################################
+# 8. RViz on WSLg (DISPLAY=:0) -- the GUI path
+########################################################################
+DISPLAY=:0 WAYLAND_DISPLAY=wayland-0
+--- rviz2 process alive on WSLg? ---
+  2135 /opt/ros/jazzy/lib/rviz2/rviz2 -d /home/sim/ws_wamoduck/install/wamoduck_description/share/wamoduck_description/rviz/wamoduck_world.rviz --ros-args -r __node:=rviz2
+--- fatal errors in the WSLg log? ---
+  fatal-pattern lines: 0
+--- X windows on :0 (proves the GUI window was created) ---
+  
+  xwininfo: Window id: 0x438 (the root window) (has no name)
+  
+    Root window id: 0x438 (the root window) (has no name)
+    Parent window id: 0x0 (none)
+       7 children:
+       0x20002a (has no name): ()  1476x997+1811+646  +1811+646
+       0x800001 (has no name): ()  1x1+0+0  +0+0
+       0x600008 "rviz2": ()  1x1+0+0  +0+0
+       0x600004 "Qt Selection Owner for rviz2": ()  3x3+0+0  +0+0
+       0x200027 "Weston WM": ()  10x10+0+0  +0+0
+       0x200002 (has no name): ()  8192x8192+0+0  +0+0
+       0x200001 (has no name): ()  10x10+0+0  +0+0
+  
+--- rviz log tail ---
+  [gait_player-3] [INFO] [1789545526.656117401] [gait_player]: restarting the 1.980 s track (loop enabled)
+  [gait_player-3] [INFO] [1789545528.636168182] [gait_player]: restarting the 1.980 s track (loop enabled)
+  [gait_player-3] [INFO] [1789545528.816588677] [gait_player]: published 1700 messages, achieved 50.00 Hz (target 50.00 Hz)
+  [gait_player-3] [INFO] [1789545530.616376124] [gait_player]: restarting the 1.980 s track (loop enabled)
+  [gait_player-3] [INFO] [1789545532.616163789] [gait_player]: restarting the 1.980 s track (loop enabled)
+  [gait_player-3] [INFO] [1789545533.817449993] [gait_player]: published 1950 messages, achieved 50.00 Hz (target 50.00 Hz)
+  [gait_player-3] [INFO] [1789545534.596145930] [gait_player]: restarting the 1.980 s track (loop enabled)
+  [gait_player-3] [INFO] [1789545536.576195959] [gait_player]: restarting the 1.980 s track (loop enabled)
+  [gait_player-3] [INFO] [1789545538.576102902] [gait_player]: restarting the 1.980 s track (loop enabled)
+  [gait_player-3] [INFO] [1789545538.817476821] [gait_player]: published 2200 messages, achieved 50.00 Hz (target 50.00 Hz)
+  [gait_player-3] [INFO] [1789545540.556143029] [gait_player]: restarting the 1.980 s track (loop enabled)
+  [gait_player-3] [INFO] [1789545542.538133681] [gait_player]: restarting the 1.980 s track (loop enabled)
+
+--- screenshot attempt on :0 ---
+WSLg's root window is not a capturable X pixmap; capturing a client window by id instead.
+RViz window id on :0: 0x600105
+size=1400x900 unique_colours=2460
+
+=== RUNTIME VERIFICATION DONE ===

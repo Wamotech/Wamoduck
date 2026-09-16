@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>wamoduck_msgs</name>
+  <version>0.1.0</version>
+  <description>
+    Messages for the Wamoduck (wmduck) ROS 2 link.
+
+    JointTarget is the ROS-side image of the TYPE_CMD (0x01) payload of the deployment
+    protocol v1: a 40-byte payload carried inside a 46-byte frame, sent host -> cerebellum
+    at 50 Hz. Keeping the message semantic (radians, SI twist) means the bridge node is the
+    only component that knows about fixed-point scaling and byte order.
+
+    LinkStatus carries the byte-level link counters and the cerebellum status word that the
+    bridge/safety side needs to publish for diagnostics.
+  </description>
+  <maintainer email="872624478@qq.com">Wamotech</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <buildtool_depend>rosidl_default_generators</buildtool_depend>
+
+  <depend>std_msgs</depend>
+
+  <exec_depend>rosidl_default_runtime</exec_depend>
+
+  <member_of_group>rosidl_interface_packages</member_of_group>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

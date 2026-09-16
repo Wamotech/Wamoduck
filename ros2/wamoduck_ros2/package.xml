@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>wamoduck_ros2</name>
+  <version>0.1.0</version>
+  <description>
+    ROS 2 nodes for the Wamoduck (wmduck) biped.
+
+      gait_player  -- replay a reference gait CSV as sensor_msgs/JointState
+      policy_node  -- 50 Hz observation to ONNX to joint target (skeleton this stage)
+      bridge_stub  -- byte transport (/dev/ttyS1 or CAN) to ROS topics (skeleton + codec)
+
+    The node split follows docs/16 section 6.5 of the internal engineering tree: ROS lives
+    only on the Linux side (no micro-ROS on the MCU), the wire protocol is the deterministic
+    46-byte-frame protocol, and the bridge is the only component that parses bytes. Plain
+    rclpy, no real-time kernel. The names used there are wmduck_bridge / wmduck_policy /
+    wmduck_safety; this package calls them bridge_stub / policy_node and has not written the
+    safety node yet.
+  </description>
+  <maintainer email="872624478@qq.com">Wamotech</maintainer>
+  <license>MIT</license>
+
+  <exec_depend>ament_index_python</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>rviz2</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>tf2_ros</exec_depend>
+  <exec_depend>wamoduck_description</exec_depend>
+  <exec_depend>wamoduck_msgs</exec_depend>
+
+  <test_depend>python3-pytest</test_depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>

@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>wamoduck_description</name>
+  <version>0.1.0</version>
+  <description>
+    URDF description of the Wamoduck (wmduck) 15-DoF biped, for robot_state_publisher + RViz.
+
+    IMPORTANT -- no asset is stored twice in this repository. The canonical model lives at
+    models/wmduck/ (wmduck.urdf plus 20 binary STL meshes, ~11 MB). This package does not
+    copy them. At build time CMake
+
+      1. rewrites the canonical URDF's mesh references from the file-relative form
+         "meshes/X.stl" to "package://wamoduck_description/meshes/X.stl" (RViz resolves
+         meshes through resource_retriever, which cannot use a URDF-relative path), and
+      2. installs the meshes straight out of models/wmduck/meshes into the package share
+         directory.
+
+    So models/wmduck/ stays the single source of truth for geometry, and the meshes exist
+    exactly once inside the Git repository. See urdf/README.md and the top-level ros2/README.md
+    for the mechanism, its consequences, and how to override the source directory on a
+    different machine (e.g. the RDK X5).
+  </description>
+  <maintainer email="872624478@qq.com">Wamotech</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <exec_depend>joint_state_publisher</exec_depend>
+  <exec_depend>joint_state_publisher_gui</exec_depend>
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+  <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>rviz2</exec_depend>
+  <exec_depend>urdf</exec_depend>
+  <exec_depend>xacro</exec_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

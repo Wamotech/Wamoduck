@@ -1,0 +1,121 @@
+# RViz2 configuration for gait replay.
+#
+# Fixed Frame: world
+#   gait_player broadcasts world -> base_link from the base_x / base_y / base_z /
+#   base_roll_rad columns of the gait CSV, so with this fixed frame you see the base
+#   trajectory as well as the joint motion.
+#
+# If you start the replay with publish_base_tf:=false, nothing provides `world` and RViz
+# cannot place the robot at all -- use wamoduck.rviz (Fixed Frame: base_link) in that case.
+# gait_display.launch.py picks the right file automatically.
+#
+# Same two displays as wamoduck.rviz: RobotModel and TF. No physics.
+
+Visualization Manager:
+  Class: ""
+  Displays:
+    - Class: rviz_default_plugins/Grid
+      Enabled: true
+      Name: Grid
+      Alpha: 0.5
+      Cell Size: 0.1
+      Plane Cell Count: 10
+      Color: 160; 160; 164
+      Plane: XY
+      Offset:
+        X: 0
+        Y: 0
+        Z: 0
+      Line Style:
+        Line Width: 0.01
+        Value: Lines
+      Normal Cell Count: 0
+      Reference Frame: <Fixed Frame>
+      Value: true
+
+    - Class: rviz_default_plugins/RobotModel
+      Enabled: true
+      Name: RobotModel
+      Description Source: Topic
+      Description Topic:
+        Value: /robot_description
+        Depth: 1
+        Durability Policy: Transient Local
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+      Visual Enabled: true
+      Collision Enabled: false
+      Update Interval: 0
+      Alpha: 1
+      TF Prefix: ""
+      Links:
+        All Links Enabled: true
+        Expand Joint Details: false
+        Expand Link Details: false
+        Expand Tree: false
+        Link Tree Style: Links in Alphabetic Order
+      Value: true
+
+    - Class: rviz_default_plugins/TF
+      Enabled: true
+      Name: TF
+      Marker Scale: 0.05
+      Show Names: false
+      Show Axes: true
+      Show Arrows: false
+      Frame Timeout: 15
+      Frames:
+        All Enabled: true
+      Update Interval: 0
+      Value: true
+
+  Enabled: true
+  Global Options:
+    Background Color: 48; 48; 48
+    Fixed Frame: world
+    Frame Rate: 30
+  # With Fixed Frame world and a gait that puts base_z near 0.17 m, the robot spans
+  # z = -0.01 .. +0.38, so the focal point sits at mid-body and the orbit distance gives
+  # roughly one robot height of margin. The RViz default of 10 m would render a few pixels.
+  Views:
+    Current:
+      Class: rviz_default_plugins/Orbit
+      Distance: 1.0
+      Enable Stereo Rendering:
+        Stereo Eye Separation: 0.06
+        Stereo Focal Distance: 1
+        Swap Stereo Eyes: false
+        Value: false
+      Focal Point:
+        X: 0
+        Y: 0
+        Z: 0.19
+      Focal Shape Fixed Size: true
+      Focal Shape Size: 0.05
+      Invert Z Axis: false
+      Name: Current View
+      Near Clip Distance: 0.01
+      Pitch: 0.22
+      Target Frame: <Fixed Frame>
+      Value: Orbit (rviz)
+      Yaw: 0.7
+    Saved: ~
+  Tools:
+    - Class: rviz_default_plugins/Interact
+    - Class: rviz_default_plugins/MoveCamera
+    - Class: rviz_default_plugins/Select
+    - Class: rviz_default_plugins/FocusCamera
+    - Class: rviz_default_plugins/Measure
+      Line color: 128; 128; 0
+  Transformation:
+    Current:
+      Class: rviz_default_plugins/TF
+  Value: true
+
+Window Geometry:
+  Height: 900
+  Width: 1400
+  Displays:
+    collapsed: false
+  Hide Left Dock: false
+  Hide Right Dock: false

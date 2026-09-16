@@ -1,0 +1,288 @@
+{
+  "urdf": "/home/sim/ws_wamoduck/install/wamoduck_description/share/wamoduck_description/urdf/wmduck.urdf",
+  "meshes_dir": "/home/sim/ws_wamoduck/install/wamoduck_description/share/wamoduck_description/meshes",
+  "validation": "/mnt/e/Github/Wamoduck/models/wmduck/validation.json",
+  "checks": {
+    "tree_has_exactly_one_root": {
+      "ok": true,
+      "detail": "roots=['base_link']"
+    },
+    "every_link_is_connected": {
+      "ok": true,
+      "detail": "16 child links for 17 links"
+    },
+    "no_structural_problems": {
+      "ok": true,
+      "detail": ""
+    },
+    "counts": {
+      "links": 17,
+      "joints": 16,
+      "movable_joints": 15,
+      "fixed_joints": 1,
+      "root_links": [
+        "base_link"
+      ]
+    },
+    "forward_kinematics_reaches_every_link": {
+      "ok": true,
+      "detail": "0 links unreachable: []"
+    },
+    "mesh_references_were_found_at_all": {
+      "ok": true,
+      "detail": "79 mesh tags under <visual>/<collision>; 0 would make the mesh checks below vacuous"
+    },
+    "all_mesh_references_resolve": {
+      "ok": true,
+      "detail": "0 unresolved: []"
+    },
+    "no_mesh_reference_needs_the_rviz_cwd": {
+      "ok": true,
+      "detail": "0 references would resolve only from a lucky working directory (RViz launched from /): []"
+    },
+    "every_referenced_mesh_parses_as_binary_stl": {
+      "ok": true,
+      "detail": "20 distinct mesh files parsed"
+    },
+    "zero_pose_bounds_match_the_published_record": {
+      "ok": true,
+      "detail": "best variant 'all' deviates by 3.140e-09 m (tolerance 1e-06 m); per-variant {'all': 3.140053994599157e-09, 'visual': 3.140053994599157e-09, 'collision': 3.140053994599157e-09}"
+    },
+    "triangle_count_matches_the_published_record": {
+      "ok": true,
+      "detail": "URDF references 237802 triangles across 20 unique meshes, published record says 237802"
+    },
+    "link_and_joint_counts_match_the_published_record": {
+      "ok": true,
+      "detail": "17 links / 16 joints vs published 17 / 15+1"
+    },
+    "root_link_matches_the_published_record": {
+      "ok": true,
+      "detail": "['base_link'] vs base_link"
+    },
+    "left_right_link_frames_are_mirror_symmetric": {
+      "ok": true,
+      "detail": "worst deviation 0.000e+00 m over 5 pairs"
+    }
+  },
+  "failures": [],
+  "notes": [],
+  "zero_pose_bounds": {
+    "all": {
+      "min": [
+        -0.08340850082323417,
+        -0.11060250211000443,
+        -0.17761809473751067
+      ],
+      "max": [
+        0.09809900275250455,
+        0.11060250211000443,
+        0.21321190877487214
+      ],
+      "size": [
+        0.18150750357573872,
+        0.22120500422000886,
+        0.39083000351238284
+      ]
+    },
+    "visual": {
+      "min": [
+        -0.08340850082323417,
+        -0.11060250211000443,
+        -0.17761809473751067
+      ],
+      "max": [
+        0.09809900275250455,
+        0.11060250211000443,
+        0.21321190877487214
+      ],
+      "size": [
+        0.18150750357573872,
+        0.22120500422000886,
+        0.39083000351238284
+      ]
+    },
+    "collision": {
+      "min": [
+        -0.08340850082323417,
+        -0.11060250211000443,
+        -0.17761809473751067
+      ],
+      "max": [
+        0.09809900275250455,
+        0.11060250211000443,
+        0.21321190877487214
+      ],
+      "size": [
+        0.18150750357573872,
+        0.22120500422000886,
+        0.39083000351238284
+      ]
+    }
+  },
+  "published_bounds_comparison": {
+    "published_min": [
+      -0.08340850082323419,
+      -0.1106025029906681,
+      -0.17761809544517723
+    ],
+    "published_max": [
+      0.09809900589255854,
+      0.11060250303302659,
+      0.21321191008871637
+    ],
+    "max_abs_deviation_per_variant_m": {
+      "all": 3.140053994599157e-09,
+      "visual": 3.140053994599157e-09,
+      "collision": 3.140053994599157e-09
+    },
+    "best_matching_variant": "all",
+    "best_max_abs_deviation_m": 3.140053994599157e-09,
+    "tolerance_m": 1e-06,
+    "tolerance_rationale": "STL vertices are float32, so an independent double-precision reader cannot reproduce the published record exactly; the observed residual is float32 rounding, not geometry disagreement",
+    "computed_size_m": {
+      "all": [
+        0.18150750357573872,
+        0.22120500422000886,
+        0.39083000351238284
+      ],
+      "visual": [
+        0.18150750357573872,
+        0.22120500422000886,
+        0.39083000351238284
+      ],
+      "collision": [
+        0.18150750357573872,
+        0.22120500422000886,
+        0.39083000351238284
+      ]
+    },
+    "published_size_m": [
+      0.18150750671579274,
+      0.2212050060236947,
+      0.3908300055338936
+    ]
+  },
+  "left_right_frame_symmetry_m": {
+    "left_hip_yaw_link <-> right_hip_yaw_link": 0.0,
+    "left_hip_roll_link <-> right_hip_roll_link": 0.0,
+    "left_hip_pitch_link <-> right_hip_pitch_link": 0.0,
+    "left_knee_link <-> right_knee_link": 0.0,
+    "left_ankle_link <-> right_ankle_link": 0.0
+  },
+  "mesh_references": 79,
+  "unique_meshes": 20,
+  "mesh_triangle_counts": {
+    "Motor_HTDW3532.stl": 1678,
+    "Body_Frame.stl": 27228,
+    "IMU_YB-MRA02.stl": 3343,
+    "Control_Borad_AT32.stl": 3644,
+    "Battery_6s18650_24V.stl": 572,
+    "WMD1005.stl": 2956,
+    "Left_hip_roll.stl": 2584,
+    "Right_hip_roll.stl": 2582,
+    "WMD1007.stl": 3170,
+    "WMD1008.stl": 4082,
+    "Left_knee.stl": 2306,
+    "Right_knee.stl": 2306,
+    "Left_feet.stl": 8008,
+    "Right_feet.stl": 7266,
+    "WMD1012.stl": 5704,
+    "Bearing_20_27_4.stl": 1968,
+    "Head_pitch.stl": 7324,
+    "WMD1018.stl": 2338,
+    "Head.stl": 146237,
+    "Mouth.stl": 2506
+  },
+  "triangle_total": 237802,
+  "triangle_total_over_references": 555849,
+  "mesh_vertices_total": 713406,
+  "joint_frame_positions_m": {
+    "base_link": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "left_hip_yaw_link": [
+      -0.00889850082397,
+      0.026,
+      -0.04470398
+    ],
+    "right_hip_yaw_link": [
+      -0.00889850082397,
+      -0.026,
+      -0.04470398
+    ],
+    "left_hip_roll_link": [
+      0.007703999176029999,
+      0.026,
+      -0.07160398
+    ],
+    "right_hip_roll_link": [
+      0.007703999176029999,
+      -0.026,
+      -0.07160398
+    ],
+    "left_hip_pitch_link": [
+      -0.008896000823970001,
+      0.0676,
+      -0.07160398
+    ],
+    "right_hip_pitch_link": [
+      -0.008896000823970001,
+      -0.0676,
+      -0.07160398
+    ],
+    "left_knee_link": [
+      -0.033644738165470006,
+      0.0676,
+      -0.0963527173415
+    ],
+    "right_knee_link": [
+      -0.033644738165470006,
+      -0.0676,
+      -0.0963527173415
+    ],
+    "left_ankle_link": [
+      -0.0066447381654700065,
+      0.063,
+      -0.1431180891459
+    ],
+    "right_ankle_link": [
+      -0.0066447381654700065,
+      -0.063,
+      -0.1431180891459
+    ],
+    "neck_pitch_link": [
+      0.00460149917603,
+      -0.0186000000001,
+      0.03039852
+    ],
+    "head_pitch_link": [
+      -0.012898500823970002,
+      -0.0186000000001,
+      0.0607094091325
+    ],
+    "head_yaw_link": [
+      -0.012898500823970002,
+      -9.999986949615902e-14,
+      0.0981094091325
+    ],
+    "head_roll_link": [
+      -0.039798500823970004,
+      -9.999986949615902e-14,
+      0.1187119091325
+    ],
+    "mouth_link": [
+      0.03309899917603,
+      0.0186024999999,
+      0.12371190913251
+    ],
+    "imu_link": [
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  "ok": true
+}

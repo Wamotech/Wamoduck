@@ -1,0 +1,206 @@
+########################################################################
+# 1. check_urdf on the CANONICAL urdf (models/wmduck/wmduck.urdf)
+########################################################################
+$ check_urdf /mnt/e/Github/Wamoduck/models/wmduck/wmduck.urdf
+robot name is: wmduck
+---------- Successfully Parsed XML ---------------
+root Link: base_link has 4 child(ren)
+    child(1):  imu_link
+    child(2):  left_hip_yaw_link
+        child(1):  left_hip_roll_link
+            child(1):  left_hip_pitch_link
+                child(1):  left_knee_link
+                    child(1):  left_ankle_link
+    child(3):  neck_pitch_link
+        child(1):  head_pitch_link
+            child(1):  head_yaw_link
+                child(1):  head_roll_link
+                    child(1):  mouth_link
+    child(4):  right_hip_yaw_link
+        child(1):  right_hip_roll_link
+            child(1):  right_hip_pitch_link
+                child(1):  right_knee_link
+                    child(1):  right_ankle_link
+check_urdf exit code: 0
+
+########################################################################
+# 2. check_urdf on the GENERATED, ROS-installable urdf
+########################################################################
+$ check_urdf /home/sim/ws_wamoduck/install/wamoduck_description/share/wamoduck_description/urdf/wmduck.urdf
+robot name is: wmduck
+---------- Successfully Parsed XML ---------------
+root Link: base_link has 4 child(ren)
+    child(1):  imu_link
+    child(2):  left_hip_yaw_link
+        child(1):  left_hip_roll_link
+            child(1):  left_hip_pitch_link
+                child(1):  left_knee_link
+                    child(1):  left_ankle_link
+    child(3):  neck_pitch_link
+        child(1):  head_pitch_link
+            child(1):  head_yaw_link
+                child(1):  head_roll_link
+                    child(1):  mouth_link
+    child(4):  right_hip_yaw_link
+        child(1):  right_hip_roll_link
+            child(1):  right_hip_pitch_link
+                child(1):  right_knee_link
+                    child(1):  right_ankle_link
+check_urdf exit code: 0
+
+########################################################################
+# 3. same check via the standalone liburdfdom-tools binary
+########################################################################
+$ /usr/bin/check_urdf /home/sim/ws_wamoduck/install/wamoduck_description/share/wamoduck_description/urdf/wmduck.urdf   (dpkg: 4.0.0-0ubuntu1)
+liburdfdom-tools check_urdf: OK
+
+########################################################################
+# 4a. geometry: FK at q=0 vs the published validation record
+########################################################################
+$ python3 /mnt/e/Github/Wamoduck/ros2/tools/verify_description.py --urdf <installed urdf> \
+      --meshes <installed meshes> --validation models/wmduck/validation.json \
+      --rviz-cwd /   (a directory that is NOT the package, to prove the URDF
+                      does not depend on the working directory)
+==============================================================================
+description verification: /home/sim/ws_wamoduck/install/wamoduck_description/share/wamoduck_description/urdf/wmduck.urdf
+==============================================================================
+  [PASS] tree_has_exactly_one_root
+          roots=['base_link']
+  [PASS] every_link_is_connected
+          16 child links for 17 links
+  [PASS] no_structural_problems
+  [PASS] forward_kinematics_reaches_every_link
+          0 links unreachable: []
+  [PASS] mesh_references_were_found_at_all
+          79 mesh tags under <visual>/<collision>; 0 would make the mesh checks below vacuous
+  [PASS] all_mesh_references_resolve
+          0 unresolved: []
+  [PASS] no_mesh_reference_needs_the_rviz_cwd
+          0 references would resolve only from a lucky working directory (RViz launched from /): []
+  [PASS] every_referenced_mesh_parses_as_binary_stl
+          20 distinct mesh files parsed
+  [PASS] zero_pose_bounds_match_the_published_record
+          best variant 'all' deviates by 3.140e-09 m (tolerance 1e-06 m); per-variant {'all': 3.140053994599157e-09, 'visual': 3.140053994599157e-09, 'collision': 3.140053994599157e-09}
+  [PASS] triangle_count_matches_the_published_record
+          URDF references 237802 triangles across 20 unique meshes, published record says 237802
+  [PASS] link_and_joint_counts_match_the_published_record
+          17 links / 16 joints vs published 17 / 15+1
+  [PASS] root_link_matches_the_published_record
+          ['base_link'] vs base_link
+  [PASS] left_right_link_frames_are_mirror_symmetric
+          worst deviation 0.000e+00 m over 5 pairs
+
+  published zero-pose bounds : [-0.08340850082323419, -0.1106025029906681, -0.17761809544517723] .. [0.09809900589255854, 0.11060250303302659, 0.21321191008871637]
+  best matching variant      : all (deviation 3.140e-09 m)
+
+  computed bounds [all      ] : [-0.08340850082323417, -0.11060250211000443, -0.17761809473751067] .. [0.09809900275250455, 0.11060250211000443, 0.21321190877487214]
+  computed size   [all      ] : [0.18150750357573872, 0.22120500422000886, 0.39083000351238284]
+  computed bounds [visual   ] : [-0.08340850082323417, -0.11060250211000443, -0.17761809473751067] .. [0.09809900275250455, 0.11060250211000443, 0.21321190877487214]
+  computed size   [visual   ] : [0.18150750357573872, 0.22120500422000886, 0.39083000351238284]
+  computed bounds [collision] : [-0.08340850082323417, -0.11060250211000443, -0.17761809473751067] .. [0.09809900275250455, 0.11060250211000443, 0.21321190877487214]
+  computed size   [collision] : [0.18150750357573872, 0.22120500422000886, 0.39083000351238284]
+
+  mesh references 79, unique meshes 20, triangles 237802, vertices 713406
+
+RESULT: ALL CHECKS PASSED
+
+report written to /mnt/e/Github/Wamoduck/ros2/verification/description_check.json
+verify_description exit code: 0
+
+########################################################################
+# 4b. the same checker on the CANONICAL urdf, to show what the rewrite fixes
+########################################################################
+This run is expected to FAIL exactly one check -- the working-directory one -- which is
+the reason wamoduck_description generates a package:// URDF at build time. The geometry
+checks must still pass on the canonical file, which proves the rewrite does not change
+the model. This run is informational and does not fail the script.
+==============================================================================
+description verification: /mnt/e/Github/Wamoduck/models/wmduck/wmduck.urdf
+==============================================================================
+  [PASS] tree_has_exactly_one_root
+          roots=['base_link']
+  [PASS] every_link_is_connected
+          16 child links for 17 links
+  [PASS] no_structural_problems
+  [PASS] forward_kinematics_reaches_every_link
+          0 links unreachable: []
+  [PASS] mesh_references_were_found_at_all
+          79 mesh tags under <visual>/<collision>; 0 would make the mesh checks below vacuous
+  [PASS] all_mesh_references_resolve
+          0 unresolved: []
+  [FAIL] no_mesh_reference_needs_the_rviz_cwd
+          79 references would resolve only from a lucky working directory (RViz launched from /): ['meshes/Battery_6s18650_24V.stl', 'meshes/Bearing_20_27_4.stl', 'meshes/Body_Frame.stl', 'meshes/Control_Borad_AT32.stl', 'meshes/Head.stl']
+  [PASS] every_referenced_mesh_parses_as_binary_stl
+          20 distinct mesh files parsed
+  [PASS] zero_pose_bounds_match_the_published_record
+          best variant 'all' deviates by 3.140e-09 m (tolerance 1e-06 m); per-variant {'all': 3.140053994599157e-09, 'visual': 3.140053994599157e-09, 'collision': 3.140053994599157e-09}
+  [PASS] triangle_count_matches_the_published_record
+          URDF references 237802 triangles across 20 unique meshes, published record says 237802
+  [PASS] link_and_joint_counts_match_the_published_record
+          17 links / 16 joints vs published 17 / 15+1
+  [PASS] root_link_matches_the_published_record
+          ['base_link'] vs base_link
+  [PASS] left_right_link_frames_are_mirror_symmetric
+          worst deviation 0.000e+00 m over 5 pairs
+
+  published zero-pose bounds : [-0.08340850082323419, -0.1106025029906681, -0.17761809544517723] .. [0.09809900589255854, 0.11060250303302659, 0.21321191008871637]
+  best matching variant      : all (deviation 3.140e-09 m)
+
+  computed bounds [all      ] : [-0.08340850082323417, -0.11060250211000443, -0.17761809473751067] .. [0.09809900275250455, 0.11060250211000443, 0.21321190877487214]
+  computed size   [all      ] : [0.18150750357573872, 0.22120500422000886, 0.39083000351238284]
+  computed bounds [visual   ] : [-0.08340850082323417, -0.11060250211000443, -0.17761809473751067] .. [0.09809900275250455, 0.11060250211000443, 0.21321190877487214]
+  computed size   [visual   ] : [0.18150750357573872, 0.22120500422000886, 0.39083000351238284]
+  computed bounds [collision] : [-0.08340850082323417, -0.11060250211000443, -0.17761809473751067] .. [0.09809900275250455, 0.11060250211000443, 0.21321190877487214]
+  computed size   [collision] : [0.18150750357573872, 0.22120500422000886, 0.39083000351238284]
+
+  mesh references 79, unique meshes 20, triangles 237802, vertices 713406
+
+RESULT: FAILED
+  - no_mesh_reference_needs_the_rviz_cwd: 79 references would resolve only from a lucky working directory (RViz launched from /): ['meshes/Battery_6s18650_24V.stl', 'meshes/Bearing_20_27_4.stl', 'meshes/Body_Frame.stl', 'meshes/Control_Borad_AT32.stl', 'meshes/Head.stl']
+
+report written to /mnt/e/Github/Wamoduck/ros2/verification/description_check_canonical_urdf.json
+
+########################################################################
+# 5. colcon test
+########################################################################
+Starting >>> wamoduck_description
+Starting >>> wamoduck_msgs
+Finished <<< wamoduck_description [0.11s]
+Finished <<< wamoduck_msgs [0.34s]
+Starting >>> wamoduck_ros2
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-7.4.4, pluggy-1.4.0
+cachedir: /home/sim/ws_wamoduck/build/wamoduck_ros2/.pytest_cache
+rootdir: /mnt/e/Github/Wamoduck/ros2/wamoduck_ros2
+plugins: ament-xmllint-0.17.5, ament-lint-0.17.5, ament-flake8-0.17.5, launch-testing-ros-0.26.12, launch-testing-3.4.11, ament-pep257-0.17.5, ament-copyright-0.17.5, colcon-core-0.21.2, typeguard-4.1.5, cov-4.1.0
+collected 87 items
+
+test/test_frame_codec.py ..........................                      [ 29%]
+test/test_gait_csv.py .................                                  [ 49%]
+test/test_model_contract.py .............                                [ 64%]
+test/test_package_manifests.py .........                                 [ 74%]
+test/test_policy_interface.py ......................                     [100%]
+
+--- generated xml file: /home/sim/ws_wamoduck/build/wamoduck_ros2/pytest.xml ---
+============================== 87 passed in 1.18s ==============================
+Finished <<< wamoduck_ros2 [3.06s]
+
+Summary: 3 packages finished [3.70s]
+
+--- colcon test-result ---
+build/wamoduck_ros2/pytest.xml: 87 tests, 0 errors, 0 failures, 0 skipped
+
+Summary: 87 tests, 0 errors, 0 failures, 0 skipped
+
+########################################################################
+# 6. unit tests, run directly with pytest
+########################################################################
+........................................................................ [ 82%]
+...............                                                          [100%]
+87 passed in 1.25s
+pytest exit code: 0
+
+=== STATIC VERIFICATION SUMMARY ===
+check_urdf+geometry exit code : 0
+pytest exit code              : 0
+=== STATIC VERIFICATION DONE ===
