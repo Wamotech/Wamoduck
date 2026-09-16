@@ -170,7 +170,11 @@ POLICIES: dict[str, PolicySpec] = {
     ),
     "getup": PolicySpec(
         name="getup",
-        onnx="wamoduck-getup-getup_v18.onnx",
+        # 2026-09-16: `getup_v18` -> `getup_v20`. v18 is kept in `policies/` because the
+        # measurement that found its remaining gap (standing 64/64, strict "back to the
+        # saved nominal pose" 0/64, 52.3 deg of joint deviation) was taken on it; v20
+        # fixes that gap (63/64 strict, joint deviation 10.4 deg, hand-over 5/5).
+        onnx="wamoduck-getup-getup_v20.onnx",
         mjcf="robot_groundcontact.xml",
         obs_dim=48,
         command="none",

@@ -13,7 +13,8 @@ ONNX actor；请配合 [`wamoduck_sim.py`](../wamoduck_sim.py) 与
 | File / 文件 | Bytes | SHA-256 | Source run / 来源轮次 | Checkpoint / 检查点 | Task / 任务 |
 | --- | ---: | --- | --- | --- | --- |
 | [wamoduck-stand-stand_v3.onnx](wamoduck-stand-stand_v3.onnx) | 766915 | `3ec3397ae9c17743ee4214234864da392562f7550ca7459ef1bd09dd2f44262f` | `2026-09-12_08-32-26_stand_v3` (SHIP) | `model_1499.pt` | stand / 站立抗扰 |
-| [wamoduck-getup-getup_v18.onnx](wamoduck-getup-getup_v18.onnx) | 766915 | `804d2cee90881d6eb4756f9306d27bd3e19c8e9aa3f903bec65089787e323bf5` | `2026-09-15_17-37-06_getup_v18` | `model_3999.pt` | get up / 起身 |
+| [wamoduck-getup-getup_v18.onnx](wamoduck-getup-getup_v18.onnx) | 766915 | `804d2cee90881d6eb4756f9306d27bd3e19c8e9aa3f903bec65089787e323bf5` | `2026-09-15_17-37-06_getup_v18` | `model_3999.pt` | get up — **superseded, kept for the measurements below** / 起身 —— **已被取代**，保留用于复现那些测量 |
+| [wamoduck-getup-getup_v20.onnx](wamoduck-getup-getup_v20.onnx) | 766915 | `29bbebd0d6597a1f425305c90fc29a1b71c79e066a26ae44c20e1fab3a3fbed6` | `2026-09-16_19-12-01_getup_v20` | `model_3999.pt` | get up — **current**; returns to the nominal stance / 起身 —— **当前版**；能站回标称姿态 |
 | [wamoduck-sitstand-sit_stand_v2.onnx](wamoduck-sitstand-sit_stand_v2.onnx) | 768992 | `26e40f7a20f333c52816e53cb092b945f677c526d8f1685bf886d321c21a680d` | `2026-09-12_11-18-34_sit_stand_v2` (SHIP) | `model_2499.pt` | sit / stand — **superseded, kept for the measurements below** |
 | [wamoduck-sitstand-sit_stand_v3.onnx](wamoduck-sitstand-sit_stand_v3.onnx) | 768992 | `c75139732aa2890964f56a5df78b8c8c351d2fea88533ac5b1fb78aba6574163` | `2026-09-16_18-05-44_sit_stand_v3` | `model_2499.pt` | sit / stand — **current**; fixes both problems measured on v2 |
 | [wamoduck-walk-walk_v4r.onnx](wamoduck-walk-walk_v4r.onnx) | 773096 | `8ec4fd347a22d69937550681e58e6d2cd511748b067677bcef345fdae5546ea2` | `2026-09-16_12-01-21_walk_v4r` | `model_6749.pt` | walking / 平地行走 |
@@ -58,6 +59,25 @@ export the element-wise difference is exactly zero, which is what all five rows 
 > 躯干直立时 0.085 m **几何不可达** —— 躯干碰撞盒最低角点在基座原点下方 **109 mm**，旧策略能凑到 0.094 m
 > 是靠歪 25.9° 把那个角抬离地面。新坐姿带来一条实测限制：**坐着直接切到 `walk` 会让机器人瘫倒**
 > （6 s 后倾角 **134.9°**），因为行走策略从未见过坐姿 —— 先按 `m` 站起来，随仓库的运行器自检现在就是这么做的。
+
+> **A note on the get-up row / 关于起身那一行**：`getup_v20` replaces `getup_v18` and closes the gap the
+> capability board measured on it. Recovering from a random lying pose: standing at the end **64/64**,
+> time to first standing **0.48 s** median, final tilt **2.5°**; the strict criterion "back to the saved
+> nominal pose" goes **0/64 → 63/64 (98.4 %)** with the largest joint deviation **52.3° → 10.4°**, and the
+> end-to-end hand-over (shoved over → gets up → back to nominal) is **5/5** with **5/5** "did not fall again"
+> (v18 was 4/5 on that last row). The only change was in the reward: the head-chain posture penalty was
+> **ungated** and its weight went **−0.5 → −1.0**; the previous round had gated it by body tilt, and the
+> policy escaped through the gate by staying tilted — see the [changelog](../CHANGELOG.md). The stricter
+> six-axis criterion (which also requires the head to stay off the ground and the soles to be flat, sustained
+> over the last second) is **45/64**, up from **0/64**, with per-axis rates of 56/64, 52/64, 58/64, 61/64,
+> 61/64 and 46/64. v18 is kept so the measurements above stay reproducible. / **`getup_v20` 取代 `getup_v18`，
+> 补上了能力清单在旧版上实测到的那条差距**：随机躺姿起身 —— 末态站住 **64/64**、首次站起时间中位
+> **0.48 s**、末态倾角 **2.5°**；严格口径"回到保存的标称姿态" **0/64 → 63/64（98.4 %）**，最大关节偏差
+> **52.3° → 10.4°**；端到端接力（推倒→起身→站回标称）**5/5**，其中"起身后没有再次摔倒"**5/5**（v18 在这一行
+> 是 4/5）。唯一的改动在奖励侧：头链姿态惩罚**不加门控**、权重由 **−0.5 改到 −1.0** —— 上一轮给它加了"按
+> 身体倾角生效"的门，结果策略靠**一直歪着**从门里逃了出去（见[更新记录](../CHANGELOG.md)）。更严的六轴
+> 口径（还要求头不压地、脚掌平贴，并要求在最后一秒内持续成立）从 **0/64** 升到 **45/64**，逐轴为
+> 56/64、52/64、58/64、61/64、61/64、46/64。v18 保留，好让上面的测量可复现。
 
 ## Contract / 契约
 

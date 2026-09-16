@@ -20,8 +20,8 @@ This page is one honest board of what the trained policies actually do. Every fi
 | # | Capability | Policy | Headline result |
 | --- | --- | --- | --- |
 | 1 | Standing against a push | `stand_v3` (`model_1499.pt`, shipped) | Push threshold **40.5 N**; steady-state drift **0.00 mm/s** over 40 s |
-| 2 | Knocked down → get up → back to nominal | `stand_v3` + `getup_v18` (`model_3999.pt`) | **5/5** trials end in the strict nominal stance |
-| 3 | Get-up from a random lying pose | `getup_v18` (`model_3999.pt`) | Standing at the end **64/64**; strict nominal criterion still **0/64** |
+| 2 | Knocked down → get up → back to nominal | `stand_v3` + `getup_v20` (`model_3999.pt`) | **5/5** trials end in the strict nominal stance, and **5/5** "did not fall again after standing up" (the previous get-up policy was 5/5 and 4/5) |
+| 3 | Get-up from a random lying pose | `getup_v20` (`model_3999.pt`) | Standing at the end **64/64**; strict nominal criterion **63/64 (98.4 %)**, up from **0/64**, largest joint deviation **52.3° → 10.4°** |
 | 4 | Flat-ground walking | `walk_r3` (`model_5999.pt`, shipped) | Forward tracking 106 % / 103 %; **side-stepping is broken**, and **in-place turning is out of reach for this mechanism** (not a training gap — see [§4](#why-in-place-turning-cannot-be-trained-away)) |
 | 5 | 1 cm rough terrain | `rough_v2` (`model_5999.pt`) | Survival **51/64 (79.7 %)**; mean speed **61 %** of the command |
 | 6 | Sit / stand | `sit_stand_v3` (`model_2499.pt`, shipped) | Interactive height control. The two issues measured on the previous policy are **fixed**: standing jitter **0.699 → 0.000** and drift **+27.99 → +0.394 mm/s**; the sitting pose goes from **10.05°** of lean with **146.09°** of left/right asymmetry to **0.225°** and **0.473°**. The seat is **0.11241 m** (0.085 m is geometrically unreachable) |
@@ -48,19 +48,19 @@ Two disciplines are worth copying from this measurement. First, the training-sid
 
 | Field | Value |
 | --- | --- |
-| Policy | `stand_v3` + `getup_v18` (`model_3999.pt`), switched automatically by a small state machine |
+| Policy | `stand_v3` + `getup_v20` (`model_3999.pt`), switched automatically by a small state machine. The previous get-up policy, `getup_v18`, is still in [`policies/`](../policies/README.md) because the gap recorded under section 3 was measured on it |
 | Sequence | Shove it over → the get-up policy takes over → it stands up → the standing policy takes over and settles into the saved nominal pose |
 | Measured (5 trials) | End-to-end, ending in the strict nominal stance: **5/5**. Final tilt **0.5 deg**, `neck_pitch` **0.3 deg**, largest joint deviation **1.9 deg**, both feet on the ground, base height **0.177 m** — the same five numbers in all five trials |
-| Not as good | "Did not fall again after standing up": **4/5**. In one trial the hand-over dropped the robot five times before the final state passed, so the interlock is not yet repeatable in the strong sense |
+| Not as good | "Did not fall again after standing up": **5/5** with `getup_v20`. It was **4/5** with `getup_v18`: in one of those trials the hand-over dropped the robot five times before the final state passed |
 | Tool | `probe_recovery_handover.py --trials 5` |
 
 ![Pushed over, then it stands back up and settles into the nominal stance](../assets/wamoduck-pushed-down-recover.gif)
 
-*Pushed over, then recovers to the nominal stance. Simulation screen recording, not hardware footage: it shows `stand_v3` and `getup_v18` handing over inside MuJoCo, one selected take — the 5/5 and 4/5 above come from the 5-trial probe, not from this clip.*
+*Pushed over, then recovers to the nominal stance. Simulation screen recording, not hardware footage: it shows `stand_v3` and `getup_v18` handing over inside MuJoCo, one selected take — the 5/5 and 5/5 above come from the 5-trial probe, not from this clip, and the clip predates the 2026-09-16 replacement of the get-up policy.*
 
 ![The hardest case: repeated attempts, finally getting up](../assets/wamoduck-getup-struggle.gif)
 
-*The hardest case: repeated attempts, finally gets up. Simulation screen recording, not hardware footage: it shows `getup_v18` inside MuJoCo. It is published precisely because it is not a clean take — the first attempts fail before it gets up, which matches the "did not fall again after standing up 4/5" row above.*
+*The hardest case: repeated attempts, finally gets up. Simulation screen recording, not hardware footage: it shows `getup_v18` inside MuJoCo, the policy published before 2026-09-16. It is published precisely because it is not a clean take — the first attempts fail before it gets up, which matches that policy's "did not fall again after standing up 4/5".*
 
 The full-length recording of this session — pushes, knock-downs, get-up attempts, and the hand-over, 1:49.37, 1280 × 716, no audio — is [wamoduck-force-test-demo.mp4](../assets/wamoduck-force-test-demo.mp4). It is one session, not a test campaign; the rates on this page come from the tools named in each row.
 
@@ -70,15 +70,15 @@ This is the requirement that matters most, because it is the only row that tests
 
 | Field | Value |
 | --- | --- |
-| Policy | `getup_v18`, `model_3999.pt` |
+| Policy | `getup_v20`, `model_3999.pt` (current). The previous policy `getup_v18` measured **0/64** on the strict criterion below and is still published so that number stays reproducible |
 | Setup | Spawned lying on the ground with random roll and pitch, 64 environments, 300 steps (6 s) |
-| Measured | Reached standing at some point **64/64**; standing at the end **64/64** (loose criterion: tilt < 30 deg and base height > 0.15 m); median time to first standing **0.50 s**, p90 **0.81 s**; mean final tilt **7.8 deg** |
-| Measured (strict) | Returning to the **nominal** stance (tilt < 8 deg, both feet on the ground, every joint within 20 deg of nominal): **0/64**. Mean largest joint deviation 52.3 deg, both feet 63/64 |
-| 900-step acceptance | The get-up delivery criterion runs 900 steps and requires the criterion to hold rather than to happen once. Still **0/64**. The failing joint is now `head_pitch` at **46 deg** — the second link of the head chain, which never touches the ground |
-| Head chain on the ground | **0/64**, i.e. the head no longer carries the robot. The previous round was 63/64 with **17.5 N** of ground reaction on the head, about 106 % of the head's own weight |
-| Tools | `eval_getup.py --envs 64`, `check_getup_delivery.py --envs 64`, `probe_getup_support.py` |
+| Measured | Reached standing at some point **64/64**; standing at the end **64/64** (loose criterion: tilt < 30 deg and base height > 0.15 m); median time to first standing **0.48 s**, p90 **0.79 s**; mean final tilt **2.5 deg** |
+| Measured (strict) | Returning to the **nominal** stance (tilt < 8 deg, both feet on the ground, every joint within 20 deg of nominal): **63/64 (98.4 %)** — up from **0/64**. Mean largest joint deviation **10.4 deg** (max 11.8 deg), against **52.3 deg** for `getup_v18`; both feet 63/64 |
+| 900-step acceptance | The get-up delivery criterion runs 900 steps and requires the criterion to hold rather than to happen once, and it adds two axes: the head must not press on the ground and the soles must be flat. All six together: **45/64**, up from **0/64**. Per axis: tilt **56/64**, both feet **52/64**, joint deviation **58/64**, base height **61/64**, head off the ground **61/64**, flat soles **46/64** — with a median per-axis pass rate of 100 %, i.e. the remaining failures are marginal rather than whole-run. `getup_v18` failed this one on `head_pitch` at **46 deg**, the second link of the head chain |
+| Head chain on the ground | **0/64**, i.e. the head does not carry the robot. The round before that was 63/64 with **17.5 N** of ground reaction on the head, about 106 % of the head's own weight |
+| Tools | `eval_getup.py --envs 64 --run getup_v20`, `check_getup_delivery.py --policy getup_v20 --envs 64 --steps 900`, `probe_recovery_handover.py --trials 5 --getup-run getup_v20` |
 
-Read the two blocks together: the robot reliably gets up and reliably ends up standing, and it still does not reliably end up in the **saved nominal pose**. The gap is concentrated in one joint of the head chain rather than spread over the legs, and a training-side fix for it is in progress.
+Read the two blocks together: the robot reliably gets up, reliably ends up standing, and — since 2026-09-16 — reliably ends up in the **saved nominal pose** as well. The fix was one reward term, not a new mechanism: the head-chain posture penalty is **ungated** and weighs **−1.0** (it was `−0.5` ungated before, and the round in between gated it by body tilt, which the policy escaped by staying tilted — that round measured **0/5** on the hand-over).
 
 ## 4. Flat-ground walking
 
@@ -355,7 +355,7 @@ Two things that statement does not mean. It is not a hardware rating: 2.2 N·m i
 - **No hardware results.** Every number is simulated. The physical robot's mass, friction, compliance, and sensor chain are not in these numbers.
 - **Not reproducible from this repository.** The scene, the measurement protocols, and the measuring tools are private. Five of the policies are now published as ONNX files with a CPU runner ([simulation guide](simulation.md)), so you can re-run the *behaviour* — but this page is a measurement report, and the numbers above come from a different simulator and a protocol that is not published. The one exception is [the sit/stand section](#the-two-known-sitstand-issues-as-measured), which is explicitly marked as our own CPU Sim2Sim measurement and is reproducible with the commands given there.
 - **No perception, thermal, or endurance results.** Nothing here covers the camera, the runtime software, duty cycles, or long-duration reliability.
-- **The get-up strict criterion is not met** (0/64), and **walking side-stepping does not work**. Those are open items, not rounding errors. **In-place turning is a different kind of entry**: it is measured to be out of reach for this mechanism ([§4](#why-in-place-turning-cannot-be-trained-away)), so it is listed as a limit of the design rather than as an unfinished item.
+- **The get-up strict criterion is now met** — **63/64** and **5/5** end-to-end since 2026-09-16, against **0/64** before; the stricter six-axis version is **45/64**. **Walking side-stepping does not work.** Those remaining items are not rounding errors. **In-place turning is a different kind of entry**: it is measured to be out of reach for this mechanism ([§4](#why-in-place-turning-cannot-be-trained-away)), so it is listed as a limit of the design rather than as an unfinished item.
 - **Sit/stand has two measured, unfixed issues** — it buzzes in place while standing, and its sitting posture is neither upright nor left/right symmetric. The numbers are in [section 6](#6-sit--stand), and no fix is claimed for either.
 - **The training model is not the published model.** The results describe the simulation model used for training, which currently differs from the published URDF in measured-mass updates.
 

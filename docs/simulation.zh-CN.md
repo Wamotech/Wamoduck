@@ -89,14 +89,15 @@ python wamoduck_sim.py --policy walk --vx 0.3 --headless --steps 250
 | 名称 | ONNX（`policies/`） | 来源轮次 | 检查点 | MJCF（`models/wmduck/mjcf/`） | 做什么 |
 | --- | --- | --- | --- | --- | --- |
 | `stand` | `wamoduck-stand-stand_v3.onnx` | `2026-09-12_08-32-26_stand_v3`（标了 SHIP） | `model_1499.pt` | `robot_walk.xml` | 保持标称站姿；被推后恢复 |
-| `getup` | `wamoduck-getup-getup_v18.onnx` | `2026-09-15_17-37-06_getup_v18` | `model_3999.pt` | `robot_groundcontact.xml` | 从躺姿起身站回双脚 |
+| `getup` | `wamoduck-getup-getup_v20.onnx` | `2026-09-16_19-12-01_getup_v20` | `model_3999.pt` | `robot_groundcontact.xml` | 从躺姿起身站回双脚 |
 | `sitstand` | `wamoduck-sitstand-sit_stand_v3.onnx` | `2026-09-16_18-05-44_sit_stand_v3` | `model_2499.pt` | `robot_walk.xml` | 按指令的基座高度蹲下／站起 |
 | `walk` | `wamoduck-walk-walk_v4r.onnx` | `2026-09-16_12-01-21_walk_v4r` | `model_6749.pt` | `robot_walk.xml` | 按速度指令在平地行走 |
 | `rough` | `wamoduck-rough-rough_v2.onnx` | `2026-09-16_00-00-04_rough_v2` | `model_5999.pt` | `robot_walk.xml` | 按速度指令越过 1 cm 台阶 |
 
 坐／站那一行还有一份 `wamoduck-sitstand-sit_stand_v2.onnx`（`2026-09-12_11-18-34_sit_stand_v2`，
-`model_2499.pt`）：它是**被替换掉的旧版**，留在 `policies/` 里是因为下面那些"坐／站的两个已知问题"的
-测量都是在它身上做的 —— 那些数字要能复现。
+`model_2499.pt`），起身那一行还有一份 `wamoduck-getup-getup_v18.onnx`（`2026-09-15_17-37-06_getup_v18`，
+`model_3999.pt`）：它们是**被替换掉的旧版**，留在 `policies/` 里是因为"坐／站的两个已知问题"与"起身回不到
+标称姿态"这两处测量都是在它们身上做的 —— 那些数字要能复现。
 
 "来源轮次"与"检查点"两列是用研发仓库的 `tools/run_select.py` 解析出来的，不是手工挑文件。`stand` 由
 `SHIP` 标记选中；`sitstand`、`getup`、`walk`、`rough` 由显式指定轮次名选中，那是该工具里优先级最高的
@@ -261,15 +262,25 @@ python wamoduck_sim.py --policy getup --spawn lie-back --headless --steps 300
 
 ```
 [start] tilt= 69.81 deg  base_z=0.0920 m  max_joint_dev=  9.34 deg  both_soles=True  standing=False  nominal=False
-[final] tilt=  8.24 deg  base_z=0.1784 m  max_joint_dev= 52.08 deg  both_soles=True  standing=True  nominal=False
-[final] base_z 0.0920 -> 0.1784 m
-[final] lowest tilt seen: 2.41 deg
+[final] tilt=  2.23 deg  base_z=0.1763 m  max_joint_dev= 11.01 deg  both_soles=True  standing=True  nominal=True
+[final] base_z 0.0920 -> 0.1763 m
+[final] lowest tilt seen: 0.90 deg
 ```
 
-它确实站起来了：从倾角 69.8°、基座 0.092 m 的躺姿，最终到 8.24°、0.1784 m，双脚着地，中途最小倾角
-2.41°。它达到的是**宽松**的"站住"，**没有**达到严格标称口径，因为末态关节偏差是 52° —— 这正是内部
-[实测能力清单](capabilities.zh-CN.md)记录的"站住 64/64、严格标称 0/64"那个差距。这次 CPU 运行是**复现**了
-那个已知不足，而不是把它藏起来。
+它确实站起来了：从倾角 69.8°、基座 0.092 m 的躺姿，最终到 **2.23°**、**0.1763 m**，双脚着地，中途最小
+倾角 0.90°，最大关节偏差 **11.01°** —— 所以这次运行达到的是**严格**标称口径，不只是宽松的"站住"。
+这与内部[实测能力清单](capabilities.zh-CN.md)现在记录的 **63/64（98.4 %）** 一致。
+
+**同一条命令跑在上一版策略上**（对照用 —— 正是它测出了 2026-09-16 修掉的那条差距）：
+
+```
+python wamoduck_sim.py --policy getup --onnx policies/wamoduck-getup-getup_v18.onnx \
+                       --spawn lie-back --headless --steps 300
+# [final] tilt=  8.24 deg  base_z=0.1784 m  max_joint_dev= 52.08 deg  both_soles=True  standing=True  nominal=False
+```
+
+那一版达到的是**宽松**的"站住"，**没有**达到严格标称口径，因为末态关节偏差是 52°。它留在这里而不是删掉，
+`getup_v18` 也仍然公开，好让这个数字可复现。
 
 公开的五个躺姿出生点各跑 6 s：`lie-back`、`lie-front`、`lie-side`、`lie-side-r`、`inverted` 末态都站住。
 
@@ -447,7 +458,10 @@ python wamoduck_sim.py --cycle-test
   "**行进中转向**"当作可用，把"原地转"与"侧移"当作不可用。
 - **行走的 ONNX 不是能力清单实测的那个检查点。** 那张表的行走行指的是 `walk_r3`，它是在更早的指令范围下
   训练的。`walk_v4r` 没有内部测量数据，所以本页只引用我们自己 CPU Sim2Sim 的位移，其他什么都不声称。
-- **`getup` 没有回到严格标称姿态**（末态关节偏差 52°）。它能起身、能站住，但没有收敛到全零姿态。
+- **`getup` 曾经回不到严格标称姿态 —— 已于 2026-09-16 修好。** 上一版（`getup_v18`，仍公开）末态关节偏差
+  是 **52°**、严格口径 **0/64**；替换版 `getup_v20` 在这条口径上是 **63/64**、关节偏差 **10.4°**，端到端
+  接力 **5/5**。本页自己的 CPU 运行也复现了：**11.01°**、`nominal=True`。更严的六轴口径由 **0/64** 升到
+  **45/64**。
 - **`sitstand` 曾经在要求 0.085 m 时维持 0.094 m、蹲着时倾斜约 26°；两条都已在 2026-09-16 修好。**
   同一策略下还有两个由用户在实际玩这个 demo 时报告、随后在这里实测出来的问题，替换策略 `sit_stand_v3`
   把两条都修好了（抖动 **0.699 → 0.000**、漂移 **+27.99 → +0.394 mm/s**、坐姿倾角 **10.05° → 0.225°**、
@@ -479,7 +493,8 @@ Wamoduck/
 │                                    #   （只依赖 mujoco + onnxruntime + numpy）
 ├── policies/
 │   ├── wamoduck-stand-stand_v3.onnx
-│   ├── wamoduck-getup-getup_v18.onnx
+│   ├── wamoduck-getup-getup_v20.onnx         # 当前的起身策略
+│   ├── wamoduck-getup-getup_v18.onnx         # 保留：上面那条起身差距就是在它身上测的
 │   ├── wamoduck-sitstand-sit_stand_v3.onnx   # 当前的坐／站策略
 │   ├── wamoduck-sitstand-sit_stand_v2.onnx   # 保留：上面那些坐／站测量就是在它身上做的
 │   ├── wamoduck-walk-walk_v4r.onnx

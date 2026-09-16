@@ -1098,7 +1098,16 @@
       "bytes": 766915,
       "sha256": "804d2cee90881d6eb4756f9306d27bd3e19c8e9aa3f903bec65089787e323bf5",
       "source_sha256": "804d2cee90881d6eb4756f9306d27bd3e19c8e9aa3f903bec65089787e323bf5",
-      "transformation": "none; copied byte-for-byte from the training run's ONNX export (checkpoint model_3999.pt)."
+      "transformation": "none; copied byte-for-byte from the training run's ONNX export (checkpoint model_3999.pt). Superseded on 2026-09-16 by getup_v20 and kept because the get-up gap recorded on the capability board (strict nominal criterion 0/64, 52.3 deg of joint deviation) was measured on this file. The runner's default for 'getup' is now v20."
+    },
+    {
+      "path": "policies/wamoduck-getup-getup_v20.onnx",
+      "source_set": "trained_policy",
+      "source_file": "2026-09-16_19-12-01_getup_v20.onnx",
+      "bytes": 766915,
+      "sha256": "29bbebd0d6597a1f425305c90fc29a1b71c79e066a26ae44c20e1fab3a3fbed6",
+      "source_sha256": "29bbebd0d6597a1f425305c90fc29a1b71c79e066a26ae44c20e1fab3a3fbed6",
+      "transformation": "none; copied byte-for-byte from the training run's ONNX export. Source run 2026-09-16_19-12-01_getup_v20, checkpoint model_3999.pt. Verified by tools/verify_onnx_provenance.py: max|delta| = 0 against every actor tensor in that checkpoint."
     },
     {
       "path": "policies/wamoduck-sitstand-sit_stand_v2.onnx",
@@ -1140,18 +1149,18 @@
       "path": "policies/README.md",
       "source_set": "trained_policy",
       "source_file": "README.md",
-      "bytes": 8936,
-      "sha256": "178179eb2626d8dc9b5f1370c287001b560553b599c06305e4f56611e612eeaf",
-      "source_sha256": "178179eb2626d8dc9b5f1370c287001b560553b599c06305e4f56611e612eeaf",
+      "bytes": 11500,
+      "sha256": "9e180a37c627427a03a6f6721abe4d69613f68afae257880d8d1efa627768cda",
+      "source_sha256": "9e180a37c627427a03a6f6721abe4d69613f68afae257880d8d1efa627768cda",
       "transformation": "Authored for this repository; no external source. Text line endings are LF."
     },
     {
       "path": "wamoduck_sim.py",
       "source_set": "trained_policy",
       "source_file": "wamoduck_sim.py",
-      "bytes": 72607,
-      "sha256": "83d5cb56eba7bc754335bcaca84b74dc3f7b1d0dd518d4f3e12ccf03d57fac91",
-      "source_sha256": "83d5cb56eba7bc754335bcaca84b74dc3f7b1d0dd518d4f3e12ccf03d57fac91",
+      "bytes": 72952,
+      "sha256": "8438cef5344f4c4217239eff602f76a9ef457e4e72d3c02284fd307bd5c6f78b",
+      "source_sha256": "8438cef5344f4c4217239eff602f76a9ef457e4e72d3c02284fd307bd5c6f78b",
       "transformation": "Authored for this repository; no external source. Text line endings are LF."
     },
     {

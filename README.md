@@ -53,8 +53,8 @@ files you can run on your own machine.
 | What it does | Policy | Measured result (simulation) |
 | --- | --- | --- |
 | Stands still, and takes a shove | `stand_v3` | Push threshold **40.5 N** — the smallest single horizontal 0.2 s shove that topples at least half of 64 environments. 40 N topples 45.3 % of them, and 0 to 24 N topples none. |
-| Knocked down → gets up → back to the nominal stance | `stand_v3` + `getup_v18` | **5/5** end-to-end trials. "Did not fall again after standing up": **4/5**. |
-| Gets up from a random lying pose | `getup_v18` | Standing at the end: **64/64** (loose criterion). |
+| Knocked down → gets up → back to the nominal stance | `stand_v3` + `getup_v20` | **5/5** end-to-end trials. "Did not fall again after standing up": **5/5**. |
+| Gets up from a random lying pose | `getup_v20` | Standing at the end: **64/64**; strict "back to the saved nominal pose" **63/64 (98.4 %)** — up from **0/64**, with the largest joint deviation down from **52.3°** to **10.4°**. |
 | Walks on flat ground | `walk_v4r` | Forward walking works. **Side-stepping does not**, and **in-place turning is out of reach for this mechanism** — a measured limit, not an unfinished training round. |
 | Walks over 1 cm rough terrain | `rough_v2` | **51/64 (79.7 %)** survive 12 s at a 0.3 m/s command. Mean speed is **61 %** of the command. |
 | Sits down and stands back up | `sit_stand_v3` | Interactive height control, and the two issues reported on the previous policy are **fixed**: standing jitter **0.699 → 0.000** and net drift **+27.99 → +0.394 mm/s**; the sitting pose goes from a **10.05°** lean with **146.09°** of left/right asymmetry to **0.225°** with a **0.473°** asymmetry. The seat is **0.11241 m** — 0.085 m is geometrically unreachable with an upright trunk. |
@@ -65,9 +65,16 @@ files you can run on your own machine.
 - **Side-stepping drags the robot round.** A +0.30 m/s sideways command produced +0.218 m/s sideways
   *and* **+520.4°** of uncommanded yaw. Our own CPU run shows a small version of the same thing: over
   5 s of straight-ahead walking it drifted **0.328 m** sideways.
-- **Get-up does not reach the saved nominal pose.** It gets up and stands reliably — 64/64 — but the
-  strict criterion "back to the saved nominal pose" is still **0/64**. The remaining error is concentrated
-  in the second link of the head chain.
+- **Get-up's "back to the nominal pose" gap was fixed on 2026-09-16.** On the **previous** policy
+  (`getup_v18`, still published) it got up and stood reliably — 64/64 — but the strict criterion "back to the
+  saved nominal pose" was **0/64**, with the error concentrated in the second link of the head chain
+  (**52.3°** of joint deviation, and a sustained-900-step acceptance that stopped at `head_pitch` **46°**).
+  The replacement `getup_v20` measures **63/64** on that strict criterion, **10.4°** of joint deviation, and
+  **5/5** on the end-to-end hand-over. What changed was one reward term: the head-chain posture penalty is
+  **ungated** and now weighs **−1.0**; gating it by body tilt — the previous round's change — let the policy
+  escape through the gate by staying tilted, and it collapsed to **0/5** on the hand-over.
+  The stricter six-axis criterion (head off the ground, flat soles, each sustained over the last second) is
+  **45/64**, up from **0/64**.
 - **Sit/stand was fixed on 2026-09-16, and the two problems remain on record with the measurements that
   found them.** On the **previous** policy (`sit_stand_v2`, still published): switching to `sitstand` made
   the robot **buzz in place while standing** — action jitter `mean abs(delta a)` per control step **0.235**

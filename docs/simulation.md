@@ -96,7 +96,7 @@ python wamoduck_sim.py --policy walk --vx 0.3 --headless --steps 250
 | Name | ONNX (`policies/`) | Source run | Checkpoint | MJCF (`models/wmduck/mjcf/`) | What it does |
 | --- | --- | --- | --- | --- | --- |
 | `stand` | `wamoduck-stand-stand_v3.onnx` | `2026-09-12_08-32-26_stand_v3` (marked SHIP) | `model_1499.pt` | `robot_walk.xml` | Hold the nominal stance; recover from a push |
-| `getup` | `wamoduck-getup-getup_v18.onnx` | `2026-09-15_17-37-06_getup_v18` | `model_3999.pt` | `robot_groundcontact.xml` | Start lying on the ground and get back on its feet |
+| `getup` | `wamoduck-getup-getup_v20.onnx` | `2026-09-16_19-12-01_getup_v20` | `model_3999.pt` | `robot_groundcontact.xml` | Start lying on the ground and get back on its feet |
 | `sitstand` | `wamoduck-sitstand-sit_stand_v3.onnx` | `2026-09-16_18-05-44_sit_stand_v3` | `model_2499.pt` | `robot_walk.xml` | Crouch to a commanded body height and stand back up |
 | `walk` | `wamoduck-walk-walk_v4r.onnx` | `2026-09-16_12-01-21_walk_v4r` | `model_6749.pt` | `robot_walk.xml` | Walk on flat ground from a twist command |
 | `rough` | `wamoduck-rough-rough_v2.onnx` | `2026-09-16_00-00-04_rough_v2` | `model_5999.pt` | `robot_walk.xml` | Walk over 1 cm curbs from a twist command |
@@ -283,16 +283,28 @@ python wamoduck_sim.py --policy getup --spawn lie-back --headless --steps 300
 
 ```
 [start] tilt= 69.81 deg  base_z=0.0920 m  max_joint_dev=  9.34 deg  both_soles=True  standing=False  nominal=False
-[final] tilt=  8.24 deg  base_z=0.1784 m  max_joint_dev= 52.08 deg  both_soles=True  standing=True  nominal=False
-[final] base_z 0.0920 -> 0.1784 m
-[final] lowest tilt seen: 2.41 deg
+[final] tilt=  2.23 deg  base_z=0.1763 m  max_joint_dev= 11.01 deg  both_soles=True  standing=True  nominal=True
+[final] base_z 0.0920 -> 0.1763 m
+[final] lowest tilt seen: 0.90 deg
 ```
 
-It gets up: from a lying start at 69.8° of tilt and 0.092 m it ends upright at 8.24° and 0.1784 m, with
-both soles down, having passed through 2.41°. It reaches the **loose** "standing" criterion but **not** the
-strict nominal one, because the final joint deviation is 52° — the same gap the internal
-[capability board](capabilities.md) records as "standing 64/64, strict nominal 0/64". This CPU run
-reproduces that known limitation rather than hiding it.
+It gets up: from a lying start at 69.8° of tilt and 0.092 m it ends upright at **2.23°** and **0.1763 m**, with
+both soles down, having passed through 0.90°, and a largest joint deviation of **11.01°** — so this run reaches
+the **strict** nominal criterion, not just the loose one. That matches the internal
+[capability board](capabilities.md), which now records **63/64 (98.4 %)** on that criterion for `getup_v20`.
+
+**The same command run against the previous policy, for comparison**, is the measurement that found the gap
+that was fixed on 2026-09-16:
+
+```
+python wamoduck_sim.py --policy getup --onnx policies/wamoduck-getup-getup_v18.onnx \
+                       --spawn lie-back --headless --steps 300
+# [final] tilt=  8.24 deg  base_z=0.1784 m  max_joint_dev= 52.08 deg  both_soles=True  standing=True  nominal=False
+```
+
+That one reached the **loose** "standing" criterion but **not** the strict nominal one, because the final joint
+deviation was 52°. It is kept here rather than deleted, and `getup_v18` is still published so it can be
+reproduced.
 
 All five published lying spawns were tested for 6 s each: `lie-back`, `lie-front`, `lie-side`,
 `lie-side-r`, and `inverted` all end standing.
@@ -497,8 +509,11 @@ even with the wrong action order — but across all five spawns that advantage d
 - **The walking ONNX is not the checkpoint the capability board measured.** That board's walking row refers
   to `walk_r3`, which was trained under an older command range. `walk_v4r` has no private measurement, so
   this page quotes only our own CPU Sim2Sim displacement for it and claims nothing else.
-- **`getup` does not reach the strict nominal pose** (52° of joint deviation at the end). It gets up and
-  stands; it does not settle into the all-zeros stance.
+- **`getup` used to not reach the strict nominal pose — fixed on 2026-09-16.** With the previous policy
+  (`getup_v18`, still published) the final joint deviation was **52°** and the strict criterion was **0/64**;
+  the replacement `getup_v20` measures **63/64** on that criterion with **10.4°** of joint deviation, and
+  **5/5** on the end-to-end hand-over. This page's own CPU run reproduces it: **11.01°**, `nominal=True`.
+  The stricter six-axis criterion is **45/64**, up from **0/64**.
 - **`sitstand` used to hold 0.094 m when asked for 0.085 m and lean ~26° while crouched; both were fixed on
   2026-09-16.** Two issues were reported by a user in this demo and measured here, and the replacement policy
   `sit_stand_v3` fixes both (jitter **0.699 → 0.000**, drift **+27.99 → +0.394 mm/s**, sitting tilt
@@ -535,7 +550,8 @@ Wamoduck/
 │                                    #   (mujoco + onnxruntime + numpy only)
 ├── policies/
 │   ├── wamoduck-stand-stand_v3.onnx
-│   ├── wamoduck-getup-getup_v18.onnx
+│   ├── wamoduck-getup-getup_v20.onnx         # current get-up policy
+│   ├── wamoduck-getup-getup_v18.onnx         # kept: the baseline the get-up gap was measured on
 │   ├── wamoduck-sitstand-sit_stand_v3.onnx   # current sit/stand policy
 │   ├── wamoduck-sitstand-sit_stand_v2.onnx   # kept: the baseline the two measurements above were taken on
 │   ├── wamoduck-walk-walk_v4r.onnx
