@@ -1114,9 +1114,9 @@
       "source_set": "trained_policy",
       "source_file": "2026-09-16_12-01-21_walk_v4r.onnx",
       "bytes": 773096,
-      "sha256": "ff1379550b1c107ab1287dd85627466dae235580e96da8e4d1b77033305d393d",
-      "source_sha256": "ff1379550b1c107ab1287dd85627466dae235580e96da8e4d1b77033305d393d",
-      "transformation": "none; copied byte-for-byte from the training run's ONNX export (final checkpoint model_6000.pt)."
+      "sha256": "8ec4fd347a22d69937550681e58e6d2cd511748b067677bcef345fdae5546ea2",
+      "source_sha256": "8ec4fd347a22d69937550681e58e6d2cd511748b067677bcef345fdae5546ea2",
+      "transformation": "none; copied byte-for-byte from the training run's ONNX export. Source run 2026-09-16_12-01-21_walk_v4r, checkpoint model_6749.pt (the run's final save). Verified by tools/verify_onnx_provenance.py: max|delta| = 0 against every actor tensor in that checkpoint. The earlier revision of this file was model_6000.pt, copied while the run was still training."
     },
     {
       "path": "policies/wamoduck-rough-rough_v2.onnx",
@@ -1131,9 +1131,9 @@
       "path": "policies/README.md",
       "source_set": "trained_policy",
       "source_file": "README.md",
-      "bytes": 4476,
-      "sha256": "e00a9c8cbe6dea95c8943b35ed5b40c3bc94929b8ce5e21f02b61ca631b02721",
-      "source_sha256": "e00a9c8cbe6dea95c8943b35ed5b40c3bc94929b8ce5e21f02b61ca631b02721",
+      "bytes": 6451,
+      "sha256": "123f429061c824bff461e1b976a2617a84f4faf8d8c6e8a2d841a51b55eca459",
+      "source_sha256": "123f429061c824bff461e1b976a2617a84f4faf8d8c6e8a2d841a51b55eca459",
       "transformation": "Authored for this repository; no external source. Text line endings are LF."
     },
     {

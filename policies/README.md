@@ -13,14 +13,31 @@ task; run them with [`wamoduck_sim.py`](../wamoduck_sim.py) and the MJCF in
 | [wamoduck-stand-stand_v3.onnx](wamoduck-stand-stand_v3.onnx) | 766915 | `3ec3397ae9c17743ee4214234864da392562f7550ca7459ef1bd09dd2f44262f` | `2026-09-12_08-32-26_stand_v3` (SHIP) | `model_1499.pt` | stand / 站立抗扰 |
 | [wamoduck-getup-getup_v18.onnx](wamoduck-getup-getup_v18.onnx) | 766915 | `804d2cee90881d6eb4756f9306d27bd3e19c8e9aa3f903bec65089787e323bf5` | `2026-09-15_17-37-06_getup_v18` | `model_3999.pt` | get up / 起身 |
 | [wamoduck-sitstand-sit_stand_v2.onnx](wamoduck-sitstand-sit_stand_v2.onnx) | 768992 | `26e40f7a20f333c52816e53cb092b945f677c526d8f1685bf886d321c21a680d` | `2026-09-12_11-18-34_sit_stand_v2` (SHIP) | `model_2499.pt` | sit / stand |
-| [wamoduck-walk-walk_v4r.onnx](wamoduck-walk-walk_v4r.onnx) | 773096 | `ff1379550b1c107ab1287dd85627466dae235580e96da8e4d1b77033305d393d` | `2026-09-16_12-01-21_walk_v4r` | `model_6000.pt` | walking / 平地行走 |
+| [wamoduck-walk-walk_v4r.onnx](wamoduck-walk-walk_v4r.onnx) | 773096 | `8ec4fd347a22d69937550681e58e6d2cd511748b067677bcef345fdae5546ea2` | `2026-09-16_12-01-21_walk_v4r` | `model_6749.pt` | walking / 平地行走 |
 | [wamoduck-rough-rough_v2.onnx](wamoduck-rough-rough_v2.onnx) | 773096 | `811d79ea78a0ba3d349f5b7709fe6ffaf382c3929d61b13f47b43a0fac4a425b` | `2026-09-16_00-00-04_rough_v2` | `model_5999.pt` | 1 cm terrain / 1 cm 越障 |
 
 The runs were resolved with the development repository's `tools/run_select.py`, not by picking a file by
 hand. Each published file was then confirmed to be the export of exactly the checkpoint named above, by
-rebuilding the actor from the `.pt` file and comparing it with the ONNX initializers. / 轮次是用研发仓库的
-`tools/run_select.py` 解析出来的，不是手工挑的文件。随后每个公开文件都用 `.pt` 重建 actor 与 ONNX 权重逐项
-比对，确认它确实就是上表写明的那个检查点导出的。
+rebuilding the actor from the `.pt` file and comparing it with the ONNX initializers. That comparison is a
+tool, not a one-off: `tools/verify_onnx_provenance.py --onnx <file> --run <run> --expect <checkpoint>`
+reports the exact match over every `model_*.pt` in the run and exits non-zero otherwise (its `--selftest`
+proves the criterion accepts the right checkpoint and rejects a perturbed one). For a byte-identical
+export the element-wise difference is exactly zero, which is what all five rows above report. / 轮次是用研发
+仓库的 `tools/run_select.py` 解析出来的，不是手工挑的文件。随后每个公开文件都用 `.pt` 重建 actor 与 ONNX 权重逐项
+比对，确认它确实就是上表写明的那个检查点导出的。这个比对已经做成了工具（见上），它对轮次目录里的每个
+`model_*.pt` 报出精确匹配、否则以非零码退出；导出是纯拷贝，所以逐元素差**恰好为 0** —— 上表五行都满足。
+
+> **A note on the walking row / 关于行走那一行**：this file was first published as `model_6000.pt`, taken
+> from the run directory while training was **still running** — mjlab rewrites that directory's ONNX on
+> every checkpoint save, so the copy captured a mid-run save and the run's final save (`model_6749.pt`,
+> written 28 minutes later) never reached this repository. It has been replaced with the run's final
+> checkpoint; both revisions are valid exports of the same run, and the file now matches the checkpoint
+> this table names. Lesson recorded because it is a repeatable trap: **do not publish from a directory
+> whose training is still in progress**, and verify provenance instead of trusting the file name. / 这个文件
+> 最初是以 `model_6000.pt` 发布的：当时训练**还在跑**，而 mjlab 在每次保存检查点时都会重写轮次目录里的那份
+> ONNX，所以拷走的是中途某一次保存，训练结束时（28 分钟后写入的 `model_6749.pt`）从未进过本仓库。现在已换成
+> 该轮次的最终检查点；两版都是同一轮次的合法导出，只是现在这个文件与上表写明的检查点一致。把教训写在这里，
+> 因为它是可复现的坑：**不要在训练还在进行时发布**，并且要核验来源，不要相信文件名。
 
 ## Contract / 契约
 
