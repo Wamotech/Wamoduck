@@ -97,7 +97,7 @@ class PolicyRunner:
             )
 
     def infer(self, observation: Sequence[float]) -> list[float]:
-        """Run one step and return the raw action in actuator order."""
+        """Run one step and return the raw action in joint-tree order."""
         if self._session is None:
             raise PolicyRunnerUnavailable("load() must be called before infer()")
         if self.obs_dim is not None and len(observation) != self.obs_dim:

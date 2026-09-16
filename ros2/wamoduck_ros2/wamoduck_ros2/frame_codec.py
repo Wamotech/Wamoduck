@@ -62,11 +62,11 @@ Array ordering
 --------------
 ``q`` and ``dq`` are always in **joint-tree order**, the 14-joint order pinned by
 ``wamoduck_ros2.model_contract.JOINT_ORDER``, which is also the order of ``joint_pos`` and
-``joint_vel`` inside the policy observation. The policy's own output is in *actuator* order,
-so the actuator -> joint permutation happens once, on the host, in
-``policy_interface.action_to_joint_target()``. Keeping the link order equal to the
-observation order is what makes that a single documented permutation instead of two
-undocumented ones.
+``joint_vel`` inside the policy observation **and the order of the policy's own 14-wide
+output**. The action -> joint permutation therefore resolves to the identity, and it is still
+applied once, on the host, in ``policy_interface.action_to_joint_target()``. Keeping the link
+order equal to the observation and action order is what makes that a single documented
+statement instead of three orders to line up by hand.
 """
 
 from __future__ import annotations

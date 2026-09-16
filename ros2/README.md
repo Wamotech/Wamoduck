@@ -298,8 +298,9 @@ Fixed-point scales: `q` rad→mrad ×1000, `dq` rad/s→0.01 ×100, `gyro` ×100
 
 **Array order.** `q` and `dq` are always in *joint-tree order* — the 14-joint order in
 `model_contract.JOINT_ORDER` — which is also the order of `joint_pos` / `joint_vel` inside the
-policy observation. The policy's output is in *actuator* order, so the permutation happens
-once, on the host, in `policy_interface.action_to_joint_target()`.
+policy observation, **and the order of the policy's own 14-wide output**. The permutation
+between action and joint is therefore the identity, and it is still applied once, on the host,
+in `policy_interface.action_to_joint_target()`.
 
 Three different joint orders exist in this project and mixing them up is a known bug class.
 The code keeps them apart, and `test_model_contract.py` asserts that the URDF's document order
@@ -309,8 +310,16 @@ re-wiring a joint):
 | Order | Where | Contents |
 | --- | --- | --- |
 | joint-tree order | `JOINT_ORDER`, 14 names | `left_hip_yaw, left_hip_roll, …, left_ankle, right_hip_yaw, …, head_roll` |
-| actuator order | MJCF `<actuator>`, 14 | L/R interleaved per joint kind; `action_to_joint = [0,5,1,6,2,7,3,8,4,9,10,11,12,13]` |
+| actuator order | MJCF `<actuator>`, 14 | L/R interleaved per joint kind; **not** the action order — `action_to_joint` is the identity |
 | URDF document order | `models/wmduck/wmduck.urdf`, 15 joints | L/R interleaved, plus `mouth` |
+
+The action order was **adjudicated on 2026-09-16** in favour of joint-tree order. This module
+previously read the action vector in actuator order; four independent lines of evidence settled
+it: mjlab's own resolver on the training MJCF returns `target_ids = [0 … 13]`; every published
+policy's ONNX metadata records `joint_names` in tree order; a one-hot MuJoCo probe driving one
+action channel at a time moves `JOINT_ORDER[i]` and nothing else; and a 2×2 ablation over
+observation × action order leaves only tree/tree standing, walking, crouching and getting up.
+See the [`model_contract`](wamoduck_ros2/wamoduck_ros2/model_contract.py) module docstring.
 
 `gait_player` reads the joint list **out of the URDF** and matches the CSV columns to it **by
 name**; it hard-codes no order at all. It publishes all 15 movable joints, including `mouth`,
@@ -344,8 +353,9 @@ The **stand** policies were trained with **48** inputs: the same layout with the
 * **The normalizer is inside the ONNX graph** (`normalizer_inside_onnx: true`), so the host
   feeds **raw** observations. Normalising again on the device applies the transform twice —
   the classic way to get a policy that trains well and stands badly.
-* The action is 14 wide in **actuator order**; `action_to_joint` is applied once, on the host.
-* `q_target[joint] = default_joint_pos[joint] + action_scale * action[actuator]`, with
+* The action is 14 wide in **joint-tree order**, the same order as the observation;
+  `action_to_joint` is applied once, on the host, and is the identity.
+* `q_target[joint] = default_joint_pos[joint] + action_scale * action[joint]`, with
   `default_joint_pos` all zeros and `action_scale` 1.0, so in practice `q_target = action`.
 * Timing: **50 Hz**, MuJoCo `timestep = 0.005 s`, `decimation = 4` ⇒ `0.005 × 4 = 0.02 s`.
 * State topics use **BEST_EFFORT + KEEP_LAST(1)**. With RELIABLE and a deeper queue, one slow

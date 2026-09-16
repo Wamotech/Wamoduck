@@ -164,6 +164,21 @@ That is all 14 actuated joints, left leg first and then right leg, followed by t
 actuator order for the observations or the actions makes the robot collapse within a second. See
 [what the ablation showed](#a-wrong-joint-order-makes-the-robot-collapse).
 
+**This reading was adjudicated on 2026-09-16, and it is no longer only an assumption here.** It was
+already the reading used on this page and in the runner, but
+[`model_contract.py`](../ros2/wamoduck_ros2/wamoduck_ros2/model_contract.py) in the ROS 2 module read
+the same 14 values in **actuator** order, so the repository contradicted itself for `action[1]` to
+`action[8]`. The ROS 2 side was corrected. Two pieces of evidence pin the order **directly**, on top of
+the behaviour ablation below:
+
+- every published policy's ONNX metadata records `joint_names` in tree order;
+- a **one-hot probe** — drive one action channel at a time through
+  `q_target = default_joint_pos + action_scale × action` in MuJoCo and read which joint actually moves —
+  returns the identity permutation: channel `i` moves tree joint `i` and nothing else, so each row and
+  each column of the 14×14 response matrix has exactly one dominant entry, with a dominance of at least
+  **140×**. The actuator-order reading moves a *different* joint for `action[1]` to `action[8]`, so the
+  two readings are physically distinguishable rather than a matter of interpretation.
+
 In the runner this is one line: `ctrl_ids = [0, 2, 4, 6, 8, 1, 3, 5, 7, 9, 10, 11, 12, 13]`, so action
 element `i` is written to the actuator that drives tree joint `i`.
 

@@ -61,7 +61,7 @@ There are two orders in this project, and they are **not** the same:
 
 The bus ID order is the order of the `<actuator>` block in [robot_walk.xml](../models/wmduck/mjcf/robot_walk.xml), the MJCF the published policies were trained in: `act_left_hip_yaw`, `act_right_hip_yaw`, `act_left_hip_roll`, and so on.
 
-The 14-dimension action vector, however, is read as **joint-tree order**: element 0 is the left hip yaw, element 4 is the left ankle, element 5 is the right hip yaw, and elements 10 to 13 are the neck and head. That is the reading the [simulation guide](../docs/simulation.md) states.
+The 14-dimension action vector, however, is read as **joint-tree order**: element 0 is the left hip yaw, element 4 is the left ankle, element 5 is the right hip yaw, and elements 10 to 13 are the neck and head. That is the reading the [simulation guide](../docs/simulation.md) states, and it is the reading this repository's ROS 2 module implements since the adjudication recorded below.
 
 **So firmware and any host program have to permute once**, from action index to bus ID:
 
@@ -71,11 +71,16 @@ bus_id(action_index) = [1, 3, 5, 7, 9, 2, 4, 6, 8, 10, 11, 12, 13, 14]     # act
 
 Read it as: `action[0]` is the left hip yaw and goes to bus ID 1, `action[1]` is the left hip roll and goes to bus ID 3, `action[2]` is the left hip pitch and goes to bus ID 5, `action[3]` is the left knee and goes to bus ID 7, `action[4]` is the left ankle and goes to bus ID 9, `action[5]` is the right hip yaw and goes to bus ID 2, and so on; `action[10]` to `action[13]` are the neck pitch, head pitch, head yaw, and head roll, and go to bus IDs 11, 12, 13, and 14 unchanged.
 
-> ### ⚠️ Do not power the servos on the strength of this permutation
+> ### ⚠️ The order is settled in simulation; the permutation still has to be confirmed on the robot
 >
-> **The permutation above has not been verified on a physical robot.** Until there is independent evidence for it, do not use it to energise the servos. A wrong joint order mis-drives a joint, and in this project's own simulation a wrong order collapses the robot within a second.
+> **What is settled.** The 14-dimension action vector is read as **joint-tree order**, as this page says. Until **2026-09-16** that was an open disagreement: this repository's ROS 2 module [`model_contract.py`](../ros2/wamoduck_ros2/wamoduck_ros2/model_contract.py) read the action vector in **actuator order** instead, which sent `action[1]` to bus ID 2 rather than bus ID 3 and disagreed for `action[1]` to `action[8]`. That module has been corrected. Four independent lines of evidence settled it:
 >
-> It is also **not settled**. An internal deployment-contract file interprets the 14-dimension action vector in **actuator order** rather than joint-tree order, and this repository's ROS 2 module [`model_contract.py`](../ros2/wamoduck_ros2/wamoduck_ros2/model_contract.py) does the same. Under that reading `action[1]` is the target for bus ID 2, whereas this page sends it to bus ID 3, so the two readings disagree for `action[1]` to `action[8]`. Nobody has adjudicated that disagreement yet. Treat the permutation as a hypothesis to be checked against the hardware, not as a wiring instruction.
+> 1. **Source semantics.** mjlab's own joint resolver (`Entity.find_joints_by_actuator_names`), run against the training MJCF, returns already-joint-order ids `[0 … 13]` — the identity — because it filters the joint list in tree order and its matching call returns in that order.
+> 2. **ONNX metadata.** Every published policy in [`policies/`](../policies/) records `joint_names` in its metadata as `left_hip_yaw, left_hip_roll, …, head_roll`, i.e. joint-tree order.
+> 3. **A one-hot probe (direct observation).** Driving one action channel at a time through `q_target = default_joint_pos + action_scale × action` in MuJoCo, and reading which joint actually moves, gives the identity permutation: channel `i` moves joint-tree joint `i` and nothing else — every row and column has exactly one dominant entry, with dominance of at least **140×**. The actuator-order reading moves a *different* joint for `action[1]` to `action[8]`, so the two readings are physically distinguishable and this is not a matter of interpretation.
+> 4. **Behaviour.** A 2×2 ablation over observation order × action order: only tree/tree stands, walks, crouches and gets up, for all five published policies; every wiring with either half swapped collapses within a second.
+>
+> **What is still not verified.** The permutation above has **not** been checked on a physical robot. All four lines above are simulation and source evidence; nothing here was measured on hardware. **Do not energise the servos on the strength of this permutation** until it has been confirmed on the machine — a wrong joint order mis-drives a joint, and in this project's own simulation a wrong order collapses the robot within a second. Concretely: driving one bus ID at a time on the real robot must move the joint this table names for it, and that has not been done.
 >
 > The three-bus topology is unverified on hardware in the same way: the **direction and polarity** of each bus, its **termination resistors**, and the ID assignment **as actually programmed into the servos** have not been checked on the machine.
 

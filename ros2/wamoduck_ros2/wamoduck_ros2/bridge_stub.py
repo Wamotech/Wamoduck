@@ -216,7 +216,10 @@ class BridgeStub(Node):
         self._latest_dq: list[float] | None = None
 
         # The link array order is the contract's joint-tree order, not the URDF document
-        # order: this is what makes "action (actuator order) -> joint" a single permutation.
+        # order. The policy action is in joint-tree order too, so "action -> joint" is the
+        # identity permutation; keeping the link array in the same order as the action is
+        # still what makes that a single, checkable statement rather than two orders to line
+        # up separately.
         self._joint_names = list(model_contract.JOINT_ORDER)
 
         self.create_subscription(

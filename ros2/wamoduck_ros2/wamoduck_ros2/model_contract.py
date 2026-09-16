@@ -5,19 +5,50 @@ hit bug class. This module keeps them apart explicitly:
 
 ``JOINT_ORDER`` (14 names)
     **Joint-tree order.** The order of ``joint_pos`` / ``joint_vel`` inside the policy
-    observation, and the order of ``q`` / ``dq`` in every link frame. Taken from
-    ``deploy/policy_contract.json``.
+    observation, the order of ``q`` / ``dq`` in every link frame, and -- since the
+    adjudication below -- **also the order of the policy's 14-wide action output**.
+    Taken from ``deploy/policy_contract.json``.
 
 ``ACTION_TO_JOINT`` (14 indices)
-    The permutation from the policy's **output** (actuator order, i.e. MJCF ``<actuator>``
-    order) to joint-tree order. ``action_to_joint[i]`` is the joint index that action entry
-    ``i`` drives. It is applied exactly once, on the host.
+    The permutation from the policy's output order to joint-tree order. ``action_to_joint[i]``
+    is the joint index that action entry ``i`` drives. It is applied exactly once, on the
+    host. It is the **identity**, because the policy output is in joint-tree order; it is
+    kept as an explicit permutation, rather than deleted, so the single application site in
+    ``policy_interface.action_to_joint_target()`` stays exactly where it is and a future
+    order change has one place to land.
 
 ``read_urdf_joints()``
     The movable joints **as they appear in the URDF file**, in document order. This is a
     third order and it is *not* either of the above: the canonical URDF lists the legs
     interleaved (``left_hip_yaw, right_hip_yaw, left_hip_roll, right_hip_roll, ...``) while
     the contract lists them left-leg-then-right-leg.
+
+Action order was adjudicated on 2026-09-16: it is joint-tree order
+----------------------------------------------------------------
+This module used to read the 14-wide action output in **actuator order** (MJCF ``<actuator>``
+order), which contradicted ``wamoduck_sim.py`` and ``docs/simulation.md``. That contradiction
+is settled, in favour of joint-tree order, on four independent lines of evidence:
+
+1. **Source semantics.** mjlab's ``Entity.find_joints_by_actuator_names`` builds
+   ``actuated_in_natural_order`` as a *filter of* ``joint_names`` (joint-tree order) and then
+   calls ``resolve_matching_names(..., preserve_order=False)``, which returns matches in the
+   order of that target list; the actuator-name keys are only a filter. ``BaseAction.
+   _find_targets`` does not even forward ``preserve_order`` for joint transmissions. Running
+   the real mjlab resolver against the training MJCF returns ``target_ids = [0 .. 13]``.
+2. **ONNX metadata.** Every published policy in ``policies/`` records ``joint_names`` as
+   ``left_hip_yaw, left_hip_roll, ..., head_roll`` -- joint-tree order.
+3. **One-hot probe (direct observation).** Driving one action channel at a time through
+   ``q_target = default_joint_pos + action_scale * action`` and reading which joint actually
+   moves yields the identity permutation: channel ``i`` moves ``JOINT_ORDER[i]`` and nothing
+   else (every row and column exactly one dominant entry, dominance at least 140x). The
+   actuator-order reading moves a *different* joint for channels 1 to 8, so the two readings
+   are physically distinguishable.
+4. **Behaviour.** A 2x2 ablation over observation order x action order shows that only
+   tree/tree stands, walks, crouches and gets up, for all five published policies; every
+   wiring with either half swapped collapses within a second.
+
+The practical consequence for a host: the permutation to apply is the identity. The remaining
+real trap is the URDF-document-order one, which is what the rest of this module is about.
 
 Nothing here re-derives the contract from the URDF, and nothing re-derives the URDF from the
 contract. They are checked against each other by ``test_model_contract.py``, and any
@@ -30,7 +61,8 @@ control rate                         50 Hz (``CONTROL_HZ``)
 MuJoCo timestep                      0.005 s (``TIMESTEP_S``)
 decimation                           4 (``DECIMATION``) -> 0.005 * 4 = 0.02 s = 50 Hz
 observation dimension                51 for the walk tasks, 48 for the stand tasks
-policy output dimension              14, *actuator* order
+policy output dimension              14, **joint-tree order** (was documented as
+                                     actuator order until the 2026-09-16 adjudication)
 ``default_joint_pos``                all zeros, so an absolute joint angle and a
                                      joint angle relative to default are the same number
 ``action_scale``                     ``[1.0]`` (single element -> broadcast)
@@ -68,9 +100,12 @@ JOINT_ORDER: tuple[str, ...] = (
 
 JOINT_INDEX: dict[str, int] = {name: i for i, name in enumerate(JOINT_ORDER)}
 
-# action index -> joint index. Actuator order is L/R interleaved per joint kind; joint-tree
-# order is per-leg. This is that permutation, and it is the only place it appears.
-ACTION_TO_JOINT: tuple[int, ...] = (0, 5, 1, 6, 2, 7, 3, 8, 4, 9, 10, 11, 12, 13)
+# action index -> joint index. Both the policy output and the observation are in joint-tree
+# order, so this is the identity. It is spelled out rather than written as ``range(14)``
+# because it is the one line to change if the order is ever re-adjudicated, and because a
+# reader must be able to see at a glance that it is the identity and not the actuator-order
+# permutation ``(0, 5, 1, 6, 2, 7, 3, 8, 4, 9, 10, 11, 12, 13)`` that used to be here.
+ACTION_TO_JOINT: tuple[int, ...] = (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13)
 
 N_JOINTS = len(JOINT_ORDER)
 

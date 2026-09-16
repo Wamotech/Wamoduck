@@ -131,27 +131,34 @@ def test_clamp_command_rejects_the_wrong_width():
 # ---------------------------------------------------------------------------
 
 
-def test_action_to_joint_target_applies_the_permutation():
-    action = list(range(14))  # actuator order: 0..13
+def test_action_to_joint_target_applies_the_identity_permutation():
+    """The action is in joint-tree order, so entry ``i`` targets ``JOINT_ORDER[i]``.
+
+    The action-order adjudication of 2026-09-16 settled this: see ``model_contract``. The
+    assertions below were rewritten from the actuator-order reading, which sent entry 1 to
+    ``right_hip_yaw``; by name, so a swapped leg is impossible to miss either way.
+    """
+    action = list(range(14))  # joint-tree order: 0..13
     target = action_to_joint_target(action)
     assert len(target) == 14
     # Default joint positions are all zero and action_scale is 1.0, so the target equals the
-    # permuted action. Asserted by name so a swapped leg is impossible to miss.
+    # action.
     by_name = dict(zip(mc.JOINT_ORDER, target))
     assert by_name["left_hip_yaw"] == 0
-    assert by_name["right_hip_yaw"] == 1
-    assert by_name["left_hip_roll"] == 2
-    assert by_name["right_hip_roll"] == 3
-    assert by_name["left_hip_pitch"] == 4
-    assert by_name["right_hip_pitch"] == 5
-    assert by_name["left_knee"] == 6
-    assert by_name["right_knee"] == 7
-    assert by_name["left_ankle"] == 8
+    assert by_name["left_hip_roll"] == 1
+    assert by_name["left_hip_pitch"] == 2
+    assert by_name["left_knee"] == 3
+    assert by_name["left_ankle"] == 4
+    assert by_name["right_hip_yaw"] == 5
+    assert by_name["right_hip_roll"] == 6
+    assert by_name["right_hip_pitch"] == 7
+    assert by_name["right_knee"] == 8
     assert by_name["right_ankle"] == 9
     assert by_name["neck_pitch"] == 10
     assert by_name["head_pitch"] == 11
     assert by_name["head_yaw"] == 12
     assert by_name["head_roll"] == 13
+    assert target == [float(i) for i in range(14)]
 
 
 def test_action_to_joint_target_rejects_the_wrong_width():

@@ -1167,28 +1167,28 @@
       "path": "hardware/motor_ids.json",
       "source_set": "motor_ids",
       "source_file": "Derived from List_MotorID_CANFD.xlsx (Sheet1) and models/wmduck/wmduck.urdf",
-      "bytes": 10073,
-      "sha256": "b236810b436243dd537178a29ce0cbefcdd39f0a40096c3b380d5411a58c973b",
-      "source_sha256": "b236810b436243dd537178a29ce0cbefcdd39f0a40096c3b380d5411a58c973b",
-      "transformation": "The same content as hardware/motor_ids.csv, machine-readable. The source workbook is not redistributed. Text line endings are LF."
+      "bytes": 11576,
+      "sha256": "c3d8498ff8b43b7f9199531c5c2319602b9a00a90117a4d38f70792bbedf8117",
+      "source_sha256": "c3d8498ff8b43b7f9199531c5c2319602b9a00a90117a4d38f70792bbedf8117",
+      "transformation": "The same content as hardware/motor_ids.csv, machine-readable. The source workbook is not redistributed. Text line endings are LF. The policy action order was adjudicated as joint-tree order on 2026-09-16; the file records the evidence and the remaining hardware-verification caveat."
     },
     {
       "path": "hardware/motor_ids.md",
       "source_set": "motor_ids",
       "source_file": "Authored for this repository",
-      "bytes": 8544,
-      "sha256": "ac667aa5f9be35e7fab3897c88eba508aa5469e5b6f29617e57d6bd3880f7ac6",
-      "source_sha256": "ac667aa5f9be35e7fab3897c88eba508aa5469e5b6f29617e57d6bd3880f7ac6",
-      "transformation": "English guide to the bus IDs and the action-to-bus permutation, written from the maintainer-supplied ID list, the URDF, the MJCF, and the maintainer's 2026-09-16 statement of the bus topology. Text line endings are LF."
+      "bytes": 10138,
+      "sha256": "226ba0c50fa059c64785b8af33e34677efefccd5a9333a6592b88515108e2687",
+      "source_sha256": "226ba0c50fa059c64785b8af33e34677efefccd5a9333a6592b88515108e2687",
+      "transformation": "English guide to the bus IDs and the action-to-bus permutation, written from the maintainer-supplied ID list, the URDF, the MJCF, and the maintainer's 2026-09-16 statement of the bus topology. Text line endings are LF. The action-order section was rewritten on 2026-09-16, when the order was adjudicated as joint-tree order; the hardware-verification warning was kept."
     },
     {
       "path": "hardware/motor_ids.zh-CN.md",
       "source_set": "motor_ids",
       "source_file": "Authored for this repository",
-      "bytes": 8022,
-      "sha256": "e9115084e38f6899fdc82f88e8c19a75169c1e792cb24285958a1b3b4d53f119",
-      "source_sha256": "e9115084e38f6899fdc82f88e8c19a75169c1e792cb24285958a1b3b4d53f119",
-      "transformation": "Chinese guide, sentence by sentence with hardware/motor_ids.md. Text line endings are LF."
+      "bytes": 9559,
+      "sha256": "a03be48da72c3b8cc09ce651364d4fd0c2cfdaaee06ed9455ea339b969ec5627",
+      "source_sha256": "a03be48da72c3b8cc09ce651364d4fd0c2cfdaaee06ed9455ea339b969ec5627",
+      "transformation": "Chinese guide, sentence by sentence with hardware/motor_ids.md. Text line endings are LF. Chinese guide, sentence by sentence with hardware/motor_ids.md. Its action-order section was rewritten on 2026-09-16, when the order was adjudicated as joint-tree order; the hardware-verification warning was kept."
     }
   ],
   "updated_on": "2026-09-16"

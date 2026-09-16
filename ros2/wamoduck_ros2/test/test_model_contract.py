@@ -9,6 +9,11 @@ the three descriptions of the robot rather than each one in isolation:
 * ``models/wmduck/wmduck.urdf`` -- the canonical URDF, which declares a *different* order;
 * the generated ROS URDF in the package share directory -- which must differ from the
   canonical file only in its mesh URIs.
+
+``ACTION_TO_JOINT`` is the identity as of the 2026-09-16 action-order adjudication (the policy
+output is in joint-tree order, not actuator order); the test below pins it as an identity so
+that the actuator-order permutation cannot come back by accident. See the ``model_contract``
+module docstring for the four independent lines of evidence.
 """
 
 from __future__ import annotations
@@ -64,24 +69,27 @@ def test_contract_has_fourteen_joints_in_tree_order():
     assert "mouth" not in mc.JOINT_ORDER
 
 
-def test_action_to_joint_is_a_permutation_and_matches_the_contract():
+def test_action_to_joint_is_the_identity_and_matches_the_contract():
+    """The action output is in joint-tree order, so the permutation is the identity.
+
+    This test used to assert the actuator-order permutation
+    ``(0, 5, 1, 6, 2, 7, 3, 8, 4, 9, 10, 11, 12, 13)``. That reading was adjudicated wrong on
+    2026-09-16 (source semantics + ONNX metadata + a one-hot MuJoCo probe + a 2x2 ablation);
+    the assertions below are what stop it from coming back silently.
+    """
     assert sorted(mc.ACTION_TO_JOINT) == list(range(14))
-    # deploy/policy_contract.json: [0, 5, 1, 6, 2, 7, 3, 8, 4, 9, 10, 11, 12, 13]
-    assert mc.ACTION_TO_JOINT == (0, 5, 1, 6, 2, 7, 3, 8, 4, 9, 10, 11, 12, 13)
-    # Spelled out, because this is the permutation that a swapped pair would corrupt
-    # silently: actuator 0 is the left hip yaw, actuator 1 is the RIGHT hip yaw.
-    joint_by_actuator = [mc.JOINT_ORDER[i] for i in mc.ACTION_TO_JOINT]
-    assert joint_by_actuator == [
-        "left_hip_yaw", "right_hip_yaw",
-        "left_hip_roll", "right_hip_roll",
-        "left_hip_pitch", "right_hip_pitch",
-        "left_knee", "right_knee",
-        "left_ankle", "right_ankle",
-        "neck_pitch", "head_pitch", "head_yaw", "head_roll",
-    ]
-    # The MJCF actuator order is L/R interleaved and the observation order is per leg, and
-    # the two must differ for this permutation to be doing anything at all.
-    assert joint_by_actuator[:10] != list(mc.JOINT_ORDER[:10])
+    assert mc.ACTION_TO_JOINT == tuple(range(14))
+    # Spelled out, because this is the line that would silently mis-drive a joint: action
+    # entry 1 is the LEFT hip roll, not the right hip yaw.
+    joint_by_action = [mc.JOINT_ORDER[i] for i in mc.ACTION_TO_JOINT]
+    assert joint_by_action == list(mc.JOINT_ORDER)
+    # The reading this replaced, kept as a named constant so the difference is explicit and
+    # so a future edit that reintroduces it fails here with a readable message.
+    actuator_order_reading = (0, 5, 1, 6, 2, 7, 3, 8, 4, 9, 10, 11, 12, 13)
+    assert mc.ACTION_TO_JOINT != actuator_order_reading
+    # The MJCF actuator order really is L/R interleaved, i.e. the trap is real. If this ever
+    # stops being true the two readings coincide and this whole module can be simplified.
+    assert actuator_order_reading != tuple(range(14))
 
 
 def test_observation_offsets_match_the_documented_layout():

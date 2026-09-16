@@ -277,8 +277,9 @@ CRC 是 **CRC16-CCITT-FALSE**（poly `0x1021`、init `0xFFFF`、不反转、不�
 `twist` m/s→mm/s ×1000 与 rad/s→mrad/s ×1000。超范围的值**饱和**，绝不回绕。
 
 **数组顺序。** `q` 与 `dq` 永远是**关节树顺序**，也就是 `model_contract.JOINT_ORDER` 里的 14 关节顺序，
-它同时是策略观测里 `joint_pos`/`joint_vel` 的顺序。策略输出是**执行器顺序**，所以那个置换只在主机侧
-做一次，位置是 `policy_interface.action_to_joint_target()`。
+它同时是策略观测里 `joint_pos`/`joint_vel` 的顺序，**也是策略自己那 14 维输出的顺序**。因此
+"动作 → 关节"的置换就是恒等置换，它仍然只在主机侧施加一次，位置是
+`policy_interface.action_to_joint_target()`。
 
 本项目里同时存在**三套关节顺序**，混淆它们是已知的坑。代码把它们分开，并且
 `test_model_contract.py` 专门断言 URDF 的文档顺序**不同于**契约顺序——这样将来有人"整理"顺序时会
@@ -287,8 +288,14 @@ CRC 是 **CRC16-CCITT-FALSE**（poly `0x1021`、init `0xFFFF`、不反转、不�
 | 顺序 | 出处 | 内容 |
 | --- | --- | --- |
 | 关节树顺序 | `JOINT_ORDER`，14 个 | `left_hip_yaw, left_hip_roll, …, left_ankle, right_hip_yaw, …, head_roll` |
-| 执行器顺序 | MJCF `<actuator>`，14 个 | 按关节种类左右交错；`action_to_joint = [0,5,1,6,2,7,3,8,4,9,10,11,12,13]` |
+| 执行器顺序 | MJCF `<actuator>`，14 个 | 按关节种类左右交错；**不是**动作顺序——`action_to_joint` 是恒等置换 |
 | URDF 文档顺序 | `models/wmduck/wmduck.urdf`，15 个 | 左右交错，且多一个 `mouth` |
+
+动作顺序已于 **2026-09-16 裁决**为关节树顺序。本模块此前按执行器顺序解读动作向量；四条互相独立的
+证据定了案：mjlab 自己的解析器在训练 MJCF 上返回 `target_ids = [0 … 13]`；每个已发布策略的 ONNX
+元数据里 `joint_names` 都是树序；一次 one-hot 的 MuJoCo 探针逐个驱动动作通道时，动的正是
+`JOINT_ORDER[i]` 且只有它；以及观测顺序 × 动作顺序的 2×2 消融里，只有树序／树序还能站、能走、
+能蹲起、能起身。详见 [`model_contract`](wamoduck_ros2/wamoduck_ros2/model_contract.py) 的模块文档。
 
 `gait_player` 的关节表是**从 URDF 里读的**，CSV 列是**按名字**匹配的，它自己一个顺序都不写死。它发布
 全部 15 个可动关节（含 `mouth`，14 关节的策略契约不用它）——那是对描述包最诚实的可视化，不改变策略观测到什么。
@@ -317,8 +324,8 @@ offset 48  command             3   (vx, vy, wz)，限幅到 x[-0.6,1.0] y[-0.3,0
 
 * **归一化在 ONNX 图里面**（`normalizer_inside_onnx: true`），所以主机侧喂**原始**观测。设备侧再归一化
   一次等于把变换做了两遍——这是"训练挺好、站得挺差"最经典的成因。
-* 动作是 14 维**执行器顺序**；`action_to_joint` 只在主机侧施加一次。
-* `q_target[joint] = default_joint_pos[joint] + action_scale * action[actuator]`，其中
+* 动作是 14 维**关节树顺序**，与观测同一个顺序；`action_to_joint` 只在主机侧施加一次，且是恒等置换。
+* `q_target[joint] = default_joint_pos[joint] + action_scale * action[joint]`，其中
   `default_joint_pos` 全 0、`action_scale` 为 1.0，所以实际就是 `q_target = action`。
 * 时序：**50 Hz**，MuJoCo `timestep = 0.005 s`，`decimation = 4` ⇒ `0.005 × 4 = 0.02 s`。
 * 状态类话题用 **BEST_EFFORT + KEEP_LAST(1)**。如果是 RELIABLE 且队列更深，某次回调慢一下就会在队列里

@@ -43,15 +43,16 @@ contract records ``normalizer_inside_onnx: true``). The host therefore feeds **r
 observations. Normalising again on this side would apply the transform twice -- the classic
 way to get a policy that trains well and stands badly.
 
-**The action is 14 wide and in actuator order** (MJCF ``<actuator>`` order), which is *not*
-the joint-tree order of the observation. ``action_to_joint`` in
-``deploy/policy_contract.json``, mirrored as ``model_contract.ACTION_TO_JOINT``, is applied
-exactly once, here, on the host. The firmware only needs to map its own CAN IDs onto the 14
-array slots.
+**The action is 14 wide and in joint-tree order** -- the same order as the observation, not
+the MJCF ``<actuator>`` order. ``action_to_joint`` in ``deploy/policy_contract.json``,
+mirrored as ``model_contract.ACTION_TO_JOINT``, is still applied exactly once, here, on the
+host; it is the identity since the 2026-09-16 adjudication (see the ``model_contract`` module
+docstring for the evidence). The firmware only needs to map its own CAN IDs onto the 14 array
+slots.
 
 **Target computation**::
 
-    q_target[joint] = default_joint_pos[joint] + action_scale * action[actuator]
+    q_target[joint] = default_joint_pos[joint] + action_scale * action[joint]
 
 with ``default_joint_pos`` = all zeros and ``action_scale`` = 1.0 for the current policies,
 so in practice ``q_target = action``. It is still written symbolically so a future policy
@@ -180,8 +181,8 @@ class PolicyNode(Node):
             'normalisation      : inside the ONNX graph -> this node feeds RAW observations'
         )
         log.info(
-            'joint order        : observation and link are joint-tree order; the action is '
-            'actuator order and is permuted once via action_to_joint'
+            'joint order        : observation, link and action are all joint-tree order; '
+            'action_to_joint is still applied once but is the identity'
         )
         log.info(
             f'timing             : {control_hz} Hz control, timestep '

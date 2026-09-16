@@ -109,8 +109,17 @@
       14
     ],
     "bus_id_by_action_index_note": "action[0] = left hip yaw -> bus ID 1, action[1] = left hip roll -> bus ID 3, action[2] = left hip pitch -> bus ID 5, action[3] = left knee -> bus ID 7, action[4] = left ankle -> bus ID 9, action[5] = right hip yaw -> bus ID 2, and so on; action[10] to action[13] = neck pitch, head pitch, head yaw, head roll -> bus IDs 11, 12, 13, 14.",
+    "action_order_adjudicated": "joint-tree order",
+    "action_order_adjudicated_on": "2026-09-16",
+    "action_order_evidence": [
+      "Source semantics: mjlab's own resolver (Entity.find_joints_by_actuator_names) run against the training MJCF returns already-joint-order ids [0..13], the identity, because it filters the joint list in tree order and its matching call returns in that order.",
+      "ONNX metadata: every published policy in policies/ records joint_names as left_hip_yaw,left_hip_roll,...,head_roll, i.e. joint-tree order.",
+      "One-hot probe: driving one action channel at a time through q_target = default_joint_pos + action_scale * action in MuJoCo and reading which joint actually moves gives the identity permutation - channel i moves joint-tree joint i and nothing else (every row and column exactly one dominant entry, dominance >= 140x). The actuator-order reading moves a different joint for action[1] to action[8].",
+      "Behaviour: a 2x2 ablation over observation order x action order leaves only tree/tree standing, walking, crouching and getting up, for all five published policies; every other wiring collapses within a second."
+    ],
+    "action_order_corrected_here": "ros2/wamoduck_ros2/wamoduck_ros2/model_contract.py previously read the action vector in actuator order, which sent action[1] to bus ID 2 instead of bus ID 3 and disagreed for action[1] to action[8]. It has been corrected to joint-tree order (ACTION_TO_JOINT is now the identity).",
     "unverified": true,
-    "unverified_reason": "The permutation above has not been checked on a physical robot. An internal deployment-contract file interprets the action vector in actuator order instead, and this repository's ROS 2 module ros2/wamoduck_ros2/wamoduck_ros2/model_contract.py does the same. The disagreement is unresolved. Do not energise the servos on the strength of this file."
+    "unverified_reason": "The permutation above has NOT been checked on a physical robot. All four lines of evidence for it are simulation and source evidence; nothing was measured on hardware. Do not energise the servos on the strength of this file until it has been confirmed on the machine by driving one bus ID at a time and observing which joint moves - that has not been done."
   },
   "sources": {
     "bus_ids_and_names": {

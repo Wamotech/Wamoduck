@@ -152,7 +152,10 @@ and through `python3 -m pytest` directly. What they cover:
 * Observation layout position by position; the 48-wide stand layout equal to the 51-wide walk
   layout truncated; **the observation is not normalised**; command clamping to the trained
   ranges.
-* `action_to_joint` spelled out by joint name, so a swapped leg fails loudly.
+* `action_to_joint` pinned as the identity, and spelled out by joint name, so a swapped leg
+  fails loudly. The action-order adjudication of 2026-09-16 settled that the policy output is
+  in joint-tree order, not MJCF `<actuator>` order; the test also names the actuator-order
+  permutation it replaced, so reintroducing it fails with a readable message.
 * The URDF is read for movable joints, and the test asserts the URDF's document order
   **differs** from the contract order — if someone "tidies" one into the other, the suite fails
   instead of silently re-wiring a joint.

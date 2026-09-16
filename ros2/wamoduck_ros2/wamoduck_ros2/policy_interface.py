@@ -1,7 +1,7 @@
 """The policy observation and action contract, as pure functions.
 
 This module contains no ROS and no ONNX. It is the part of ``policy_node`` that can actually
-be verified today: the observation layout, the actuator -> joint permutation, the command
+be verified today: the observation layout, the action -> joint permutation, the command
 clamp and the target computation. All four are unit-tested.
 
 The contract, restated exactly
@@ -28,12 +28,16 @@ normalizer as ``Sub``/``Div``/``Elu``/``Gemm`` nodes, so the host feeds **raw** 
 Normalising again on the device would apply the transform twice and is the single easiest way
 to make a policy that trains fine and stands badly.
 
-**The action is in actuator order, not joint order.** ``action_to_joint`` above maps output
-entry to joint index and is applied exactly once, here, on the host.
+**The action is in joint-tree order, the same order as the observation.** The policy output is
+14 wide and entry ``i`` drives ``JOINT_ORDER[i]``. ``action_to_joint`` is still applied exactly
+once, here, on the host -- it is simply the identity now (see the ``model_contract`` module
+docstring for the 2026-09-16 adjudication and its four lines of evidence). It is kept as an
+explicit permutation so the application site stays in one place and a future order change does
+not have to be hunted down through the call graph.
 
 **Target computation**::
 
-    q_target[joint] = default_joint_pos[joint] + action_scale * action[actuator]
+    q_target[joint] = default_joint_pos[joint] + action_scale * action[action_index]
 
 With ``default_joint_pos`` all zeros and ``action_scale`` 1.0, this reduces to
 ``q_target = action``. Both are still applied symbolically so that a future policy with a
@@ -161,17 +165,19 @@ def projected_gravity_from_quat(quat_wxyz: Sequence[float]) -> tuple[float, floa
 
 
 def action_to_joint_target(action: Sequence[float]) -> list[float]:
-    """Permute a raw policy action (actuator order) into a joint-tree-order target.
+    """Turn a raw policy action into a joint-tree-order target.
 
-    Returns ``q_target`` in ``JOINT_ORDER``, ready to hand to ``wamoduck_msgs/JointTarget``.
-    The raw action is returned to the caller as the next ``last_action`` block; note that the
-    observation stores the *unscaled* action, matching training.
+    The action is already in ``JOINT_ORDER``; ``ACTION_TO_JOINT`` is the identity, so this is
+    an element-wise ``default_joint_pos + action_scale * action``. It is written as a
+    permutation anyway because that is the *one* place the two orders could disagree, and
+    because the raw action must also be returned to the caller as the next ``last_action``
+    block -- the observation stores the *unscaled* action, matching training.
     """
     if len(action) != N_JOINTS:
         raise ValueError(f"action must have {N_JOINTS} entries, got {len(action)}")
     target = [0.0] * N_JOINTS
-    for actuator, joint in enumerate(ACTION_TO_JOINT):
-        target[joint] = DEFAULT_JOINT_POS[joint] + ACTION_SCALE * float(action[actuator])
+    for action_index, joint in enumerate(ACTION_TO_JOINT):
+        target[joint] = DEFAULT_JOINT_POS[joint] + ACTION_SCALE * float(action[action_index])
     return target
 
 
