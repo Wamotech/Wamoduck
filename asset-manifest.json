@@ -1149,9 +1149,9 @@
       "path": "policies/README.md",
       "source_set": "trained_policy",
       "source_file": "README.md",
-      "bytes": 11685,
-      "sha256": "6b415b8780e60897474b709d3ab5a52456c72402dbd1b1acaf0f5fae0ff0867c",
-      "source_sha256": "6b415b8780e60897474b709d3ab5a52456c72402dbd1b1acaf0f5fae0ff0867c",
+      "bytes": 11894,
+      "sha256": "981b1554a1e6d5b8dad1ab028dc78e3d4205b7da4ebc509a80a003d32bda309e",
+      "source_sha256": "981b1554a1e6d5b8dad1ab028dc78e3d4205b7da4ebc509a80a003d32bda309e",
       "transformation": "Authored for this repository; no external source. Text line endings are LF."
     },
     {
