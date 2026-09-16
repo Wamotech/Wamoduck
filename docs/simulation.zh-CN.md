@@ -47,7 +47,7 @@ python wamoduck_sim.py --cycle-test           # 无界面切换自检
 | `←`／`a`、`→`／`d` | `vy` ± 0.1 m/s | `walk`、`rough` |
 | `e`／`z` | `wz` ± 0.1 rad/s | `walk`、`rough` |
 | `space` | 速度指令清零 | `walk`、`rough` |
-| `m` | 坐／站切换（0.085 m／0.175 m） | `sitstand` |
+| `m` | 坐／站切换（0.11241 m／0.175 m） | `sitstand` |
 | `r` | 复位（按当前策略重新出生） | 全部策略 |
 | `k` | 开关策略（关掉时保持零动作） | 全部策略 |
 | `q` | 复位并随机推一把 | 全部策略 |
@@ -90,14 +90,19 @@ python wamoduck_sim.py --policy walk --vx 0.3 --headless --steps 250
 | --- | --- | --- | --- | --- | --- |
 | `stand` | `wamoduck-stand-stand_v3.onnx` | `2026-09-12_08-32-26_stand_v3`（标了 SHIP） | `model_1499.pt` | `robot_walk.xml` | 保持标称站姿；被推后恢复 |
 | `getup` | `wamoduck-getup-getup_v18.onnx` | `2026-09-15_17-37-06_getup_v18` | `model_3999.pt` | `robot_groundcontact.xml` | 从躺姿起身站回双脚 |
-| `sitstand` | `wamoduck-sitstand-sit_stand_v2.onnx` | `2026-09-12_11-18-34_sit_stand_v2`（标了 SHIP） | `model_2499.pt` | `robot_walk.xml` | 按指令的基座高度蹲下／站起 |
+| `sitstand` | `wamoduck-sitstand-sit_stand_v3.onnx` | `2026-09-16_18-05-44_sit_stand_v3` | `model_2499.pt` | `robot_walk.xml` | 按指令的基座高度蹲下／站起 |
 | `walk` | `wamoduck-walk-walk_v4r.onnx` | `2026-09-16_12-01-21_walk_v4r` | `model_6749.pt` | `robot_walk.xml` | 按速度指令在平地行走 |
 | `rough` | `wamoduck-rough-rough_v2.onnx` | `2026-09-16_00-00-04_rough_v2` | `model_5999.pt` | `robot_walk.xml` | 按速度指令越过 1 cm 台阶 |
 
-"来源轮次"与"检查点"两列是用研发仓库的 `tools/run_select.py` 解析出来的，不是手工挑文件。`stand` 与
-`sitstand` 由各自的 `SHIP` 标记选中；`getup`、`walk`、`rough` 由显式指定轮次名选中，那是该工具里优先级最高的
+坐／站那一行还有一份 `wamoduck-sitstand-sit_stand_v2.onnx`（`2026-09-12_11-18-34_sit_stand_v2`，
+`model_2499.pt`）：它是**被替换掉的旧版**，留在 `policies/` 里是因为下面那些"坐／站的两个已知问题"的
+测量都是在它身上做的 —— 那些数字要能复现。
+
+"来源轮次"与"检查点"两列是用研发仓库的 `tools/run_select.py` 解析出来的，不是手工挑文件。`stand` 由
+`SHIP` 标记选中；`sitstand`、`getup`、`walk`、`rough` 由显式指定轮次名选中，那是该工具里优先级最高的
 规则。随后每个公开 ONNX 都用 `.pt` 文件重建 actor 与 ONNX 的权重逐项比对，确认它确实就是该列写明的那个检查点
-导出的（见[在什么机器上验证了什么](#在什么机器上验证了什么没验证什么)）。
+导出的 —— 这个比对现在是工具 `tools/verify_onnx_provenance.py --onnx <文件> --run <轮次> --expect <检查点>`：
+它对轮次目录里每个 `model_*.pt` 报出精确匹配，否则以非零码退出（见[在什么机器上验证了什么](#在什么机器上验证了什么没验证什么)）。
 
 ## 观测与动作契约
 
@@ -122,7 +127,10 @@ python wamoduck_sim.py --policy walk --vx 0.3 --headless --steps 250
 同一个数字，运行器拒绝把策略和不对应的任务配在一起。
 
 训练用的指令范围（训练配置里的 `CMD_RANGES`）：`vx` ∈ [-0.4, 0.6]，`vy` ∈ [-0.3, 0.3]，
-`wz` ∈ [-0.8, 0.8]。运行器按这个范围截断，并在截断时打印出来。坐／站的高度指令范围是 [0.085, 0.175] m。
+`wz` ∈ [-0.8, 0.8]。运行器按这个范围截断，并在截断时打印出来。坐／站的高度指令范围是
+**[0.11241, 0.175] m** —— 2026-09-16 之前是 [0.085, 0.175] m，后来实测 0.085 m 在躯干保持直立时
+**几何不可达**：躯干碰撞盒最低角点在基座原点下方 **109 mm**，所以基座低于 0.109 m 就会让躯干扎进地面。
+旧策略之所以看起来能到 0.094 m，是靠歪 25.9° 把那个角抬起来。
 
 ### 关节顺序 —— 关节树顺序，不是执行器顺序
 
@@ -285,12 +293,12 @@ python wamoduck_sim.py --policy walk --vx 0.3 --headless --steps 250
 ### 另外也查了
 
 ```
-python wamoduck_sim.py --policy sitstand --target-height 0.085 --headless --steps 250
+python wamoduck_sim.py --policy sitstand --target-height 0.11241 --headless --steps 250
 python wamoduck_sim.py --policy rough --terrain-level 3 --vx 0.3 --headless --steps 250
 ```
 
-- `sitstand`：指令 0.085 m，**实际维持 0.0942 m**（高 9 mm），双脚着地，倾角 25.9°。它能蹲下并保持住，
-  但没有精确达到指令高度，而且蹲着的时候是歪的。
+- `sitstand`：指令 **0.11241 m**，**实际维持 0.1096 m**（低 2.9 mm），双脚着地，倾角 **0.12°**，
+  左右两条腿一致。这是替换后的策略；上一版在旧指令 0.085 m 上的数字保留在下面当基线。
 - `rough`：在 3 个连续的 1 cm 台阶上以 vx = 0.3 前进，5 s 走了 **1.384 m**，保持站立（倾角 5.3°）。
   `--terrain-level N` 会添加 N 个台阶，从前方 0.3 m 处开始、间距 0.3 m。
   自从 demo 支持切换策略之后，`rough` **默认**就带这 3 个台阶，而 `walk` 保持平地，这样在两者之间切换时
@@ -298,19 +306,33 @@ python wamoduck_sim.py --policy rough --terrain-level 3 --vx 0.3 --headless --st
 
 #### `sitstand` 细看：用户报告的两个问题
 
+> **两条都已在 2026-09-16 由替换策略 `sit_stand_v3` 修好**，运行器现在加载的就是它。下面的测量是在
+> `sit_stand_v2` 上做的，保留下来当"替换所对照的基线"；前后对照是：抖动 **0.699 → 0.000**、
+> 漂移 **+27.99 → +0.394 mm/s**、坐姿倾角 **10.05° → 0.225°**、左右残差 **146.09° → 0.473°**。
+> 另外，旧的 **0.085 m** 指令在躯干直立时**几何不可达**（躯干碰撞盒最低角点在基座原点下方 109 mm），
+> 所以现在的坐高指令是 **0.11241 m**。
+
 一位用户在实际玩公开 demo 时报告：`sitstand` **站立时会原地抖动**；坐下时也得不到他描述的那种
 "头和躯干直立于地面、左右两腿对称对撑"的姿态。这两条随后都用同一个运行器实测过 —— 纯 CPU，
 MuJoCo **3.10.0**、ONNX Runtime **1.30.0**、NumPy **2.5.3**，500 个控制步（**10.0 s**），出生点
-`nominal`，平地 —— 就是跑下面两条命令，外加一条 `stand` 作为对照：
+`nominal`，平地 —— 就是跑下面的命令，外加一条 `stand` 作为对照。要复现这些基线数字，必须**显式指定旧策略**
+（默认已经换成新版）：
 
 ```bash
+# 基线（sit_stand_v2），下面引用的就是这一组：
+python wamoduck_sim.py --policy sitstand --onnx policies/wamoduck-sitstand-sit_stand_v2.onnx \
+                       --target-height 0.175 --headless --steps 500
+python wamoduck_sim.py --policy sitstand --onnx policies/wamoduck-sitstand-sit_stand_v2.onnx \
+                       --target-height 0.085 --headless --steps 500
+python wamoduck_sim.py --policy stand --headless --steps 500
+
+# 当前策略（sit_stand_v3），同一套协议：
 python wamoduck_sim.py --policy sitstand --target-height 0.175 --headless --steps 500
-python wamoduck_sim.py --policy sitstand --target-height 0.085 --headless --steps 500
-python wamoduck_sim.py --policy stand                      --headless --steps 500
+python wamoduck_sim.py --policy sitstand --target-height 0.11241 --headless --steps 500
 ```
 
-这次运行重现了本页已有的两个数字 —— 指令 0.085 m 时维持 **0.094 m**、倾斜约 **26°** —— 并新增了两个
-此前没有记录的数字。**两条都尚未修复。**
+基线那次运行重现了本页已有的两个数字 —— 指令 0.085 m 时维持 **0.094 m**、倾斜约 **26°** —— 并新增了两个
+此前没有记录的数字。
 
 - **站立指令（0.175 m）下机器人在原地抖动。** 它是直立的（末态倾角 **0.44°**、基座高度 **0.1762 m**），
   而且**始终不收敛**：动作抖动（每控制步的 `mean abs(delta a)`）整 10 s 为 **0.229**，去掉前 1.0 s 为
@@ -355,15 +377,19 @@ python wamoduck_sim.py --cycle-test
 | `5 rough` | 原地切换，台阶摆到机器人前方 | 3.28° | 0.1904 m | 指令 1.800 m 中走了 1.774 m | −64.4° |
 | `6 walk`（前进复核） | 按 `4` 再按 `r`：从标称姿重新出生，5.0 s | 6.14° | 0.1770 m → 0.1864 m | dx **+1.482 m**、dy −0.328 m | −19.6° |
 
-六条断言全部通过，而对 demo 最关键的两点在表里就能看出来：重载确实会重置机器人（`getup` 从躺着的
-0.0920 m 起到 0.1782 m），原地切换确实会保留状态（`walk` 这一段就是从坐／站段留下的 0.0945 m 蹲姿开始的）。
+七条断言全部通过，而对 demo 最关键的两点在表里就能看出来：重载确实会重置机器人（`getup` 从躺着的
+0.0920 m 起到 0.1782 m），原地切换确实会保留状态（`walk` 这一段就是从坐／站段留下的 **0.1719 m 站姿**开始的）。
 
-**第 4 段要连着"朝向变化"一列一起看。** 因为 sitstand → walk 这次切换按设计**保留状态**，行走策略接手时机器人
-是**蹲着的、倾角 25.7°，而且 0.085 m 的高度指令仍然生效**，所以这一段前半程实际上是在恢复：它先转了 **112°**
-才进入正常行走，因此那 1.730 m 大部分是沿着它自己**转向后的前方**走的，而不是沿 `+x`。这正是这个行走检查点
-已知的"未指令自转"弱点；该断言断言的是**有位移**，不是朝向。第 6 段就是它的对照：在五次切换（其中两次重载
-MJCF）之后，把 demo 切回 `walk`、按 `r` 重新出生，它**完全复现**单策略运行的结果 —— 5.0 s 内
-`dx = +1.482 m`、`dy = −0.328 m`，与上面 `walk` 一节里的数字一模一样。
+**第 4 段要连着"朝向变化"一列一起看。** 因为 sitstand → walk 这次切换按设计**保留状态**，行走策略接手时
+机器人处于坐／站段留下的姿态，这一段前半程实际上是在恢复：它先转了 **9.2°** 才进入正常行走。这正是这个
+行走检查点已知的"未指令自转"弱点；该断言断言的是**有位移**，不是朝向。第 6 段就是它的对照：在五次切换
+（其中两次重载 MJCF）之后，把 demo 切回 `walk`、按 `r` 重新出生，它**完全复现**单策略运行的结果 ——
+5.0 s 内 `dx = +1.470 m`、`dy = −0.416 m`。
+
+**"坐着直接切行走"是一条实测出来的限制，自检现在绕开了它。** 2026-09-16 换成 `sit_stand_v3` 之后，
+**还坐着**就切到 `walk` 会让机器人瘫倒 —— 自检的早一版就是这么做的，实测 6 s 后倾角 **134.9°**、
+只走了 **0.438 m**，因为行走策略是从标称站姿训出来的、从未见过坐姿。所以自检在行走段之前先按 `m`
+站起来（并把"站起来"本身也做成断言：0.1096 m → 0.1719 m，倾角 1.31°）—— 这也是用户实际会做的顺序。
 
 这些数字测于 **MuJoCo 3.12.0、ONNX Runtime 1.28.0、NumPy 2.4.6**，也就是加这项切换自检时我们机器上的版本；
 而前面三节里的运行测于 MuJoCo 3.10、ONNX Runtime 1.30、NumPy 2.5 —— 这正是像 `getup` 末态高度这种接触丰富的
@@ -422,8 +448,11 @@ MJCF）之后，把 demo 切回 `walk`、按 `r` 重新出生，它**完全复�
 - **行走的 ONNX 不是能力清单实测的那个检查点。** 那张表的行走行指的是 `walk_r3`，它是在更早的指令范围下
   训练的。`walk_v4r` 没有内部测量数据，所以本页只引用我们自己 CPU Sim2Sim 的位移，其他什么都不声称。
 - **`getup` 没有回到严格标称姿态**（末态关节偏差 52°）。它能起身、能站住，但没有收敛到全零姿态。
-- **`sitstand` 在要求 0.085 m 时维持 0.094 m**，蹲着时倾斜约 **26°**。同一策略下还有两个由用户在实际玩
-  这个 demo 时报告、随后在这里实测出来的问题，**两条都尚未修复**：
+- **`sitstand` 曾经在要求 0.085 m 时维持 0.094 m、蹲着时倾斜约 26°；两条都已在 2026-09-16 修好。**
+  同一策略下还有两个由用户在实际玩这个 demo 时报告、随后在这里实测出来的问题，替换策略 `sit_stand_v3`
+  把两条都修好了（抖动 **0.699 → 0.000**、漂移 **+27.99 → +0.394 mm/s**、坐姿倾角 **10.05° → 0.225°**、
+  左右残差 **146.09° → 0.473°**）。以下数字是**基线**，是在 `sit_stand_v2` 上测的 —— 它仍在 `policies/` 里
+  公开，好让这些数字可复现：
   - **站立指令下它会原地抖动。** 在 `--target-height 0.175` 下，去掉前 1.0 s 的动作抖动
     （每控制步的 `mean abs(delta a)`）是 **0.235** —— 同一个指标上 `stand` 策略是 **2.9e-7**；倾角标准差
     **0.403°**，关节速度绝对值均值 **1.69 rad/s**，只有 **92.2 %** 的步数双脚同时着地，双脚平均承担
@@ -432,6 +461,8 @@ MJCF）之后，把 demo 切回 `walk`、按 `r` 重新出生，它**完全复�
     头偏离竖直 **25.62°**，基座高度 **0.0943 m** 而指令是 0.085 m；`base_link_body_collision`（骨盆）
     在末 1.0 s 的 **100 %** 步数里压在地面上，承担体重的 **19.4 %**；五对腿关节里有三对的左右值分处
     **零的两侧**（残差 **119°** 到 **174°**），而 `stand` 每一对都在 **0.6°** 以内。
+  - **修好之后新增一条限制**：坐姿不是行走策略起得来的站姿 —— 坐着直接切到 `walk` 会让机器人瘫倒
+    （6 s 后倾角 **134.9°**）。
 
   数字、命令、镜像符号约定，以及把用户期望改写成三条可检验陈述，见[`sitstand` 细看](#sitstand-细看用户报告的两个问题)与
   [实测能力清单](capabilities.zh-CN.md#坐站的两个已知问题实测)。
@@ -449,7 +480,8 @@ Wamoduck/
 ├── policies/
 │   ├── wamoduck-stand-stand_v3.onnx
 │   ├── wamoduck-getup-getup_v18.onnx
-│   ├── wamoduck-sitstand-sit_stand_v2.onnx
+│   ├── wamoduck-sitstand-sit_stand_v3.onnx   # 当前的坐／站策略
+│   ├── wamoduck-sitstand-sit_stand_v2.onnx   # 保留：上面那些坐／站测量就是在它身上做的
 │   ├── wamoduck-walk-walk_v4r.onnx
 │   ├── wamoduck-rough-rough_v2.onnx
 │   └── README.md                    # 哈希与来源

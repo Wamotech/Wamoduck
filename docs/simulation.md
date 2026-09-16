@@ -52,7 +52,7 @@ Controls are typed into the terminal that launched the script, not into the view
 | `←` / `a`, `→` / `d` | `vy` ± 0.1 m/s | `walk`, `rough` |
 | `e` / `z` | `wz` ± 0.1 rad/s | `walk`, `rough` |
 | `space` | zero the twist command | `walk`, `rough` |
-| `m` | sit / stand toggle (0.085 m / 0.175 m) | `sitstand` |
+| `m` | sit / stand toggle (0.11241 m / 0.175 m) | `sitstand` |
 | `r` | reset (re-spawn the current policy) | every policy |
 | `k` | toggle the policy (hold the zero action instead) | every policy |
 | `q` | reset with a random push | every policy |
@@ -97,16 +97,19 @@ python wamoduck_sim.py --policy walk --vx 0.3 --headless --steps 250
 | --- | --- | --- | --- | --- | --- |
 | `stand` | `wamoduck-stand-stand_v3.onnx` | `2026-09-12_08-32-26_stand_v3` (marked SHIP) | `model_1499.pt` | `robot_walk.xml` | Hold the nominal stance; recover from a push |
 | `getup` | `wamoduck-getup-getup_v18.onnx` | `2026-09-15_17-37-06_getup_v18` | `model_3999.pt` | `robot_groundcontact.xml` | Start lying on the ground and get back on its feet |
-| `sitstand` | `wamoduck-sitstand-sit_stand_v2.onnx` | `2026-09-12_11-18-34_sit_stand_v2` (marked SHIP) | `model_2499.pt` | `robot_walk.xml` | Crouch to a commanded body height and stand back up |
+| `sitstand` | `wamoduck-sitstand-sit_stand_v3.onnx` | `2026-09-16_18-05-44_sit_stand_v3` | `model_2499.pt` | `robot_walk.xml` | Crouch to a commanded body height and stand back up |
 | `walk` | `wamoduck-walk-walk_v4r.onnx` | `2026-09-16_12-01-21_walk_v4r` | `model_6749.pt` | `robot_walk.xml` | Walk on flat ground from a twist command |
 | `rough` | `wamoduck-rough-rough_v2.onnx` | `2026-09-16_00-00-04_rough_v2` | `model_5999.pt` | `robot_walk.xml` | Walk over 1 cm curbs from a twist command |
 
 The *Source run* and *Checkpoint* columns were resolved with the development repository's
-`tools/run_select.py` rather than by picking a file by hand. `stand` and `sitstand` are selected by their
-`SHIP` marker; `getup`, `walk`, and `rough` are selected by naming the run explicitly, which is the
+`tools/run_select.py` rather than by picking a file by hand. `stand` is selected by its `SHIP` marker;
+`sitstand`, `getup`, `walk`, and `rough` are selected by naming the run explicitly, which is the
 highest-priority rule in that tool. Every published ONNX was then verified to be the export of exactly the
 checkpoint named in the column by rebuilding the actor from the `.pt` file and comparing it with the ONNX
-initializers (see [What was verified](#what-was-verified-on-what-machine-and-what-was-not)).
+initializers — now as a tool,
+`tools/verify_onnx_provenance.py --onnx <file> --run <run> --expect <checkpoint>`, which reports the exact
+match over every `model_*.pt` in the run and exits non-zero otherwise (see
+[What was verified](#what-was-verified-on-what-machine-and-what-was-not)).
 
 ## Observation and action contract
 
@@ -133,7 +136,10 @@ input shape states the same number, and the runner refuses to pair a policy with
 
 Trained command ranges (`CMD_RANGES` in the training config): `vx` ∈ [-0.4, 0.6], `vy` ∈ [-0.3, 0.3],
 `wz` ∈ [-0.8, 0.8]. The runner clamps to these and says so when it does. The sit/stand height command range
-is [0.085, 0.175] m.
+is **[0.11241, 0.175] m** — it was [0.085, 0.175] m until 2026-09-16, when 0.085 m was measured to be
+**geometrically unreachable** while the trunk stays upright: the torso collision box's lowest corner lies
+**109 mm** below the base origin, so the base cannot go lower than 0.109 m without the torso entering the
+floor. The old policy only appeared to reach 0.094 m by leaning 25.9° to lift that corner clear.
 
 ### Joint order — joint-tree order, and it is not the actuator order
 
@@ -312,12 +318,13 @@ the internal GPU measurements on the [capability board](capabilities.md), which 
 ### Also checked
 
 ```
-python wamoduck_sim.py --policy sitstand --target-height 0.085 --headless --steps 250
+python wamoduck_sim.py --policy sitstand --target-height 0.11241 --headless --steps 250
 python wamoduck_sim.py --policy rough --terrain-level 3 --vx 0.3 --headless --steps 250
 ```
 
-- `sitstand`: commanded 0.085 m, **held 0.0942 m** (9 mm high), both soles down, tilt 25.9°. It crouches and
-  holds the crouch; it does not hit the commanded height exactly. It leans while doing so.
+- `sitstand`: commanded **0.11241 m**, **held 0.1096 m** (2.9 mm low), both soles down, tilt **0.12°**, and
+  the left and right legs agree. This is the replacement policy; the numbers the previous one produced on the
+  old 0.085 m command are kept below as the baseline.
 - `rough`: over 3 consecutive 1 cm curbs at vx = 0.3, it travelled **1.384 m** in 5 s and stayed standing
   (tilt 5.3°). The `--terrain-level N` option adds N curbs spaced 0.3 m apart, starting 0.3 m ahead.
   Since the demo gained policy switching, `rough` gets those 3 curbs **by default** and `walk` stays on the
@@ -326,20 +333,35 @@ python wamoduck_sim.py --policy rough --terrain-level 3 --vx 0.3 --headless --st
 
 #### `sitstand` at length: the two issues a user reported
 
+> **Both were fixed on 2026-09-16** by the replacement policy `sit_stand_v3`, which the runner now loads. The
+> measurements below were taken on `sit_stand_v2` and are kept as the baseline they were judged against; the
+> before/after pairs are jitter **0.699 → 0.000**, drift **+27.99 → +0.394 mm/s**, sitting tilt
+> **10.05° → 0.225°** and left/right residual **146.09° → 0.473°**. Note too that the old **0.085 m** command
+> is **geometrically unreachable** with an upright trunk (the torso box's lowest corner is 109 mm below the
+> base origin), which is why the commanded seat is now **0.11241 m**.
+
 A user playing the published demo reported that `sitstand` **buzzes in place while standing**, and that
 sitting down does not give the pose the report described as "head and torso vertical to the ground, left and
 right legs braced symmetrically". Both were measured afterwards with this same runner — CPU only, MuJoCo
 **3.10.0**, ONNX Runtime **1.30.0**, NumPy **2.5.3**, 500 control steps (**10.0 s**), spawn `nominal`, flat
-floor — by running the two commands beside the `stand` policy:
+floor — by running the two commands beside the `stand` policy. To reproduce them, point the runner at the
+previous policy explicitly, since the default is now the replacement:
 
 ```bash
+# the baseline (sit_stand_v2), i.e. the measurement quoted below:
+python wamoduck_sim.py --policy sitstand --onnx policies/wamoduck-sitstand-sit_stand_v2.onnx \
+                       --target-height 0.175 --headless --steps 500
+python wamoduck_sim.py --policy sitstand --onnx policies/wamoduck-sitstand-sit_stand_v2.onnx \
+                       --target-height 0.085 --headless --steps 500
+python wamoduck_sim.py --policy stand --headless --steps 500
+
+# the current policy (sit_stand_v3), same protocol:
 python wamoduck_sim.py --policy sitstand --target-height 0.175 --headless --steps 500
-python wamoduck_sim.py --policy sitstand --target-height 0.085 --headless --steps 500
-python wamoduck_sim.py --policy stand                      --headless --steps 500
+python wamoduck_sim.py --policy sitstand --target-height 0.11241 --headless --steps 500
 ```
 
-The run reproduces the two figures already on this page — **0.094 m** held against a 0.085 m command, and a
-**~26°** lean — and adds two that were not recorded before. **None of it is fixed.**
+The baseline run reproduces the two figures already on this page — **0.094 m** held against a 0.085 m command,
+and a **~26°** lean — and adds two that were not recorded before.
 
 - **At the standing command (0.175 m) the robot buzzes in place.** It is upright (final tilt **0.44°**, base
   height **0.1762 m**) and it never settles: action jitter, `mean abs(delta a)` per control step, is **0.229**
@@ -392,18 +414,24 @@ walking policies, and `m` in the middle of the sit/stand segment:
 | `5 rough` | in place, curbs moved in front of the robot | 3.28° | 0.1904 m | 1.774 m of 1.800 m commanded | −64.4° |
 | `6 walk` (forward check) | `4` then `r`: fresh nominal spawn, 5.0 s | 6.14° | 0.1770 m → 0.1864 m | dx **+1.482 m**, dy −0.328 m | −19.6° |
 
-All six checks pass, and the two that matter most for the demo are visible above: the model reload really
+All seven checks pass, and the two that matter most for the demo are visible above: the model reload really
 does reset the robot (`getup` starts lying at 0.0920 m and ends at 0.1782 m), and the in-place switches really
-do keep it (`walk` starts its segment from the 0.0945 m crouch the sit/stand segment left behind).
+do keep it (`walk` starts its segment from the **0.1719 m** standing pose the sit/stand segment left behind).
 
 **Read segment 4 with its heading column.** Because the sitstand → walk switch keeps the state by design, the
-walk policy picks the robot up **crouched at 25.7° of tilt with a 0.085 m height command still in effect**,
-and it spends that segment recovering: it turns **112°** before it settles into walking, so most of its
-1.730 m is travelled along its own new heading rather than along `+x`. That is the uncommanded-rotation
-weakness this walking checkpoint is already documented with; the assertion is about travel, not about a
-heading. Segment 6 is the control for it — after all five switches (two of them MJCF reloads) the demo is
-pressed back to `walk`, re-spawned with `r`, and it reproduces the single-policy run **exactly**:
-`dx = +1.482 m, dy = −0.328 m` in 5.0 s, the same numbers as the `walk` section above.
+walk policy picks the robot up in whatever pose the sit/stand segment left, and it spends that segment
+recovering: it turns **9.2°** before it settles into walking. That is the uncommanded-rotation weakness this
+walking checkpoint is already documented with; the assertion is about travel, not about a heading. Segment 6
+is the control for it — after all five switches (two of them MJCF reloads) the demo is pressed back to
+`walk`, re-spawned with `r`, and it reproduces the single-policy run **exactly**:
+`dx = +1.470 m, dy = −0.416 m` in 5.0 s.
+
+**The seated → walking hand-over is a measured limitation, and the self-test now steps around it.** With the
+sit/stand policy replaced by `sit_stand_v3` on 2026-09-16, switching to `walk` **while still seated**
+collapses the robot — an earlier revision of the self-test did exactly that and measured tilt **134.9°** after
+6 s with only **0.438 m** of travel, because the walking policy was trained from a nominal stance and has
+never seen a seated one. The self-test therefore presses `m` to stand back up before the walk segment (and
+asserts that stand-up itself: 0.1096 m → 0.1719 m, tilt 1.31°), which is what a user does anyway.
 
 These numbers were measured on **MuJoCo 3.12.0, ONNX Runtime 1.28.0, NumPy 2.4.6**, the versions on our
 machine when the switching test was added; the runs in the three sections above were measured on
@@ -471,19 +499,24 @@ even with the wrong action order — but across all five spawns that advantage d
   this page quotes only our own CPU Sim2Sim displacement for it and claims nothing else.
 - **`getup` does not reach the strict nominal pose** (52° of joint deviation at the end). It gets up and
   stands; it does not settle into the all-zeros stance.
-- **`sitstand` holds 0.094 m when asked for 0.085 m** and leans **~26°** while crouched. Two more issues in
-  the same policy were reported by a user in this demo and then measured here, and **neither is fixed**:
-  - **It buzzes in place at the standing command.** At `--target-height 0.175`, action jitter
-    (`mean abs(delta a)` per control step) is **0.235** after the first 1.0 s — the `stand` policy gives
-    **2.9e-7** on the same metric — tilt std is **0.403°**, mean absolute joint velocity is **1.69 rad/s**, both
-    soles are down in only **92.2 %** of the steps, and the feet carry **45.46 N** on average against a
-    **36.80 N** weight. It does not decay: the last 1.0 s is as restless as the average.
-  - **The sitting posture is neither upright nor left/right symmetric.** At `--target-height 0.085` it is quiet
-    but wrong: base tilt **25.89°** with the head **25.62°** off vertical, base height **0.0943 m** against the
-    commanded 0.085 m, `base_link_body_collision` (the pelvis) on the floor for **100 %** of the last 1.0 s
-    carrying **19.4 %** of the weight, and on three of the five leg-joint pairs the left and right values sit on
-    **opposite sides of zero** (residuals of **119°** to **174°**), where `stand` keeps every pair inside
-    **0.6°**.
+- **`sitstand` used to hold 0.094 m when asked for 0.085 m and lean ~26° while crouched; both were fixed on
+  2026-09-16.** Two issues were reported by a user in this demo and measured here, and the replacement policy
+  `sit_stand_v3` fixes both (jitter **0.699 → 0.000**, drift **+27.99 → +0.394 mm/s**, sitting tilt
+  **10.05° → 0.225°**, left/right residual **146.09° → 0.473°**). What follows is the **baseline**, measured on
+  `sit_stand_v2`, which is still published so the numbers stay reproducible:
+  - **It buzzed in place at the standing command.** At `--target-height 0.175`, action jitter
+    (`mean abs(delta a)` per control step) was **0.235** after the first 1.0 s — the `stand` policy gives
+    **2.9e-7** on the same metric — tilt std **0.403°**, mean absolute joint velocity **1.69 rad/s**, both
+    soles down in only **92.2 %** of the steps, and the feet carrying **45.46 N** on average against a
+    **36.80 N** weight. It did not decay: the last 1.0 s was as restless as the average.
+  - **The sitting posture was neither upright nor left/right symmetric.** At `--target-height 0.085` it was
+    quiet but wrong: base tilt **25.89°** with the head **25.62°** off vertical, base height **0.0943 m**
+    against the commanded 0.085 m, `base_link_body_collision` (the pelvis) on the floor for **100 %** of the
+    last 1.0 s carrying **19.4 %** of the weight, and on three of the five leg-joint pairs the left and right
+    values sat on **opposite sides of zero** (residuals of **119°** to **174°**), where `stand` keeps every
+    pair inside **0.6°**.
+  - **And one limitation arrived with the fix**: the seated pose is not a stance the walking policy can start
+    from — switching to `walk` while seated collapses it (tilt **134.9°** after 6 s).
 
   Numbers, commands, the mirror-sign convention and the user's expectation written as three testable statements
   are under [`sitstand` at length](#sitstand-at-length-the-two-issues-a-user-reported) and on the
@@ -503,7 +536,8 @@ Wamoduck/
 ├── policies/
 │   ├── wamoduck-stand-stand_v3.onnx
 │   ├── wamoduck-getup-getup_v18.onnx
-│   ├── wamoduck-sitstand-sit_stand_v2.onnx
+│   ├── wamoduck-sitstand-sit_stand_v3.onnx   # current sit/stand policy
+│   ├── wamoduck-sitstand-sit_stand_v2.onnx   # kept: the baseline the two measurements above were taken on
 │   ├── wamoduck-walk-walk_v4r.onnx
 │   ├── wamoduck-rough-rough_v2.onnx
 │   └── README.md                    # hashes and provenance

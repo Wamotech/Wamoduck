@@ -2,17 +2,20 @@
 
 [English simulation guide](../docs/simulation.md) · [中文仿真指南](../docs/simulation.zh-CN.md)
 
-Five trained policies, exported from the training run that produced them. Each is an ONNX actor for one
+Five trained tasks, and six ONNX actors: the sit/stand row carries **two** files, because the 2026-09-16
+replacement is published next to the file whose measured problems it fixes. Each is an ONNX actor for one
 task; run them with [`wamoduck_sim.py`](../wamoduck_sim.py) and the MJCF in
-[`models/wmduck/mjcf/`](../models/wmduck/mjcf/). / 五个训练好的策略，均由产出它们的训练轮次导出。每个都是
-某一任务的 ONNX actor；请配合 [`wamoduck_sim.py`](../wamoduck_sim.py) 与
+[`models/wmduck/mjcf/`](../models/wmduck/mjcf/). / 五个训练任务、**六个** ONNX actor：坐／站那一行有**两份**
+文件 —— 2026-09-16 的替换版本与"被它修掉的那两个实测问题所属的旧版"一起保留。每个都是某一任务的
+ONNX actor；请配合 [`wamoduck_sim.py`](../wamoduck_sim.py) 与
 [`models/wmduck/mjcf/`](../models/wmduck/mjcf/) 里的 MJCF 运行。
 
 | File / 文件 | Bytes | SHA-256 | Source run / 来源轮次 | Checkpoint / 检查点 | Task / 任务 |
 | --- | ---: | --- | --- | --- | --- |
 | [wamoduck-stand-stand_v3.onnx](wamoduck-stand-stand_v3.onnx) | 766915 | `3ec3397ae9c17743ee4214234864da392562f7550ca7459ef1bd09dd2f44262f` | `2026-09-12_08-32-26_stand_v3` (SHIP) | `model_1499.pt` | stand / 站立抗扰 |
 | [wamoduck-getup-getup_v18.onnx](wamoduck-getup-getup_v18.onnx) | 766915 | `804d2cee90881d6eb4756f9306d27bd3e19c8e9aa3f903bec65089787e323bf5` | `2026-09-15_17-37-06_getup_v18` | `model_3999.pt` | get up / 起身 |
-| [wamoduck-sitstand-sit_stand_v2.onnx](wamoduck-sitstand-sit_stand_v2.onnx) | 768992 | `26e40f7a20f333c52816e53cb092b945f677c526d8f1685bf886d321c21a680d` | `2026-09-12_11-18-34_sit_stand_v2` (SHIP) | `model_2499.pt` | sit / stand |
+| [wamoduck-sitstand-sit_stand_v2.onnx](wamoduck-sitstand-sit_stand_v2.onnx) | 768992 | `26e40f7a20f333c52816e53cb092b945f677c526d8f1685bf886d321c21a680d` | `2026-09-12_11-18-34_sit_stand_v2` (SHIP) | `model_2499.pt` | sit / stand — **superseded, kept for the measurements below** |
+| [wamoduck-sitstand-sit_stand_v3.onnx](wamoduck-sitstand-sit_stand_v3.onnx) | 768992 | `c75139732aa2890964f56a5df78b8c8c351d2fea88533ac5b1fb78aba6574163` | `2026-09-16_18-05-44_sit_stand_v3` | `model_2499.pt` | sit / stand — **current**; fixes both problems measured on v2 |
 | [wamoduck-walk-walk_v4r.onnx](wamoduck-walk-walk_v4r.onnx) | 773096 | `8ec4fd347a22d69937550681e58e6d2cd511748b067677bcef345fdae5546ea2` | `2026-09-16_12-01-21_walk_v4r` | `model_6749.pt` | walking / 平地行走 |
 | [wamoduck-rough-rough_v2.onnx](wamoduck-rough-rough_v2.onnx) | 773096 | `811d79ea78a0ba3d349f5b7709fe6ffaf382c3929d61b13f47b43a0fac4a425b` | `2026-09-16_00-00-04_rough_v2` | `model_5999.pt` | 1 cm terrain / 1 cm 越障 |
 
@@ -38,6 +41,23 @@ export the element-wise difference is exactly zero, which is what all five rows 
 > ONNX，所以拷走的是中途某一次保存，训练结束时（28 分钟后写入的 `model_6749.pt`）从未进过本仓库。现在已换成
 > 该轮次的最终检查点；两版都是同一轮次的合法导出，只是现在这个文件与上表写明的检查点一致。把教训写在这里，
 > 因为它是可复现的坑：**不要在训练还在进行时发布**，并且要核验来源，不要相信文件名。
+
+> **A note on the sit/stand row / 关于坐／站那一行**：`sit_stand_v3` replaces `sit_stand_v2` and fixes both
+> problems that the capability board measured on it. Standing jitter `mean|Δa|` **0.699 → 0.000** and net
+> drift **+27.99 → +0.394 mm/s**; the sitting pose goes from a **10.05°** lean at 0.112 m (and **25.91°** at
+> the old 0.085 m command) with left/right residuals of **146.09°** / **173.56°**, to a **0.225°** lean with
+> a **0.473°** residual between the two legs. The seat is now **0.11241 m**, not 0.085 m: 0.085 m is
+> **geometrically unreachable** while the trunk is upright, because the torso collision box's lowest corner
+> sits **109 mm** below the base origin — the old policy only "reached" 0.094 m by leaning 25.9° to lift that
+> corner clear of the floor. One measured limitation comes with the new pose: **switching to `walk` while
+> seated collapses the robot** (tilt 134.9° after 6 s), because the walking policy has never seen a seated
+> stance — press `m` first, which is what the bundled runner's self-test now does. / **`sit_stand_v3` 取代
+> `sit_stand_v2`，修掉能力清单在旧版上实测到的两个问题**：站立抖动 `mean\|Δa\|` **0.699 → 0.000**、净漂移
+> **+27.99 → +0.394 mm/s**；坐姿从"指令 0.112 m 时倾 **10.05°**（旧指令 0.085 m 时 **25.91°**）、左右腿残差
+> **146.09°／173.56°**"变成"倾 **0.225°**、左右残差 **0.473°**"。坐高改为 **0.11241 m** 而不是 0.085 m：
+> 躯干直立时 0.085 m **几何不可达** —— 躯干碰撞盒最低角点在基座原点下方 **109 mm**，旧策略能凑到 0.094 m
+> 是靠歪 25.9° 把那个角抬离地面。新坐姿带来一条实测限制：**坐着直接切到 `walk` 会让机器人瘫倒**
+> （6 s 后倾角 **134.9°**），因为行走策略从未见过坐姿 —— 先按 `m` 站起来，随仓库的运行器自检现在就是这么做的。
 
 ## Contract / 契约
 

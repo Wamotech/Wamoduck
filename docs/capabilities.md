@@ -9,7 +9,7 @@ This page is one honest board of what the trained policies actually do. Every fi
 - **What works:** standing still while something shoves it, getting up after a knock-down, walking forwards, and walking over 1 cm curbs.
 - **What does not work:** turning in place, and side-stepping — which also drags the robot round. And `getup` stands the robot up without returning it to the saved nominal pose. In-place turning is **not** a policy that was trained badly: it has since been measured to be **out of reach for this mechanism** — see [Why in-place turning cannot be trained away](#why-in-place-turning-cannot-be-trained-away).
 - **What none of this is:** hardware. Every figure on this page came out of a simulator.
-- Sit/stand gives interactive height control, but has no acceptance numbers in this batch — and **two known issues**, measured on CPU: it **buzzes in place while standing**, and its **sitting posture is neither upright nor left/right symmetric**. See [section 6](#6-sit--stand).
+- Sit/stand gives interactive height control. It **had** two reported issues, both measured on CPU with the previous policy — it **buzzed in place while standing**, and its **sitting posture was neither upright nor left/right symmetric** — and both were **fixed on 2026-09-16** by `sit_stand_v3`, which is now the published sit/stand policy. See [section 6](#6-sit--stand).
 
 **Scope: simulation only.** The policies run in a MuJoCo / mjlab environment on one laptop GPU, normally **64 parallel environments** per measurement (32 for the walking table), with the round named in each row. There are no hardware measurements on this page. The training code, the scene generator, the checkpoints, and the measurement tools live in the private development repository and are **not** published here — so this page reports measurements rather than offering a reproduction recipe. Re-measure before quoting it.
 
@@ -24,7 +24,7 @@ This page is one honest board of what the trained policies actually do. Every fi
 | 3 | Get-up from a random lying pose | `getup_v18` (`model_3999.pt`) | Standing at the end **64/64**; strict nominal criterion still **0/64** |
 | 4 | Flat-ground walking | `walk_r3` (`model_5999.pt`, shipped) | Forward tracking 106 % / 103 %; **side-stepping is broken**, and **in-place turning is out of reach for this mechanism** (not a training gap — see [§4](#why-in-place-turning-cannot-be-trained-away)) |
 | 5 | 1 cm rough terrain | `rough_v2` (`model_5999.pt`) | Survival **51/64 (79.7 %)**; mean speed **61 %** of the command |
-| 6 | Sit / stand | `sit_stand_v2` (`model_2499.pt`, shipped) | Interactive height control; no acceptance numbers in this batch. **Two known issues**, measured on CPU: the standing posture buzzes in place (action jitter **0.235** per step against **2.9e-7** for `stand`), and the sitting posture is neither upright (**25.89°** of tilt) nor left/right symmetric (residuals of **119°** to **174°** on three of the five leg pairs) |
+| 6 | Sit / stand | `sit_stand_v3` (`model_2499.pt`, shipped) | Interactive height control. The two issues measured on the previous policy are **fixed**: standing jitter **0.699 → 0.000** and drift **+27.99 → +0.394 mm/s**; the sitting pose goes from **10.05°** of lean with **146.09°** of left/right asymmetry to **0.225°** and **0.473°**. The seat is **0.11241 m** (0.085 m is geometrically unreachable) |
 
 A policy marked *shipped* is the checkpoint the interactive demos load by default in the development repository. As of this release, five of the six rows also have a published ONNX file you can run yourself: `stand_v3`, `getup_v18`, `sit_stand_v2`, and `rough_v2` are the exact checkpoints on this page, while the published walking policy is `walk_v4r` rather than the `walk_r3` this page measured — see [row 4](#4-flat-ground-walking) and the [simulation guide](simulation.md).
 
@@ -139,13 +139,22 @@ The 61 % is a real loss of speed, and it is measured against the commanded speed
 
 | Field | Value |
 | --- | --- |
-| Policy | `sit_stand_v2`, `model_2499.pt` (shipped) |
+| Policy | `sit_stand_v3`, `model_2499.pt` (shipped). The previous policy, `sit_stand_v2`, is still in [`policies/`](../policies/README.md) because the two problems below were measured on it |
 | Control | One key toggles between sitting and standing; two more keys raise and lower the target height |
-| Measured | Interactive only. No acceptance numbers were recorded for this round in the same batch, so none are claimed here |
-| Tools | `play_sit_stand.py`, `diagnose_stand_play.py` |
-| **Known issue** | A user playing the published demo reported that `sitstand` **buzzes in place while standing**, and that sitting down does not produce the pose the report described as "head and torso vertical to the ground, left and right legs braced symmetrically". Both were then measured on CPU with this repository's own runner. **Neither is fixed.** The numbers are in [The two known sit/stand issues](#the-two-known-sitstand-issues-as-measured) below. |
+| Setup | The delivery criterion is **seven axes** with thresholds fixed before the measurement: jitter `mean\|Δa\|` ≤ 0.05 rad, net drift ≤ 1.0 mm/s, path length rate ≤ 5.0 mm/s, height std ≤ 2.0 mm, tilt std ≤ 1.0°, final tilt ≤ 8.0° standing, and (sitting) final tilt ≤ 8.0°, height error ≤ 10 mm, left/right mirror residual ≤ 5.0°, both feet down with the CoM inside the support polygon for ≥ 90 % of the last second, and the commanded height must be geometrically reachable. Every run carries a 0 N control group and a static reference group whose jitter must read exactly 0 |
+| Measured, standing (0.175 m) | Final height **0.1725 m** (error 2.5 mm), tilt **1.10°**, jitter **0.000**, net drift **+0.394 mm/s**, path **0.394 mm/s**, height std **0.021 mm**, tilt std **0.042°** — **J1–J5 pass** |
+| Measured, sitting (0.11241 m) | Final height **0.1095 m** (error 2.9 mm), tilt **0.225°**, left/right residual **0.473°** (largest pair: the knees at 0.47°), both feet down with the CoM inside the support polygon **100 %** of the last second — **S1–S5 pass** |
+| Measured, the old 0.085 m command | The policy fails all five sitting axes, and that is the point: **0.085 m is geometrically unreachable** while the trunk is upright — the torso collision box's lowest corner is **109 mm** below the base origin, so the base cannot go below 0.109 m without the torso entering the floor. The axis that reports this is separate from the four that judge the policy, so "the command is impossible" and "the policy cannot do it" are not confused |
+| Tools | `check_sit_stand.py --policy sit_stand_v3 --heights 0.175,0.11241,0.085 --render` (CPU only, no GPU) |
+| **Fixed on 2026-09-16** | A user playing the published demo reported that `sitstand` **buzzed in place while standing**, and that sitting down did not produce the pose the report described as "head and torso vertical to the ground, left and right legs braced symmetrically". Both were measured; both are now **fixed**. The measurements that found them are kept below as the baseline, and the before/after pairs are jitter **0.699 → 0.000**, drift **+27.99 → +0.394 mm/s**, sitting tilt **10.05° → 0.225°**, left/right residual **146.09° → 0.473°** |
+| **One new limitation** | The **seated pose is not a stance the walking policy can start from**: switching to `walk` while seated collapses the robot — tilt **134.9°** after 6 s with **0.438 m** of travel. Stand up with `m` first. The bundled runner's `--cycle-test` now performs that sequence, and asserts the stand-up itself (0.1096 → 0.1719 m, tilt 1.31°) |
 
 ### The two known sit/stand issues, as measured
+
+> **Status update (2026-09-16): both are fixed by `sit_stand_v3`** — see the before/after pairs in the table
+> above. Everything on this page below this point describes the **previous** policy, `sit_stand_v2`, which is
+> still published so these measurements stay reproducible. It is the baseline the replacement was judged
+> against, not the current behaviour.
 
 The report is quoted as the user gave it; every number below is our own measurement, taken after that
 report, with the published single-file runner. **CPU only** — MuJoCo **3.10.0**, ONNX Runtime **1.30.0**,
@@ -310,8 +319,11 @@ this repository already uses, and the tolerance for the third statement is not d
    fails a pose whose head chain presses the ground with more than **2 N** — but neither of those thresholds
    is stated for the pelvis, so none is applied here.
 
-**Status: known, and not fixed.** Both issues are recorded here as measured, with no fix in this release.
-The training-side work they imply has not been done.
+**Status: both fixed on 2026-09-16.** The two issues above were measured on `sit_stand_v2` and are recorded
+here as the baseline; the replacement policy `sit_stand_v3` passes all eleven axes that apply to it, with the
+before/after pairs in the section table. The one thing that did **not** change is the geometry: a 0.085 m seat
+is still unreachable with an upright trunk, so the command range moved to **0.11241–0.175 m** rather than the
+policy learning to do something the mechanism cannot.
 
 ## How standing is judged
 

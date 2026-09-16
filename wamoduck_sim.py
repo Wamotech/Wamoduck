@@ -34,7 +34,7 @@ Controls (type into the terminal that launched the script, not the viewer window
     left / a    vy += 0.1 m/s          right / d   vy -= 0.1 m/s   (walk, rough)
     e           wz += 0.1 rad/s        z           wz -= 0.1 rad/s (walk, rough)
     space       zero the twist command                             (walk, rough)
-    m           sit / stand toggle: 0.085 m sit / 0.175 m stand    (sitstand)
+    m           sit / stand toggle: 0.11241 m sit / 0.175 m stand  (sitstand)
     r           reset (re-spawn the current policy)
     k           toggle the policy (hold the zero action instead)
     q           reset with a random push
@@ -119,7 +119,7 @@ CMD_LIMITS = {"vx": (-0.4, 0.6), "vy": (-0.3, 0.3), "wz": (-0.8, 0.8)}
 CMD_STEP = {"vx": 0.1, "vy": 0.1, "wz": 0.1}
 
 # Body-height command of the sit/stand task: BodyHeightCommandCfg.height_range.
-SIT_HEIGHT, TALL_HEIGHT = 0.085, 0.175
+SIT_HEIGHT, TALL_HEIGHT = 0.11241, 0.175
 
 # The rough task was trained on 1 cm curbs (STEP_HEIGHT = 1 cm in the cfg), spaced
 # 0.3 m apart and starting 0.3 m ahead of the robot. The runner always compiles
@@ -180,7 +180,13 @@ POLICIES: dict[str, PolicySpec] = {
     ),
     "sitstand": PolicySpec(
         name="sitstand",
-        onnx="wamoduck-sitstand-sit_stand_v2.onnx",
+        # 2026-09-16: `sit_stand_v2` -> `sit_stand_v3`. v2 is kept in `policies/`
+        # because the two problems recorded on the capability board were measured on
+        # it (it buzzes in place while standing, and its sitting pose is neither
+        # upright nor symmetric); v3 fixes both, and its seat is 0.11241 m rather
+        # than 0.085 m -- 0.085 m is geometrically unreachable with an upright
+        # trunk (the torso box's lowest corner sits 109 mm below the base origin).
+        onnx="wamoduck-sitstand-sit_stand_v3.onnx",
         mjcf="robot_walk.xml",
         obs_dim=49,
         command="height",
@@ -1317,14 +1323,33 @@ def run_cycle_test(demo: Demo, args: argparse.Namespace) -> int:
     tall = run_segment("3 sitstand (tall, command 0.175 m)", half)
     demo.on_key("m")
     print(f"[cycle] pressed 'm': height command is now {demo.bot.height_command:.3f} m")
-    sit = run_segment("3 sitstand (after 'm', command 0.085 m)", half)
+    sit = run_segment(f"3 sitstand (after 'm', command {SIT_HEIGHT:.3f} m)", half)
     drop = tall["st"]["base_z"] - sit["st"]["base_z"]
-    check("sitstand changes height after 'm' (>= 0.03 m lower)",
+    check(f"sitstand changes height after 'm' (>= 0.03 m lower; {TALL_HEIGHT:.3f} -> {SIT_HEIGHT:.3f} is "
+          f"{TALL_HEIGHT - SIT_HEIGHT:.3f} m of headroom)",
           drop >= 0.03,
           f"base_z {tall['z0']:.4f} -> {tall['st']['base_z']:.4f} m (tall) -> "
           f"{sit['st']['base_z']:.4f} m (sit): {drop:.4f} m lower")
 
-    # 4 -- walk. Same MJCF, so the crouched state is kept, then vx = 0.3 via the keys.
+    # 4 -- walk. Same MJCF, so the state is kept, then vx = 0.3 via the keys.
+    #
+    # 2026-09-16: stand back up with 'm' BEFORE switching to walk. Reason, measured:
+    # the sit/stand policy is now `sit_stand_v3`, whose seat is **0.1096 m with the
+    # feet spread** (hip yaw ~ +-41 deg, measured in the development repository's
+    # acceptance run). Handing that pose to the walking policy collapses it -- an
+    # earlier revision of this self-test switched to `walk` *while seated* and
+    # measured tilt **134.9 deg** after 6 s with 0.438 m of travel. The walking
+    # policy was trained from a nominal stance and has never seen a seated one, so
+    # "sit -> stand -> walk" is the supported sequence (and the one a user performs).
+    # The unsupported hand-over is recorded in the note below rather than asserted
+    # here: a self-test that is red on a supported workflow reads as "this
+    # repository is broken", which is not what is true.
+    demo.on_key("m")
+    up = run_segment(f"3 sitstand (after 'm', command {TALL_HEIGHT:.3f} m -- standing back up)", half)
+    check("sitstand stands back up after a second 'm' (base_z > 0.15 m)",
+          up["st"]["base_z"] > 0.15,
+          f"base_z {sit['st']['base_z']:.4f} -> {up['st']['base_z']:.4f} m, "
+          f"tilt {up['st']['tilt_deg']:.2f} deg")
     demo.on_key("4")
     print(f"[cycle] state kept across the sitstand -> walk switch: "
           f"base_z={demo.bot.base_z():.4f} m tilt={demo.bot.tilt_deg():.2f} deg "

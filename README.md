@@ -57,7 +57,7 @@ files you can run on your own machine.
 | Gets up from a random lying pose | `getup_v18` | Standing at the end: **64/64** (loose criterion). |
 | Walks on flat ground | `walk_v4r` | Forward walking works. **Side-stepping does not**, and **in-place turning is out of reach for this mechanism** — a measured limit, not an unfinished training round. |
 | Walks over 1 cm rough terrain | `rough_v2` | **51/64 (79.7 %)** survive 12 s at a 0.3 m/s command. Mean speed is **61 %** of the command. |
-| Sits down and stands back up | `sit_stand_v2` | Interactive height control. No acceptance numbers in this batch. **Two known issues:** it buzzes in place while standing, and the pose it holds when sitting is neither upright nor left/right symmetric. |
+| Sits down and stands back up | `sit_stand_v3` | Interactive height control, and the two issues reported on the previous policy are **fixed**: standing jitter **0.699 → 0.000** and net drift **+27.99 → +0.394 mm/s**; the sitting pose goes from a **10.05°** lean with **146.09°** of left/right asymmetry to **0.225°** with a **0.473°** asymmetry. The seat is **0.11241 m** — 0.085 m is geometrically unreachable with an upright trunk. |
 
 ### What still does not work
 
@@ -68,14 +68,19 @@ files you can run on your own machine.
 - **Get-up does not reach the saved nominal pose.** It gets up and stands reliably — 64/64 — but the
   strict criterion "back to the saved nominal pose" is still **0/64**. The remaining error is concentrated
   in the second link of the head chain.
-- **Sit/stand has two reported issues, both measured and neither fixed.** Switch to `sitstand` and the robot
-  **buzzes in place while standing**: action jitter `mean abs(delta a)` per control step is **0.235** at the
-  0.175 m command, against **2.9e-7** for `stand`, with **1.69 rad/s** of mean joint velocity that never
-  decays. Ask it to **sit** (0.085 m) and the pose it holds is a **25.89°** lean — the head is **25.62°** off
-  vertical — at **0.0943 m** instead of 0.085 m, resting partly on its own pelvis, with the left and right
-  legs on opposite sides of zero on three of the five leg pairs (residuals of **119°** to **174°**). Run the
-  two commands in [the simulation guide](docs/simulation.md#sitstand-at-length-the-two-issues-a-user-reported)
-  and you get exactly these numbers.
+- **Sit/stand was fixed on 2026-09-16, and the two problems remain on record with the measurements that
+  found them.** On the **previous** policy (`sit_stand_v2`, still published): switching to `sitstand` made
+  the robot **buzz in place while standing** — action jitter `mean abs(delta a)` per control step **0.235**
+  at the 0.175 m command, against **2.9e-7** for `stand`, with **1.69 rad/s** of mean joint velocity that
+  never decayed — and asking it to **sit** produced a **25.89°** lean (head **25.62°** off vertical) at
+  **0.0943 m** instead of the 0.085 m commanded, resting partly on its own pelvis, with the left and right
+  legs on opposite sides of zero on three of the five leg pairs (residuals **119°** to **174°**). The
+  replacement policy `sit_stand_v3` measures **0.000** jitter, **+0.394 mm/s** of drift, and a sitting pose
+  that is **0.225°** off vertical with a **0.473°** left/right residual — see [row 6 of the capability
+  board](docs/capabilities.md#6-sit--stand). One limitation arrives with it: **the seated pose is not a
+  stance the walking policy can start from** (tilt 134.9° after 6 s), so stand up with `m` before walking.
+  Note also that the seat moved from 0.085 m to **0.11241 m**, because 0.085 m is geometrically unreachable
+  with an upright trunk.
 - **There is no hardware data at all.** Nothing in this repository was measured on a physical robot.
 
 These are the parts we would rather state than let you discover. The full protocols, the tools behind
