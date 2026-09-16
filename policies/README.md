@@ -70,7 +70,9 @@ export the element-wise difference is exactly zero, which is what all five rows 
 > policy escaped through the gate by staying tilted — see the [changelog](../CHANGELOG.md). The stricter
 > six-axis criterion (which also requires the head to stay off the ground and the soles to be flat, sustained
 > over the last second) is **45/64**, up from **0/64**, with per-axis rates of 56/64, 52/64, 58/64, 61/64,
-> 61/64 and 46/64. v18 is kept so the measurements above stay reproducible. / **`getup_v20` 取代 `getup_v18`，
+> 61/64 and 46/64 — where the "both feet" axis is itself read through a contact path this project has flagged
+> as unreliable (60/64 there against 64/64 from the contact sensors), so it under-counts. v18 is kept so the
+> measurements above stay reproducible. / **`getup_v20` 取代 `getup_v18`，
 > 补上了能力清单在旧版上实测到的那条差距**：随机躺姿起身 —— 末态站住 **64/64**、首次站起时间中位
 > **0.48 s**、末态倾角 **2.5°**；严格口径"回到保存的标称姿态" **0/64 → 63/64（98.4 %）**，最大关节偏差
 > **52.3° → 10.4°**；端到端接力（推倒→起身→站回标称）**5/5**，其中"起身后没有再次摔倒"**5/5**（v18 在这一行
