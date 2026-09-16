@@ -111,6 +111,21 @@
       "pose": "Saved CAD pose, q=0; diagram indices are not motor IDs"
     },
     {
+      "path": "wamoduck-motor-ids.png",
+      "sha256": "e3ad18d50a7a30693b24457210c47a2fb0075da20e8565e621a33604335408e7",
+      "bytes": 697359,
+      "type": "hardware_motor_id_position_diagram",
+      "source": "Motor_ID_location.pptx, the maintainer's position deck, slide 1 of 1",
+      "transformation": "None. The slide was exported to PNG unmodified. The 1-15 callouts and the Left/Right labels are separate text shapes drawn over the deck's two embedded CAD renders, so an export of the slide is the only faithful form of the annotation; the two embedded renders carry no IDs by themselves.",
+      "renderer": {
+        "application": "Microsoft PowerPoint",
+        "method": "Slide.Export(..., \"PNG\", 2400, 1350)"
+      },
+      "width": 2400,
+      "height": 1350,
+      "scope_note": "Hardware interface information: where each motor sits and which bus ID it carries. Not a photograph of the robot, not a wiring or bus-functionality check, and not evidence that any of these motors has been wired or driven. The bus topology beside it is in ../hardware/motor_ids.md and ../hardware/motor_ids.zh-CN.md"
+    },
+    {
       "path": "wamoduck-gait-preview.gif",
       "sha256": "eb80a03a16bbee1725d371ae70b9321e69c139a2c293534a56dc399813734cc6",
       "bytes": 2799763,

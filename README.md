@@ -190,6 +190,12 @@ absence of an ankle roll; see the [gait guide](docs/matlab.en.md) for its scope 
 Download or clone the complete repository before opening an assembly or URDF: those files need the parts
 or meshes supplied alongside them.
 
+### Wire it up
+
+- The [CAN-FD bus IDs](hardware/motor_ids.md) of all 15 motors, with the position drawing, the three buses
+  behind them, and the permutation from the policy's action vector to those IDs. The page also says plainly
+  that the permutation and the bus topology have **not** been verified on the physical robot.
+
 ## Where to go next
 
 | I want to… | Open |
@@ -200,6 +206,7 @@ or meshes supplied alongside them.
 | Inspect or adapt individual mechanical parts | [20 STEP models](hardware/step/) · [Mechanical guide](docs/mechanical.en.md) |
 | Print the standing calibration fixture | [Four parts + H2D PLA project](hardware/fixtures/standing-zero/README.md) · [Quantities](hardware/fixtures/standing-zero/print-parts.csv) |
 | Print a small static display model | [160 mm A1 mini figurine](hardware/printable/wamoduck-a1mini-standing/README.md) |
+| Look up a CAN-FD bus ID, or wire the three buses | [Bus IDs and the position drawing](hardware/motor_ids.md) |
 | Explore the native assembly | [SolidWorks files](hardware/solidworks/) · [Opening instructions](docs/mechanical.en.md#solidworks-assembly) |
 | View the robot and inspect its joints | [URDF and meshes](models/wmduck/) · [Model guide](docs/model.en.md) |
 | Watch the reference gait / play with it in MATLAB | [Gait guide](docs/matlab.en.md) · [MATLAB player](tools/matlab/) · [Walk video](assets/wamoduck-gait-walk.mp4) |
@@ -282,6 +289,7 @@ Wamoduck/
 │   ├── step/             # Robot structure and purchased-component references, mm
 │   ├── solidworks/       # Simplified native parts and assemblies
 │   ├── robot-structure.csv # Geometry roles and modeled instance quantities
+│   ├── motor_ids.md      # CAN-FD bus IDs, the three buses, and the action permutation
 │   ├── fixtures/standing-zero/ # 4 STEP + 4 printable STL + H2D project
 │   └── printable/        # Static display model and A1 mini project
 ├── models/wmduck/        # URDF, meshes, joint data, and import checks
@@ -290,7 +298,7 @@ Wamoduck/
 ├── wamoduck_sim.py       # Single-file CPU runner: one demo, all five policies (mujoco + onnxruntime + numpy)
 ├── ros2/                 # ROS 2 Jazzy chain: description, nodes, RViz, the 46-byte protocol
 ├── tools/matlab/         # Reference-gait data and the MATLAB player
-├── assets/              # Model preview and gait preview
+├── assets/              # Model preview, gait preview, and the motor-ID drawing
 ├── docs/                # Bilingual guides: mechanical, model, gait, simulation, capabilities, roadmap
 ├── CONTRIBUTING.md
 └── LICENSE

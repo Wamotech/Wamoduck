@@ -1,0 +1,16 @@
+bus,bus_id,joint,joint_zh,side,driven_by_policy,urdf_joint_index,action_index,actuator,note
+left_leg,1,left_hip_yaw,左髋偏航,left,true,0,0,act_left_hip_yaw,
+left_leg,3,left_hip_roll,左髋侧摆,left,true,2,1,act_left_hip_roll,
+left_leg,5,left_hip_pitch,左髋俯仰,left,true,4,2,act_left_hip_pitch,
+left_leg,7,left_knee,左膝关节,left,true,6,3,act_left_knee,
+left_leg,9,left_ankle,左踝关节,left,true,8,4,act_left_ankle,
+right_leg,2,right_hip_yaw,右髋偏航,right,true,1,5,act_right_hip_yaw,Source table spells this joint Rightt_hip_yaw; the URDF and this file use right_hip_yaw
+right_leg,4,right_hip_roll,右髋侧摆,right,true,3,6,act_right_hip_roll,
+right_leg,6,right_hip_pitch,右髋俯仰,right,true,5,7,act_right_hip_pitch,
+right_leg,8,right_knee,右膝关节,right,true,7,8,act_right_knee,
+right_leg,10,right_ankle,右踝关节,right,true,9,9,act_right_ankle,
+neck_head,11,neck_pitch,颈俯仰,center,true,10,10,act_neck_pitch,
+neck_head,12,head_pitch,头俯仰,center,true,11,11,act_head_pitch,
+neck_head,13,head_yaw,头偏航,center,true,12,12,act_head_yaw,
+neck_head,14,head_roll,头侧倾,center,true,13,13,act_head_roll,
+neck_head,15,mouth,嘴开合,center,false,14,,,"Not in the policy action vector: the published policies drive 14 joints and have no mouth axis. The ID is reserved for interaction features; see docs/roadmap.md"

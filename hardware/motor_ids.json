@@ -1,0 +1,337 @@
+{
+  "schema_version": 1,
+  "title": "Wamoduck motor bus IDs",
+  "scope": "Hardware and interface information only. Nothing here is a statement about whether any policy stands or walks, in simulation or on the physical robot.",
+  "bus_topology": {
+    "protocol": "CAN-FD",
+    "controller": "AT32 main control board",
+    "physical_buses": 3,
+    "connector": "XT30(2+2)",
+    "connector_carries": "power and CAN-FD on the same XT30(2+2) connector",
+    "segments": [
+      {
+        "bus": "left_leg",
+        "bus_ids": [
+          1,
+          3,
+          5,
+          7,
+          9
+        ],
+        "motors": 5,
+        "joints": [
+          "left_hip_yaw",
+          "left_hip_roll",
+          "left_hip_pitch",
+          "left_knee",
+          "left_ankle"
+        ]
+      },
+      {
+        "bus": "right_leg",
+        "bus_ids": [
+          2,
+          4,
+          6,
+          8,
+          10
+        ],
+        "motors": 5,
+        "joints": [
+          "right_hip_yaw",
+          "right_hip_roll",
+          "right_hip_pitch",
+          "right_knee",
+          "right_ankle"
+        ]
+      },
+      {
+        "bus": "neck_head",
+        "bus_ids": [
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        "motors": 5,
+        "joints": [
+          "neck_pitch",
+          "head_pitch",
+          "head_yaw",
+          "head_roll",
+          "mouth"
+        ]
+      }
+    ],
+    "motor_count": 15,
+    "id_scope": "One shared ID space. The three buses do not each number their motors 1-5: every bus uses its own five IDs out of the global range 1-15, so the IDs on a single bus are not consecutive. The left-leg bus carries 1, 3, 5, 7, 9; the right-leg bus carries 2, 4, 6, 8, 10; the neck-and-head bus carries 11, 12, 13, 14, 15.",
+    "id_assignment_source": "Stated by the maintainer on 2026-09-16. It agrees with the maintainer's source table List_MotorID_CANFD.xlsx, sheet Sheet1, whose 15 rows split 5 / 5 / 5 across the three buses.",
+    "unverified_on_hardware": [
+      "bus direction and polarity",
+      "termination resistors",
+      "ID assignment as actually programmed into the servos"
+    ]
+  },
+  "policy_action_vector": {
+    "dimension": 14,
+    "order": "joint-tree order: left leg 5, right leg 5, neck/head 4",
+    "joint_tree_order": [
+      "left_hip_yaw",
+      "left_hip_roll",
+      "left_hip_pitch",
+      "left_knee",
+      "left_ankle",
+      "right_hip_yaw",
+      "right_hip_roll",
+      "right_hip_pitch",
+      "right_knee",
+      "right_ankle",
+      "neck_pitch",
+      "head_pitch",
+      "head_yaw",
+      "head_roll"
+    ],
+    "bus_id_by_action_index": [
+      1,
+      3,
+      5,
+      7,
+      9,
+      2,
+      4,
+      6,
+      8,
+      10,
+      11,
+      12,
+      13,
+      14
+    ],
+    "bus_id_by_action_index_note": "action[0] = left hip yaw -> bus ID 1, action[1] = left hip roll -> bus ID 3, action[2] = left hip pitch -> bus ID 5, action[3] = left knee -> bus ID 7, action[4] = left ankle -> bus ID 9, action[5] = right hip yaw -> bus ID 2, and so on; action[10] to action[13] = neck pitch, head pitch, head yaw, head roll -> bus IDs 11, 12, 13, 14.",
+    "unverified": true,
+    "unverified_reason": "The permutation above has not been checked on a physical robot. An internal deployment-contract file interprets the action vector in actuator order instead, and this repository's ROS 2 module ros2/wamoduck_ros2/wamoduck_ros2/model_contract.py does the same. The disagreement is unresolved. Do not energise the servos on the strength of this file."
+  },
+  "sources": {
+    "bus_ids_and_names": {
+      "file": "List_MotorID_CANFD.xlsx",
+      "sheet": "Sheet1",
+      "rows": 15,
+      "redistributed": false,
+      "note": "Maintainer-supplied workbook. The workbook and the position deck are not redistributed in this repository; only the derived table and an exported PNG are."
+    },
+    "bus_topology": {
+      "stated_by": "the maintainer",
+      "stated_on": "2026-09-16",
+      "note": "Three CAN-FD segments out of the AT32 main control board, on XT30(2+2) connectors carrying power and CAN-FD; one for the left leg, one for the right leg, one for the neck and head."
+    },
+    "joint_names": {
+      "file": "models/wmduck/wmduck.urdf",
+      "movable_joints": 15,
+      "note": "Every joint name in this file was checked against the URDF one by one."
+    },
+    "actuator_names": {
+      "file": "models/wmduck/mjcf/robot_walk.xml",
+      "actuators": 14,
+      "note": "The same 14 actuator names appear in models/wmduck/mjcf/robot_groundcontact.xml."
+    },
+    "position_drawing": {
+      "file": "Motor_ID_location.pptx",
+      "slides": 1,
+      "redistributed": false,
+      "exported_png": "assets/wamoduck-motor-ids.png",
+      "note": "The slide was exported to PNG with Microsoft PowerPoint; the two CAD renders embedded in the deck do not carry the ID callouts, so the export is the only faithful form of the annotation."
+    }
+  },
+  "corrections": [
+    {
+      "bus_id": 2,
+      "source_spelling": "Rightt_hip_yaw",
+      "used_in_this_file": "right_hip_yaw",
+      "reason": "The source table has a typographical error. The URDF and the MJCF both spell the joint right_hip_yaw."
+    }
+  ],
+  "motors": [
+    {
+      "bus": "left_leg",
+      "bus_id": 1,
+      "joint": "left_hip_yaw",
+      "joint_zh": "左髋偏航",
+      "side": "left",
+      "driven_by_policy": true,
+      "urdf_joint_index": 0,
+      "action_index": 0,
+      "actuator": "act_left_hip_yaw",
+      "note": ""
+    },
+    {
+      "bus": "left_leg",
+      "bus_id": 3,
+      "joint": "left_hip_roll",
+      "joint_zh": "左髋侧摆",
+      "side": "left",
+      "driven_by_policy": true,
+      "urdf_joint_index": 2,
+      "action_index": 1,
+      "actuator": "act_left_hip_roll",
+      "note": ""
+    },
+    {
+      "bus": "left_leg",
+      "bus_id": 5,
+      "joint": "left_hip_pitch",
+      "joint_zh": "左髋俯仰",
+      "side": "left",
+      "driven_by_policy": true,
+      "urdf_joint_index": 4,
+      "action_index": 2,
+      "actuator": "act_left_hip_pitch",
+      "note": ""
+    },
+    {
+      "bus": "left_leg",
+      "bus_id": 7,
+      "joint": "left_knee",
+      "joint_zh": "左膝关节",
+      "side": "left",
+      "driven_by_policy": true,
+      "urdf_joint_index": 6,
+      "action_index": 3,
+      "actuator": "act_left_knee",
+      "note": ""
+    },
+    {
+      "bus": "left_leg",
+      "bus_id": 9,
+      "joint": "left_ankle",
+      "joint_zh": "左踝关节",
+      "side": "left",
+      "driven_by_policy": true,
+      "urdf_joint_index": 8,
+      "action_index": 4,
+      "actuator": "act_left_ankle",
+      "note": ""
+    },
+    {
+      "bus": "right_leg",
+      "bus_id": 2,
+      "joint": "right_hip_yaw",
+      "joint_zh": "右髋偏航",
+      "side": "right",
+      "driven_by_policy": true,
+      "urdf_joint_index": 1,
+      "action_index": 5,
+      "actuator": "act_right_hip_yaw",
+      "note": "Source table spells this joint Rightt_hip_yaw; the URDF and this file use right_hip_yaw"
+    },
+    {
+      "bus": "right_leg",
+      "bus_id": 4,
+      "joint": "right_hip_roll",
+      "joint_zh": "右髋侧摆",
+      "side": "right",
+      "driven_by_policy": true,
+      "urdf_joint_index": 3,
+      "action_index": 6,
+      "actuator": "act_right_hip_roll",
+      "note": ""
+    },
+    {
+      "bus": "right_leg",
+      "bus_id": 6,
+      "joint": "right_hip_pitch",
+      "joint_zh": "右髋俯仰",
+      "side": "right",
+      "driven_by_policy": true,
+      "urdf_joint_index": 5,
+      "action_index": 7,
+      "actuator": "act_right_hip_pitch",
+      "note": ""
+    },
+    {
+      "bus": "right_leg",
+      "bus_id": 8,
+      "joint": "right_knee",
+      "joint_zh": "右膝关节",
+      "side": "right",
+      "driven_by_policy": true,
+      "urdf_joint_index": 7,
+      "action_index": 8,
+      "actuator": "act_right_knee",
+      "note": ""
+    },
+    {
+      "bus": "right_leg",
+      "bus_id": 10,
+      "joint": "right_ankle",
+      "joint_zh": "右踝关节",
+      "side": "right",
+      "driven_by_policy": true,
+      "urdf_joint_index": 9,
+      "action_index": 9,
+      "actuator": "act_right_ankle",
+      "note": ""
+    },
+    {
+      "bus": "neck_head",
+      "bus_id": 11,
+      "joint": "neck_pitch",
+      "joint_zh": "颈俯仰",
+      "side": "center",
+      "driven_by_policy": true,
+      "urdf_joint_index": 10,
+      "action_index": 10,
+      "actuator": "act_neck_pitch",
+      "note": ""
+    },
+    {
+      "bus": "neck_head",
+      "bus_id": 12,
+      "joint": "head_pitch",
+      "joint_zh": "头俯仰",
+      "side": "center",
+      "driven_by_policy": true,
+      "urdf_joint_index": 11,
+      "action_index": 11,
+      "actuator": "act_head_pitch",
+      "note": ""
+    },
+    {
+      "bus": "neck_head",
+      "bus_id": 13,
+      "joint": "head_yaw",
+      "joint_zh": "头偏航",
+      "side": "center",
+      "driven_by_policy": true,
+      "urdf_joint_index": 12,
+      "action_index": 12,
+      "actuator": "act_head_yaw",
+      "note": ""
+    },
+    {
+      "bus": "neck_head",
+      "bus_id": 14,
+      "joint": "head_roll",
+      "joint_zh": "头侧倾",
+      "side": "center",
+      "driven_by_policy": true,
+      "urdf_joint_index": 13,
+      "action_index": 13,
+      "actuator": "act_head_roll",
+      "note": ""
+    },
+    {
+      "bus": "neck_head",
+      "bus_id": 15,
+      "joint": "mouth",
+      "joint_zh": "嘴开合",
+      "side": "center",
+      "driven_by_policy": false,
+      "urdf_joint_index": 14,
+      "action_index": null,
+      "actuator": null,
+      "note": "Not in the policy action vector: the published policies drive 14 joints and have no mouth axis. The ID is reserved for interaction features; see docs/roadmap.md",
+      "reserved_for": "Interaction features, planned and not implemented: sound feedback (open and close the beak in response to a human voice, with a speech-recognition module to be added later) and holding a small ball in the cavity of the mouth with the binocular structured-light depth camera. See docs/roadmap.md."
+    }
+  ]
+}

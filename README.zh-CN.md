@@ -174,6 +174,11 @@ wamoduck_play(true)    % 无界面自检：单位、关节限位、脚底贴地
 
 打开装配体或 URDF 前，请下载或克隆整个仓库：这些文件需要配套的零件或网格文件。
 
+### 接线
+
+- 全部 15 个电机的 [CAN-FD 总线 ID](hardware/motor_ids.zh-CN.md)，附位置图、它们背后的三路总线，以及
+  从策略动作向量到这些 ID 的置换。该页也直说：这个置换与总线拓扑**尚未**在实机上验证。
+
 ## 接下来去哪里
 
 | 你想做什么 | 对应入口 |
@@ -184,6 +189,7 @@ wamoduck_play(true)    % 无界面自检：单位、关节限位、脚底贴地
 | 查看或修改单个机械零件 | [20 个 STEP 模型](hardware/step/) · [机械文件指南](docs/mechanical.zh-CN.md) |
 | 打印整机站姿标定工装 | [四个分件与 H2D PLA 工程](hardware/fixtures/standing-zero/README.zh-CN.md) · [打印数量表](hardware/fixtures/standing-zero/print-parts.csv) |
 | 打印小型固定展示模型 | [160 mm A1 mini 一体打印版](hardware/printable/wamoduck-a1mini-standing/README_打印说明.md) |
+| 查 CAN-FD 总线 ID，或给三路总线接线 | [总线 ID 与位置图](hardware/motor_ids.zh-CN.md) |
 | 查看原生装配关系 | [SolidWorks 文件](hardware/solidworks/) · [打开方法](docs/mechanical.zh-CN.md#solidworks-装配体) |
 | 查看整机和关节运动 | [URDF 与网格](models/wmduck/) · [模型指南](docs/model.zh-CN.md) |
 | 看参考步态 / 在 MATLAB 里自己播 | [步态指南](docs/matlab.zh-CN.md) · [MATLAB 回放器](tools/matlab/) · [行走视频](assets/wamoduck-gait-walk.mp4) |
@@ -264,6 +270,7 @@ Wamoduck/
 │   ├── step/             # 机器人结构与采购件参考，毫米单位
 │   ├── solidworks/       # 简化原生零件与装配体
 │   ├── robot-structure.csv # 几何分类与模型实例数量
+│   ├── motor_ids.md      # CAN-FD 总线 ID、三路总线与动作置换
 │   ├── fixtures/standing-zero/ # 4 个 STEP、4 个打印 STL 与 H2D 工程
 │   └── printable/        # 固定展示模型与 A1 mini 工程
 ├── models/wmduck/        # URDF、网格、关节数据与导入检查
@@ -272,7 +279,7 @@ Wamoduck/
 ├── wamoduck_sim.py       # 单文件 CPU 运行器：一个 demo 跑五个策略（mujoco + onnxruntime + numpy）
 ├── ros2/                 # ROS 2 Jazzy 链路：描述、节点、RViz、46 字节协议
 ├── tools/matlab/         # 参考步态数据与 MATLAB 回放器
-├── assets/              # 模型预览图与步态预览
+├── assets/              # 模型预览图、步态预览与电机 ID 位置图
 ├── docs/                # 中英文指南：机械、模型、步态、仿真、实测能力、路线图
 ├── CONTRIBUTING.md
 └── LICENSE

@@ -16,6 +16,7 @@
 | [wamoduck-gait-still.png](wamoduck-gait-still.png) | Single frame of the reference gait / 参考步态的单帧静图 |
 | [wamoduck-matlab-player.png](wamoduck-matlab-player.png) | Screenshot of the bundled MATLAB player / 随仓库附带的 MATLAB 回放器截图 |
 | [wamoduck-dof-overview.png](wamoduck-dof-overview.png) | Four-view joint-origin overview from the finalized URDF export / 最终 URDF 导出的四视图关节原点总览 |
+| [wamoduck-motor-ids.png](wamoduck-motor-ids.png) | Motor position drawing with the CAN-FD bus ID of each motor / 标出每个电机 CAN-FD 总线 ID 的位置图 |
 | [wamoduck-model.png](wamoduck-model.png) | Original static model rendering at the saved pose / 原有保存姿态下的静态模型渲染 |
 | [media-manifest.json](media-manifest.json) | Provenance, hashes, and animation properties for the added media / 新增图像的来源、哈希与动图属性 |
 
@@ -38,6 +39,10 @@ The gait is an inverse-kinematics plan with a static-stability check: 1 cm per s
 The overview is copied unchanged from the finalized model's `coordinate_frames/00_overview.png`. It shows front, right, top, and isometric orthographic views at the saved CAD pose (`q=0`). Labels 01–15 are diagram indices, not motor IDs. / 总览图原样取自最终模型的 `coordinate_frames/00_overview.png`，包含 CAD 保存姿态（`q=0`）下的正视、右侧视、俯视与等轴正投影视图。01–15 是图册索引，不是电机 ID。
 
 The 15 joint definitions in the public URDF match the finalized export. Current joint ranges were retained; their confirmation does not imply a new measurement of physical stops or encoder offsets. See the [English model guide](../docs/model.en.md) / [中文模型指南](../docs/model.zh-CN.md). / 公开 URDF 的 15 个转动关节定义与最终导出一致，沿用已确认的关节范围；确认模型参数不代表重新实测了机械挡位或编码器零偏，详见模型指南。
+
+## Motor ID position drawing / 电机 ID 位置图
+
+[wamoduck-motor-ids.png](wamoduck-motor-ids.png) is the maintainer's motor-position drawing, exported unmodified from the single slide of the position deck. Two CAD views show the same robot, with the CAN-FD bus ID printed beside each of the 15 motors and `Left` / `Right` written under the legs. The two CAD renders embedded in that deck carry no IDs by themselves; the numbers are text shapes drawn over them, which is why an export of the slide is published rather than an extracted image. The source deck is **not** redistributed. See the [bus ID notes](../hardware/motor_ids.md) / [中文总线 ID 说明](../hardware/motor_ids.zh-CN.md) for the mapping, and for the warning that the permutation and the bus topology are unverified on the physical robot. / [wamoduck-motor-ids.png](wamoduck-motor-ids.png) 是维护者的电机位置图，从位置幻灯片的唯一一页原样导出。两个 CAD 视图是同一台机器人，15 个电机旁边各标着它的 CAN-FD 总线 ID，腿部下方写着 `Left` / `Right`。该幻灯片里内嵌的两张 CAD 渲染图本身不带 ID；数字是叠在它们之上的文本框，所以这里公开的是"把这一页导出"，而不是抽出来的某张内嵌图。源幻灯片**不**随本仓库分发。映射表，以及"置换与总线拓扑尚未在实机上验证"的警告，见[总线 ID 说明](../hardware/motor_ids.zh-CN.md)／[英文](../hardware/motor_ids.md)。
 
 ## Trained-policy simulation clips / 已训练策略的仿真演示
 

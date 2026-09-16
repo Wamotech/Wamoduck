@@ -10,7 +10,8 @@
     "reference_gait": "Previously published trajectory CSVs and MATLAB player, retained unchanged; documentation scope clarified.",
     "branding": "Maintainer-supplied Wamotech logo and wordmark; copied without image changes.",
     "trained_policy_mjcf": "MuJoCo models the published policies were trained in, taken from the private development repository; meshdir repointed at this repository's existing meshes.",
-    "trained_policy": "ONNX actors exported by the training runs, published unchanged, plus the runner and policy index written for this repository."
+    "trained_policy": "ONNX actors exported by the training runs, published unchanged, plus the runner and policy index written for this repository.",
+    "motor_ids": "Maintainer-supplied motor ID table and motor-position deck, plus the maintainer's 2026-09-16 statement of the three CAN-FD buses. The ID tables and the exported position PNG are derived here; the source workbook and deck are not redistributed."
   },
   "assets": [
     {
@@ -1143,6 +1144,51 @@
       "sha256": "2111d4d7aa060921d0a0d39415adc5d4c25d7436f205641147ad230c8752df8c",
       "source_sha256": "2111d4d7aa060921d0a0d39415adc5d4c25d7436f205641147ad230c8752df8c",
       "transformation": "Authored for this repository; no external source. Text line endings are LF."
+    },
+    {
+      "path": "assets/wamoduck-motor-ids.png",
+      "source_set": "motor_ids",
+      "source_file": "Motor_ID_location.pptx (slide 1 of 1), exported with Microsoft PowerPoint",
+      "bytes": 697359,
+      "sha256": "e3ad18d50a7a30693b24457210c47a2fb0075da20e8565e621a33604335408e7",
+      "source_sha256": "e3ad18d50a7a30693b24457210c47a2fb0075da20e8565e621a33604335408e7",
+      "transformation": "Exported to PNG unmodified; the ID callouts are text shapes on the slide, not part of the embedded renders."
+    },
+    {
+      "path": "hardware/motor_ids.csv",
+      "source_set": "motor_ids",
+      "source_file": "Derived from List_MotorID_CANFD.xlsx (Sheet1) and models/wmduck/wmduck.urdf",
+      "bytes": 1358,
+      "sha256": "d6a924d490c284fb9bef24d7f69095ee5a185a6bf25d13cd6a7811ee7a6dbb49",
+      "source_sha256": "d6a924d490c284fb9bef24d7f69095ee5a185a6bf25d13cd6a7811ee7a6dbb49",
+      "transformation": "Authored for this repository from the maintainer-supplied ID list; joint names checked one by one against the URDF and actuator names against the MJCF. The source workbook is not redistributed. Text line endings are LF."
+    },
+    {
+      "path": "hardware/motor_ids.json",
+      "source_set": "motor_ids",
+      "source_file": "Derived from List_MotorID_CANFD.xlsx (Sheet1) and models/wmduck/wmduck.urdf",
+      "bytes": 10073,
+      "sha256": "b236810b436243dd537178a29ce0cbefcdd39f0a40096c3b380d5411a58c973b",
+      "source_sha256": "b236810b436243dd537178a29ce0cbefcdd39f0a40096c3b380d5411a58c973b",
+      "transformation": "The same content as hardware/motor_ids.csv, machine-readable. The source workbook is not redistributed. Text line endings are LF."
+    },
+    {
+      "path": "hardware/motor_ids.md",
+      "source_set": "motor_ids",
+      "source_file": "Authored for this repository",
+      "bytes": 8544,
+      "sha256": "ac667aa5f9be35e7fab3897c88eba508aa5469e5b6f29617e57d6bd3880f7ac6",
+      "source_sha256": "ac667aa5f9be35e7fab3897c88eba508aa5469e5b6f29617e57d6bd3880f7ac6",
+      "transformation": "English guide to the bus IDs and the action-to-bus permutation, written from the maintainer-supplied ID list, the URDF, the MJCF, and the maintainer's 2026-09-16 statement of the bus topology. Text line endings are LF."
+    },
+    {
+      "path": "hardware/motor_ids.zh-CN.md",
+      "source_set": "motor_ids",
+      "source_file": "Authored for this repository",
+      "bytes": 8022,
+      "sha256": "e9115084e38f6899fdc82f88e8c19a75169c1e792cb24285958a1b3b4d53f119",
+      "source_sha256": "e9115084e38f6899fdc82f88e8c19a75169c1e792cb24285958a1b3b4d53f119",
+      "transformation": "Chinese guide, sentence by sentence with hardware/motor_ids.md. Text line endings are LF."
     }
   ],
   "updated_on": "2026-09-16"
