@@ -16,6 +16,11 @@ it takes, both at startup and after every switch.
 policy was trained on. There are **no hardware results anywhere in this repository**, nothing here has been
 tested on a physical robot, and "it stands in MuJoCo" is not a claim that it stands on hardware.
 
+**Three limits worth knowing before you start.** Walking cannot turn in place, and a sideways command drags
+the robot round. `getup` stands up, but it does not settle into the saved nominal pose. And nothing on this
+page was measured on hardware. All three are written out in full, with numbers, under
+[Known gaps, stated plainly](#known-gaps-stated-plainly).
+
 ## Quick start
 
 ```bash

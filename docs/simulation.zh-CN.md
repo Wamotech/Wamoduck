@@ -13,6 +13,10 @@
 **范围：仅仿真（Sim2Sim）。** 本页所有内容都在 CPU 上用 MuJoCo 运行，模型就是策略训练时用的那个。
 **本仓库没有任何实机结果**，没有在实物机器人上验证过任何内容，"在 MuJoCo 里能站住"不等于"在硬件上能站住"。
 
+**上手前值得先知道的三条局限。** 行走不会原地转，给侧移指令还会把机器人带得打转；`getup` 能站起来，
+但不会停进保存的标称姿态；本页没有任何一个数字来自硬件。这三条连同数字都在
+[已知不足，直说](#已知不足直说)里写全了。
+
 ## 快速开始
 
 ```bash
@@ -107,8 +111,8 @@ python wamoduck_sim.py --policy walk --vx 0.3 --headless --steps 250
 | --- | --- | ---: | ---: | --- |
 | 1 | `base_ang_vel` | 0 | 3 | rad/s，机体系 —— 即 MJCF 的 `imu_gyro` 传感器 |
 | 2 | `projected_gravity` | 3 | 3 | 单位向量；直立时 `(0, 0, -1)`；等于 `Rᵀ·(0,0,-1)` |
-| 3 | `joint_pos` | 6 | 14 | rad，相对 `default_joint_pos`；该默认值**全为 0**，所以就是绝对角 |
-| 4 | `joint_vel` | 20 | 14 | rad/s，相对默认关节速度（为 0） |
+| 3 | `joint_pos` | 6 | 14 | rad，相对 `default_joint_pos`；该默认值**全为零**，所以就是绝对角 |
+| 4 | `joint_vel` | 20 | 14 | rad/s，相对默认关节速度（为零） |
 | 5 | `last_action` | 34 | 14 | **上一帧策略原始输出**，未乘 scale、未加 offset |
 | 6a | `command`（twist） | 48 | 3 | `vx` m/s、`vy` m/s、`wz` rad/s —— 用于 `walk`、`rough` |
 | 6b | `height_command` | 48 | 1 | 目标基座高度，m —— 用于 `sitstand` |
@@ -156,7 +160,7 @@ MJCF 里出现的顺序，也是 ONNX 元数据记录的顺序：
 q_target[j] = default_joint_pos[j] + action_scale * action[j]      其中 action_scale = 1.0
 ```
 
-- `default_joint_pos` 是 **14 个 0**（ONNX 元数据与 `stand` 关键帧一致），所以每个关节上
+- `default_joint_pos` 是 **14 个零**（ONNX 元数据与 `stand` 关键帧一致），所以每个关节上
   `q_target = action`。
 - **动作不做任何截断。** 训练的 runner 配置里 `clip_actions = None`，动作配置也没有设 `clip`。每个动作值
   都按原值使用。

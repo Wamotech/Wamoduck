@@ -2,7 +2,14 @@
 
 [Home](../README.md) · English | [简体中文](capabilities.zh-CN.md) · [Simulation guide](simulation.md) · [Roadmap](roadmap.md)
 
-This page is one honest board of what the trained policies actually do. Every figure was measured in simulation on **2026-09-16** and copied from a measurement log, with the tool that produced it named beside it. Nothing here is extrapolated, estimated, or carried over from a different run without saying so, and the parts that do not work are listed with the same weight as the parts that do.
+This page is one honest board of what the trained policies actually do. Every figure was measured in simulation on **2026-09-16**, and copied from a measurement log with the tool that produced it named beside it. Nothing here is extrapolated, estimated, or carried over from a different run without saying so. The parts that do not work are listed with the same weight as the parts that do.
+
+**The short version:**
+
+- **What works:** standing still while something shoves it, getting up after a knock-down, walking forwards, and walking over 1 cm curbs.
+- **What does not work:** turning in place, and side-stepping — which also drags the robot round. And `getup` stands the robot up without returning it to the saved nominal pose.
+- **What none of this is:** hardware. Every figure on this page came out of a simulator.
+- Sit/stand gives interactive height control, but has no acceptance numbers in this batch.
 
 **Scope: simulation only.** The policies run in a MuJoCo / mjlab environment on one laptop GPU, normally **64 parallel environments** per measurement (32 for the walking table), with the round named in each row. There are no hardware measurements on this page. The training code, the scene generator, the checkpoints, and the measurement tools live in the private development repository and are **not** published here — so this page reports measurements rather than offering a reproduction recipe. Re-measure before quoting it.
 
