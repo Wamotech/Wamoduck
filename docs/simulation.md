@@ -98,7 +98,7 @@ python wamoduck_sim.py --policy walk --vx 0.3 --headless --steps 250
 | `stand` | `wamoduck-stand-stand_v3.onnx` | `2026-09-12_08-32-26_stand_v3` (marked SHIP) | `model_1499.pt` | `robot_walk.xml` | Hold the nominal stance; recover from a push |
 | `getup` | `wamoduck-getup-getup_v18.onnx` | `2026-09-15_17-37-06_getup_v18` | `model_3999.pt` | `robot_groundcontact.xml` | Start lying on the ground and get back on its feet |
 | `sitstand` | `wamoduck-sitstand-sit_stand_v2.onnx` | `2026-09-12_11-18-34_sit_stand_v2` (marked SHIP) | `model_2499.pt` | `robot_walk.xml` | Crouch to a commanded body height and stand back up |
-| `walk` | `wamoduck-walk-walk_v4r.onnx` | `2026-09-16_12-01-21_walk_v4r` | `model_6000.pt` | `robot_walk.xml` | Walk on flat ground from a twist command |
+| `walk` | `wamoduck-walk-walk_v4r.onnx` | `2026-09-16_12-01-21_walk_v4r` | `model_6749.pt` | `robot_walk.xml` | Walk on flat ground from a twist command |
 | `rough` | `wamoduck-rough-rough_v2.onnx` | `2026-09-16_00-00-04_rough_v2` | `model_5999.pt` | `robot_walk.xml` | Walk over 1 cm curbs from a twist command |
 
 The *Source run* and *Checkpoint* columns were resolved with the development repository's
@@ -454,14 +454,18 @@ even with the wrong action order — but across all five spawns that advantage d
 ## Known gaps, stated plainly
 
 - **Walking is the weakest of the five, and it was retrained for this release.** `walk_v4r` is the newest
-  walking run; it reached its iteration limit of 6000 and stopped, and the ONNX published here is the export
-  of its final checkpoint `model_6000.pt`. The earlier internal measurement of walking reports two specific
-  failures that this release does **not** fix: **in-place turning does not work** — a 0.5 rad/s yaw command
-  produced **+0.3°** of rotation in 10 s — and **side-stepping is accompanied by large uncommanded
-  rotation**, with a +0.30 m/s lateral command producing +0.218 m/s sideways *and* **+520.4°** of
-  uncommanded yaw. Our own CPU run shows the same symptom in miniature: the 5 s forward run drifted
-  **0.328 m** sideways while commanded to go straight. Treat forward walking as usable and
-  turning/side-stepping as broken.
+  walking run; it ran past the 6000 iterations this release first assumed was its end and stopped at
+  **6749**, and the ONNX published here is the export of that run's **final checkpoint `model_6749.pt`**.
+  (An earlier revision of this file was the export of `model_6000.pt`, copied while the run was still
+  training; see the [changelog](../CHANGELOG.md).) The earlier internal measurement of walking reports two
+  specific failures that this release does **not** fix: **in-place turning** — a 0.5 rad/s yaw command
+  produced **+0.3°** of rotation in 10 s, and it has since been measured to be **out of reach for this
+  mechanism** rather than undertrained (see [Why in-place turning cannot be trained
+  away](capabilities.md#why-in-place-turning-cannot-be-trained-away)) — and **side-stepping is accompanied
+  by large uncommanded rotation**, with a +0.30 m/s lateral command producing +0.218 m/s sideways *and*
+  **+520.4°** of uncommanded yaw. Our own CPU run shows the same symptom in miniature: the 5 s forward run
+  drifted **0.328 m** sideways while commanded to go straight. Treat forward walking and turning *while
+  moving* as usable, and in-place turning and side-stepping as not.
 - **The walking ONNX is not the checkpoint the capability board measured.** That board's walking row refers
   to `walk_r3`, which was trained under an older command range. `walk_v4r` has no private measurement, so
   this page quotes only our own CPU Sim2Sim displacement for it and claims nothing else.

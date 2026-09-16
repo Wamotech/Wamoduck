@@ -55,13 +55,13 @@ files you can run on your own machine.
 | Stands still, and takes a shove | `stand_v3` | Push threshold **40.5 N** — the smallest single horizontal 0.2 s shove that topples at least half of 64 environments. 40 N topples 45.3 % of them, and 0 to 24 N topples none. |
 | Knocked down → gets up → back to the nominal stance | `stand_v3` + `getup_v18` | **5/5** end-to-end trials. "Did not fall again after standing up": **4/5**. |
 | Gets up from a random lying pose | `getup_v18` | Standing at the end: **64/64** (loose criterion). |
-| Walks on flat ground | `walk_v4r` | Forward walking works. **Turning and side-stepping do not.** |
+| Walks on flat ground | `walk_v4r` | Forward walking works. **Side-stepping does not**, and **in-place turning is out of reach for this mechanism** — a measured limit, not an unfinished training round. |
 | Walks over 1 cm rough terrain | `rough_v2` | **51/64 (79.7 %)** survive 12 s at a 0.3 m/s command. Mean speed is **61 %** of the command. |
 | Sits down and stands back up | `sit_stand_v2` | Interactive height control. No acceptance numbers in this batch. **Two known issues:** it buzzes in place while standing, and the pose it holds when sitting is neither upright nor left/right symmetric. |
 
 ### What still does not work
 
-- **In-place turning is broken.** A 0.5 rad/s yaw command produced **+0.3°** of rotation in 10 s.
+- **In-place turning is out of reach for this mechanism, not merely untrained.** A 0.5 rad/s yaw command produced **+0.3°** of rotation in 10 s. Measured on plain CPU MuJoCo with both feet planted: the hips' yaw joints are an internal torque pair, so they can only twist the torso **±30.5°** relative to the ground, and unloading one foot would need a **60 mm** sideways CoM shift while the design can produce **38.5 mm** — at which point it is already tilted **28.5°** against a **30°** fall line. Eleven planted-foot drive patterns were tried; none accumulates. The capability board restates the deliverable as **turning while moving (R ≈ 0.40 m at vx ≥ 0.20 m/s)** and lists true in-place rotation as a **hardware** change — see [Why in-place turning cannot be trained away](docs/capabilities.md#why-in-place-turning-cannot-be-trained-away).
 - **Side-stepping drags the robot round.** A +0.30 m/s sideways command produced +0.218 m/s sideways
   *and* **+520.4°** of uncommanded yaw. Our own CPU run shows a small version of the same thing: over
   5 s of straight-ahead walking it drifted **0.328 m** sideways.

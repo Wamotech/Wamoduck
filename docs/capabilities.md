@@ -7,7 +7,7 @@ This page is one honest board of what the trained policies actually do. Every fi
 **The short version:**
 
 - **What works:** standing still while something shoves it, getting up after a knock-down, walking forwards, and walking over 1 cm curbs.
-- **What does not work:** turning in place, and side-stepping — which also drags the robot round. And `getup` stands the robot up without returning it to the saved nominal pose.
+- **What does not work:** turning in place, and side-stepping — which also drags the robot round. And `getup` stands the robot up without returning it to the saved nominal pose. In-place turning is **not** a policy that was trained badly: it has since been measured to be **out of reach for this mechanism** — see [Why in-place turning cannot be trained away](#why-in-place-turning-cannot-be-trained-away).
 - **What none of this is:** hardware. Every figure on this page came out of a simulator.
 - Sit/stand gives interactive height control, but has no acceptance numbers in this batch — and **two known issues**, measured on CPU: it **buzzes in place while standing**, and its **sitting posture is neither upright nor left/right symmetric**. See [section 6](#6-sit--stand).
 
@@ -22,7 +22,7 @@ This page is one honest board of what the trained policies actually do. Every fi
 | 1 | Standing against a push | `stand_v3` (`model_1499.pt`, shipped) | Push threshold **40.5 N**; steady-state drift **0.00 mm/s** over 40 s |
 | 2 | Knocked down → get up → back to nominal | `stand_v3` + `getup_v18` (`model_3999.pt`) | **5/5** trials end in the strict nominal stance |
 | 3 | Get-up from a random lying pose | `getup_v18` (`model_3999.pt`) | Standing at the end **64/64**; strict nominal criterion still **0/64** |
-| 4 | Flat-ground walking | `walk_r3` (`model_5999.pt`, shipped) | Forward tracking 106 % / 103 %, but **side-stepping and in-place turning are broken** |
+| 4 | Flat-ground walking | `walk_r3` (`model_5999.pt`, shipped) | Forward tracking 106 % / 103 %; **side-stepping is broken**, and **in-place turning is out of reach for this mechanism** (not a training gap — see [§4](#why-in-place-turning-cannot-be-trained-away)) |
 | 5 | 1 cm rough terrain | `rough_v2` (`model_5999.pt`) | Survival **51/64 (79.7 %)**; mean speed **61 %** of the command |
 | 6 | Sit / stand | `sit_stand_v2` (`model_2499.pt`, shipped) | Interactive height control; no acceptance numbers in this batch. **Two known issues**, measured on CPU: the standing posture buzzes in place (action jitter **0.235** per step against **2.9e-7** for `stand`), and the sitting posture is neither upright (**25.89°** of tilt) nor left/right symmetric (residuals of **119°** to **174°** on three of the five leg pairs) |
 
@@ -90,7 +90,7 @@ Read this row with more care than the others, because **the numbers and the poli
 | Newest same-protocol table | `walk_v3`, `model_5999.pt` (2026-09-15/16, **not published**), body-frame commands, 32 environments, 500 steps (10 s) |
 | Forward tracking | 0.3 m/s command → **106 %**; 0.5 m/s command → **103 %** |
 | Side-stepping | Command +0.30 m/s → measured **+0.218 m/s** body-frame, but with **+520.4 deg** of uncommanded yaw and a forward drift of **-0.003 m** over the same 10 s. The sideways magnitude survived (the previous round measured +0.240 m/s) while the axis discipline collapsed, so this mode is **not usable** |
-| Turn in place | Command 0.5 rad/s → **0.1 %** of the commanded yaw, i.e. **+0.3 deg** in 10 s. The robot does not turn on the spot |
+| Turn in place | Command 0.5 rad/s → **0.1 %** of the commanded yaw, i.e. **+0.3 deg** in 10 s. The robot does not turn on the spot — and this is a property of the mechanism, not of the training: see [Why in-place turning cannot be trained away](#why-in-place-turning-cannot-be-trained-away) |
 | Walk and turn together | 0.4 m/s plus 0.5 rad/s → forward **109 %**, yaw **7 %** |
 | Tool | `measure_twist_tracking.py --run walk_v3` |
 
@@ -104,6 +104,24 @@ What our own CPU check of the published `walk_v4r` policy shows, through the pub
 travelled **1.482 m** of the commanded 1.500 m in 5 s and never fell, but drifted **0.328 m** sideways while
 being commanded to go straight. That is a Sim2Sim check on plain CPU MuJoCo, not a re-measurement of this
 table, and the two are not comparable.
+
+### Why in-place turning cannot be trained away
+
+The `Turn in place` row is not "a policy that did not learn". Before scheduling another training round for it, it was checked on **plain CPU MuJoCo**, on the unmodified MJCF the policies were trained in, with both feet planted. Three hard constraints bind, each with an analytic bound **and** a measured number from that same scene:
+
+| Constraint | Why it binds | Analytic bound | Measured |
+| --- | --- | --- | --- |
+| Hip-yaw travel | With both feet planted and not sliding, equal and opposite yaw on the two legs is an **internal torque pair** — the net moment on the robot is zero — so it can only twist the torso **relative to the feet**, and only as far as one joint range allows | torso vs ground ≤ **0.532 rad = 30.5°** | foot slip **8.0°** plus torso **22.5°** = **30.5°** |
+| Unloading one foot | A single-support turn needs the CoM ground projection inside one footprint (stance width **171.4 mm**, foot width **51.1 mm**) | CoM shift ≥ **59.8–60.2 mm** | the CoP equals the CoM projection to **0.000 mm**, so this requirement is exact |
+| Shifting the CoM sideways | There is **no ankle roll**, so keeping the soles flat locks the roll of foot and shin; the only lever left is the torso rotating about the hip-roll axes | symmetric upper bound **35.3 mm**; one leg forced to its limit **76.0 mm** | symmetric **16.5 mm**; one side **38.5 mm**, but the robot is then tilted **28.5°** with hip roll saturated for **110 of 125** steps — the fall line is **30°** |
+
+**No planted-foot driver accumulates.** Eleven drive patterns were run for 10 s each (triangle waves, sine scrubbing, scissoring, a four-phase ratchet, slow ramps into both end stops): the seven that stayed upright for the full 10 s reoriented the **feet in the world** by only **−12° to +8°** against a **286°** command, and every pattern that rotated further was on the ground within **0.96–1.22 s** (post-fall tumbling excluded). Lifting one foot does reach **0.000 N** of load, but only at the joint limits, at **28.47°** of tilt, for **0.8 %** of the time — that is falling onto one foot, not a controlled single support.
+
+**Positive control, same ruler.** Through the published runner, at a yaw command with zero forward speed the second-half yaw rate is **0.00 deg/s** for all four walking checkpoints measured — not "small", zero. The yaw command only does anything once forward speed is commanded (**vx ≥ 0.20 m/s**).
+
+**So the deliverable is restated.** Turning happens while moving; the tightest measured arc is **R = vx / \|wz\| ≈ 0.40 m at vx ≥ 0.20 m/s** (at 0.15 m/s the measured yaw rate is 0.00 deg/s). Standing still, the torso can be re-oriented **once** by up to **±30.5°** relative to the ground — enough to aim the head or a camera, but it does not accumulate. Making true in-place rotation real is a **hardware** change: an ankle-roll (or equivalent coronal-plane) degree of freedom so the legs can lean and the CoM can move ≥ 60 mm, or a waist yaw joint.
+
+Reproducibility and self-check: plain MuJoCo on CPU, training MJCF unmodified, two independent runs producing **byte-identical** JSON, and the tool calibrates its own ruler before measuring anything (a box the size of the real sole, hinged about z, starts turning at **0.635 N·m**, giving an effective lever of **34.5 mm** inside the analytic bracket of 25.5–47.7 mm; it also checks that the CoP equals the CoM projection).
 
 ## 5. 1 cm rough terrain
 
@@ -325,7 +343,7 @@ Two things that statement does not mean. It is not a hardware rating: 2.2 N·m i
 - **No hardware results.** Every number is simulated. The physical robot's mass, friction, compliance, and sensor chain are not in these numbers.
 - **Not reproducible from this repository.** The scene, the measurement protocols, and the measuring tools are private. Five of the policies are now published as ONNX files with a CPU runner ([simulation guide](simulation.md)), so you can re-run the *behaviour* — but this page is a measurement report, and the numbers above come from a different simulator and a protocol that is not published. The one exception is [the sit/stand section](#the-two-known-sitstand-issues-as-measured), which is explicitly marked as our own CPU Sim2Sim measurement and is reproducible with the commands given there.
 - **No perception, thermal, or endurance results.** Nothing here covers the camera, the runtime software, duty cycles, or long-duration reliability.
-- **The get-up strict criterion is not met** (0/64), and **walking side-stepping and in-place turning do not work**. Those are open items, not rounding errors.
+- **The get-up strict criterion is not met** (0/64), and **walking side-stepping does not work**. Those are open items, not rounding errors. **In-place turning is a different kind of entry**: it is measured to be out of reach for this mechanism ([§4](#why-in-place-turning-cannot-be-trained-away)), so it is listed as a limit of the design rather than as an unfinished item.
 - **Sit/stand has two measured, unfixed issues** — it buzzes in place while standing, and its sitting posture is neither upright nor left/right symmetric. The numbers are in [section 6](#6-sit--stand), and no fix is claimed for either.
 - **The training model is not the published model.** The results describe the simulation model used for training, which currently differs from the published URDF in measured-mass updates.
 
