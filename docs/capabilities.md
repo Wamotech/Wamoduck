@@ -29,6 +29,10 @@ A policy marked *shipped* is the checkpoint the interactive demos load by defaul
 | Measured threshold | 0 to 24 N: **0/64** fall. 32 N: 1.6 %. 40 N: **45.3 %**. 48 N: 89.1 %. 56 N: 96.9 %. Critical force (first amplitude with a fall rate >= 50 %) = **40.5 N** |
 | Tools | `diagnose_stand_play.py` (steady state, 40 s) and `measure_push_threshold.py` (64 environments) |
 
+![An ordinary push while standing; the robot stays on its feet](../assets/wamoduck-push-normal.gif)
+
+*An ordinary push — it stays on its feet. Simulation screen recording, not hardware footage: it shows the standing policy `stand_v3` in MuJoCo, one selected take, not a test.*
+
 Two disciplines are worth copying from this measurement. First, the training-side disturbance and the measuring-side shove are the same physical quantity — horizontal, fixed amplitude, azimuth random, moment arm included — because an earlier version compared two different quantities and produced a threshold that only looked measured. Second, every sweep starts with a **0 N control row**: if the robot cannot stand without a push, the run is declared invalid instead of reporting a threshold. That control row is what caught the first version of this tool, which stepped the simulator with zero actions and concluded that 8 N knocked the robot over 100 % of the time.
 
 ## 2. Knocked down, get up, back to nominal
@@ -40,6 +44,16 @@ Two disciplines are worth copying from this measurement. First, the training-sid
 | Measured (5 trials) | End-to-end, ending in the strict nominal stance: **5/5**. Final tilt **0.5 deg**, `neck_pitch` **0.3 deg**, largest joint deviation **1.9 deg**, both feet on the ground, base height **0.177 m** — the same five numbers in all five trials |
 | Not as good | "Did not fall again after standing up": **4/5**. In one trial the hand-over dropped the robot five times before the final state passed, so the interlock is not yet repeatable in the strong sense |
 | Tool | `probe_recovery_handover.py --trials 5` |
+
+![Pushed over, then it stands back up and settles into the nominal stance](../assets/wamoduck-pushed-down-recover.gif)
+
+*Pushed over, then recovers to the nominal stance. Simulation screen recording, not hardware footage: it shows `stand_v3` and `getup_v18` handing over inside MuJoCo, one selected take — the 5/5 and 4/5 above come from the 5-trial probe, not from this clip.*
+
+![The hardest case: repeated attempts, finally getting up](../assets/wamoduck-getup-struggle.gif)
+
+*The hardest case: repeated attempts, finally gets up. Simulation screen recording, not hardware footage: it shows `getup_v18` inside MuJoCo. It is published precisely because it is not a clean take — the first attempts fail before it gets up, which matches the "did not fall again after standing up 4/5" row above.*
+
+The full-length recording of this session — pushes, knock-downs, get-up attempts, and the hand-over, 1:49.37, 1280 × 716, no audio — is [wamoduck-force-test-demo.mp4](../assets/wamoduck-force-test-demo.mp4). It is one session, not a test campaign; the rates on this page come from the tools named in each row.
 
 This is the requirement that matters most, because it is the only row that tests the two policies **together**: a nominal final pose that cannot survive the hand-over would not be a usable robot behaviour.
 

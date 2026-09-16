@@ -59,6 +59,10 @@ This architecture is also being experimentally applied to **intelligent wearable
 
 The project progress above and the files currently published are different scopes. The bundled [validation record](models/wmduck/validation.json) covers this URDF package's structural and import checks, rather than the project's full simulation or physical-robot validation.
 
+![Pushed over, then recovering to the nominal stance in simulation](assets/wamoduck-pushed-down-recover.gif)
+
+*Pushed over, then recovers to the nominal stance — a **simulation** screen recording of the trained policies `stand_v3` and `getup_v18` in MuJoCo, not hardware footage. Measured figures, the protocols behind them, and the behaviours that still fail are on the [measured capability board](docs/capabilities.md) / [实测能力清单](docs/capabilities.zh-CN.md); the same session is published at full length as [wamoduck-force-test-demo.mp4](assets/wamoduck-force-test-demo.mp4).*
+
 ## 15 joints, from footsteps to expression
 
 The finalized URDF describes **15 rotational DOF = 5 left-leg + 5 right-leg + 5 neck/head/beak**:

@@ -59,6 +59,10 @@ flowchart LR
 
 以上项目进展与仓库当前公开文件的范围有所不同。随附[验证记录](models/wmduck/validation.json)只覆盖本 URDF 包的结构与导入检查，不代表项目全部仿真或实机验证结果。
 
+![被推倒后在仿真里自己站回标称姿态](assets/wamoduck-pushed-down-recover.gif)
+
+*被推倒后自己站回标称姿态 —— 这是 **MuJoCo 仿真**录屏，跑的是训练出来的 `stand_v3` 与 `getup_v18` 策略，不是实机录像。实测数字、测量口径与仍不可用的行为见[实测能力清单](docs/capabilities.zh-CN.md)／[英文版](docs/capabilities.md)；同一场次的全长录像见 [wamoduck-force-test-demo.mp4](assets/wamoduck-force-test-demo.mp4)。*
+
 ## 15 个自由度，从双足运动到头部表情
 
 最终版 URDF 定义了 **15 个转动自由度 = 左腿 5 + 右腿 5 + 颈部／头部／嘴部 5**：

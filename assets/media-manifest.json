@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "prepared_on": "2026-09-12",
-  "updated_on": "2026-09-14",
+  "updated_on": "2026-09-16",
   "scope": "Media added for the project introduction; original source-asset hashes remain in ../asset-manifest.json",
   "model": {
     "path": "../models/wmduck/wmduck.urdf",
@@ -208,6 +208,101 @@
         "frame": "looped cycle, t = 5.12 s"
       },
       "scope_note": "Screenshot of the bundled viewer; it shows a kinematic replay, not a controller or a policy running"
+    },
+    {
+      "path": "wamoduck-push-normal.gif",
+      "sha256": "72234de6f5b26a2fe83e238fb20ed6a12690806daf4c0f0d73c5f0e18e48cfb1",
+      "bytes": 860208,
+      "type": "trained_policy_simulation_clip",
+      "content": "An ordinary push while standing: the robot is shoved and stays on its feet (clip covers 0 to 7 s of the recording)",
+      "renderer": {
+        "engine": "MuJoCo",
+        "method": "Recording of the simulation running the trained standing policy stand_v3 (model_1499.pt); the policy stays in the loop for the whole clip",
+        "presentation": "Training-progress overlay ball removed during preparation, then the magenta chroma-key residue left in the top-right corner of the frames was repainted from neighbouring ground pixels; the robot pixels are otherwise the recorded ones"
+      },
+      "width": 800,
+      "height": 448,
+      "frames": 105,
+      "duration_ms": 7000,
+      "average_fps": 15,
+      "loop": "infinite",
+      "checks": {
+        "progress_ball_removed_bright_green_pixels": 0,
+        "magenta_chroma_key_pixels_in_output": 0
+      },
+      "scope_note": "Simulated, not hardware footage: this is a screen capture of a MuJoCo simulation driven by this project's trained policy, not a physical robot. The clip is one favourable take selected to show the behaviour; it is not an acceptance test and does not establish a success rate. Measured rates and the push protocol are in ../docs/capabilities.md"
+    },
+    {
+      "path": "wamoduck-pushed-down-recover.gif",
+      "sha256": "d8a740e63cd5b13f7db01cbbfa74a0bfebf90e0fcf436f5bf61239f967307050",
+      "bytes": 993115,
+      "type": "trained_policy_simulation_clip",
+      "content": "Pushed over, then it stands back up and settles into the saved nominal stance (clip covers 1:23 to 1:30 of the recording)",
+      "renderer": {
+        "engine": "MuJoCo",
+        "method": "Recording of the simulation running the trained standing policy stand_v3 (model_1499.pt) and the get-up policy getup_v18 (model_3999.pt), handed over by a small state machine",
+        "presentation": "Same preparation as wamoduck-push-normal.gif: progress-ball removal, then the magenta chroma-key residue in the top-right corner repainted from neighbouring ground pixels"
+      },
+      "width": 800,
+      "height": 448,
+      "frames": 105,
+      "duration_ms": 7000,
+      "average_fps": 15,
+      "loop": "infinite",
+      "checks": {
+        "progress_ball_removed_bright_green_pixels": 0,
+        "magenta_chroma_key_pixels_in_output": 0
+      },
+      "scope_note": "Simulated, not hardware footage: a screen capture of a MuJoCo simulation running this project's trained policies, not a physical robot. One selected take; the 5-trial hand-over measurement (5/5 in the strict nominal stance, 4/5 without falling again) is in ../docs/capabilities.md"
+    },
+    {
+      "path": "wamoduck-getup-struggle.gif",
+      "sha256": "590e4732b151a80975e833c335fa6f99ed73dbacbddc3df119208743346fe85f",
+      "bytes": 2877383,
+      "type": "trained_policy_simulation_clip",
+      "content": "The hardest case: repeated attempts, finally gets up (clip covers 16 to 50 s of the recording)",
+      "renderer": {
+        "engine": "MuJoCo",
+        "method": "Recording of the simulation running the trained get-up policy getup_v18 (model_3999.pt)",
+        "presentation": "Same preparation as wamoduck-push-normal.gif: progress-ball removal, then the magenta chroma-key residue in the top-right corner repainted from neighbouring ground pixels"
+      },
+      "width": 800,
+      "height": 448,
+      "frames": 510,
+      "duration_ms": 34000,
+      "average_fps": 15,
+      "loop": "infinite",
+      "checks": {
+        "progress_ball_removed_bright_green_pixels": 0,
+        "magenta_chroma_key_pixels_in_output": 0
+      },
+      "scope_note": "Simulated, not hardware footage: a screen capture of a MuJoCo simulation running this project's trained get-up policy, not a physical robot. Shown partly because it is a struggle rather than a clean take; the 64-environment get-up results are in ../docs/capabilities.md"
+    },
+    {
+      "path": "wamoduck-force-test-demo.mp4",
+      "sha256": "f38b999ee2f5277f01e06e7533019d63c7ab8120372d6159077c7ccb22932349",
+      "bytes": 2405468,
+      "type": "trained_policy_simulation_clip",
+      "content": "Full-length recording of the same session: pushes, knock-downs, get-up attempts, and the recovery hand-over",
+      "renderer": {
+        "engine": "MuJoCo",
+        "method": "Same recording session as the three GIF clips, cut to full length instead of a 7 s or 34 s excerpt",
+        "presentation": "Progress-overlay ball removed with tools/strip_ball_from_video.py (its self-check reported zero bright-green pixels in 110 sampled frames), then the magenta chroma-key residue in the top-right corner repainted from neighbouring ground pixels and the clip re-encoded with H.264"
+      },
+      "width": 1280,
+      "height": 716,
+      "frames": 3281,
+      "duration_ms": 109367,
+      "average_fps": 30,
+      "loop": "none",
+      "codec": "H.264 (libx264) via imageio-ffmpeg, no audio track",
+      "playback_note": "Duration 1:49.37; the pixel height is 716, not 720",
+      "checks": {
+        "audio_streams": 0,
+        "progress_ball_removed_bright_green_pixels": 0,
+        "magenta_chroma_key_pixels_in_output": 0
+      },
+      "scope_note": "Simulated, not hardware footage: a screen capture of a MuJoCo simulation running this project's trained policies, not a physical robot. It shows one session, not a test campaign; the measured figures and their protocols are in ../docs/capabilities.md"
     },
     {
       "path": "branding/wamotech-symbol-black.png",

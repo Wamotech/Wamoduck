@@ -7,6 +7,10 @@
 | [Brand logo](branding/wamotech-symbol-black.png) · [White version](branding/wamotech-symbol-white.png) | Maintainer-supplied Wamotech symbol, copied unchanged / 维护者提供的望默科技图形标志，原样复制 |
 | [Wordmark](branding/wamotech-wordmark-black.png) · [White version](branding/wamotech-wordmark-white.png) | WAMOTECH wordmark paired with the symbol in both README headers / 与图形标志配套展示在中英文首页的 WAMOTECH 字标 |
 | [wamoduck-motion.gif](wamoduck-motion.gif) | Animated joint-motion preview rendered from the public URDF / 由公开 URDF 渲染的关节运动演示 |
+| [wamoduck-push-normal.gif](wamoduck-push-normal.gif) | An ordinary push while standing; the robot stays on its feet (simulation) / 平常推一把：没倒（仿真） |
+| [wamoduck-pushed-down-recover.gif](wamoduck-pushed-down-recover.gif) | Pushed over, then recovers to the nominal stance (simulation) / 被推倒后自己站回标称姿态（仿真） |
+| [wamoduck-getup-struggle.gif](wamoduck-getup-struggle.gif) | The hardest case: repeated attempts, finally gets up (simulation) / 最剧烈的一段：连续尝试、最终成功起身（仿真） |
+| [wamoduck-force-test-demo.mp4](wamoduck-force-test-demo.mp4) | Full-length recording of the same session, 1:49.37 (simulation) / 同一场次的全长录像，1:49.37（仿真） |
 | [wamoduck-gait-preview.gif](wamoduck-gait-preview.gif) | Reference walking gait, two cycles, rendered from the public URDF / 参考行走步态（两个周期），由公开 URDF 渲染 |
 | [wamoduck-gait-walk.mp4](wamoduck-gait-walk.mp4) | The same gait, 20 s of continuous walking with the body position shown / 同一步态，连续行走 20 s 并标出机体位置 |
 | [wamoduck-gait-still.png](wamoduck-gait-still.png) | Single frame of the reference gait / 参考步态的单帧静图 |
@@ -34,3 +38,16 @@ The gait is an inverse-kinematics plan with a static-stability check: 1 cm per s
 The overview is copied unchanged from the finalized model's `coordinate_frames/00_overview.png`. It shows front, right, top, and isometric orthographic views at the saved CAD pose (`q=0`). Labels 01–15 are diagram indices, not motor IDs. / 总览图原样取自最终模型的 `coordinate_frames/00_overview.png`，包含 CAD 保存姿态（`q=0`）下的正视、右侧视、俯视与等轴正投影视图。01–15 是图册索引，不是电机 ID。
 
 The 15 joint definitions in the public URDF match the finalized export. Current joint ranges were retained; their confirmation does not imply a new measurement of physical stops or encoder offsets. See the [English model guide](../docs/model.en.md) / [中文模型指南](../docs/model.zh-CN.md). / 公开 URDF 的 15 个转动关节定义与最终导出一致，沿用已确认的关节范围；确认模型参数不代表重新实测了机械挡位或编码器零偏，详见模型指南。
+
+## Trained-policy simulation clips / 已训练策略的仿真演示
+
+Unlike the kinematic previews above, these four clips are **screen recordings of the MuJoCo simulation running this project's trained policies** — `stand_v3` for standing against pushes and `getup_v18` for getting up — not prescribed joint angles. **They are simulation, not hardware footage:** no physical robot appears in them. Each clip is one selected take that shows the behaviour; the measured rates, the protocols behind them, and the parts that still fail are in the [measured capability board](../docs/capabilities.md) / [实测能力清单](../docs/capabilities.zh-CN.md). / 与上面几段运动学预览不同，这四段是**仿真录屏**：跑的是本项目训练出来的策略 —— 站立抗扰 `stand_v3`、起身 `getup_v18` —— 而不是预设关节角。**它们是仿真，不是实机录像**：画面里没有实物机器人。每段都是挑选出来的单次片段，只用来展示这个行为；实测比例、测量协议与仍不可用的部分见[实测能力清单](../docs/capabilities.zh-CN.md)。
+
+The training-progress overlay ball that was visible in the original screen capture has been removed from all four clips; the published files are **not** the untouched original recording. After removal, the same bright-green detector that finds the ball reports **0 pixels**, and the magenta chroma-key residue that the capture left in the top-right corner of every frame was repainted from neighbouring ground pixels (0 magenta pixels measured afterwards). That corner is therefore repaired, not recorded. / 原始录屏里可见的「训练进度悬浮球」已从这四段里移除，公开文件**不是**未经处理的原始录屏。移除后，用于定位悬浮球的同一套亮绿检测在输出上给出 **0 像素**；录屏留在每帧右上角的品红抠图色块，也用相邻地面像素修补过（修补后测得 0 个品红像素）。也就是说，右上角是修补出来的，不是录进去的。
+
+| Clip / 片段 | Shows / 内容 | Simulation time covered / 覆盖的仿真时间 |
+| --- | --- | --- |
+| [wamoduck-push-normal.gif](wamoduck-push-normal.gif) | An ordinary push — it stays on its feet / 平常推一把：没倒 | 0–7 s |
+| [wamoduck-pushed-down-recover.gif](wamoduck-pushed-down-recover.gif) | Pushed over, then recovers to the nominal stance / 被推倒后自己站回标称姿态 | 1:23–1:30 |
+| [wamoduck-getup-struggle.gif](wamoduck-getup-struggle.gif) | The hardest case: repeated attempts, finally gets up / 最剧烈的一段：连续尝试、最终成功起身 | 16–50 s |
+| [wamoduck-force-test-demo.mp4](wamoduck-force-test-demo.mp4) | The same session at full length, 1280 × 716, 30 fps, no audio / 同一场次的全长录像，1280 × 716、30 fps、无音轨 | 0–1:49.37 |
