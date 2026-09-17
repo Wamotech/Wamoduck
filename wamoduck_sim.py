@@ -81,6 +81,7 @@ from __future__ import annotations
 
 import argparse
 import math
+import os
 import queue
 import sys
 import threading
@@ -902,52 +903,240 @@ def describe_command_short(bot: "Wamoduck") -> str:
     return "no command channel on this policy"
 
 
-def viewer_status_texts(bot: "Wamoduck", selected: str) -> list | None:
-    """The status block drawn *inside* the viewer window, top-left.
+# ------------------------------------------------------- 左上角信息块 ----------
+#
+# 为什么这一块**不是**用 `viewer.set_texts` 画的（2026-09-17，用户截图反馈"糊成一片"）：
+#   ① MuJoCo 的 HUD 字体是**点阵 ASCII**，画不了中文 —— 每个汉字都会变成一个方块；
+#   ② `set_texts` 里**同一个 gridpos 的多条文本是叠在同一格上**，不是换行堆叠 ⇒
+#      上一版把四行都放进 TOPLEFT，于是中文全是方块、英文两行互相盖住。
+# 所以左上角这块改成：**用 Pillow 把中英文渲染成一张小图，再用 `viewer.set_images` 贴到
+# 左上角**。这样中文能显示、多行真正换行、背景板让文字在模型上也读得清。
+# 兜底：本机没有 Pillow 或找不到中文字体时，**退回纯 ASCII 文本**，并把几行分散到
+# 不同的 gridpos（避免再次互相覆盖）—— 公开仓库的运行器只承诺 mujoco + onnxruntime +
+# numpy 三个依赖，不能因为少了 Pillow 就什么都看不见。
+OVERLAY_FONT_CANDIDATES = [
+    r"C:\Windows\Fonts\msyh.ttc",          # Windows: 微软雅黑
+    r"C:\Windows\Fonts\msyhl.ttc",
+    r"C:\Windows\Fonts\simhei.ttf",        # 黑体
+    r"C:\Windows\Fonts\Deng.ttf",          # 等线
+    r"C:\Windows\Fonts\simsun.ttc",
+    "/System/Library/Fonts/PingFang.ttc",  # macOS
+    "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",
+    "/usr/share/fonts/truetype/wqy/wqy-zenhei.ttc",
+]
 
-    Why it looks like this (2026-09-17, user feedback): the old overlay said
-    ``policy: sitstand``, which is an internal *version handle* (``sit_stand_v3``),
-    not a description -- "sit / stand" does not tell a reader that pressing ``m`` is
-    how you use it, nor which keys do anything at all right now. The block now leads
-    with **what the policy does, in Chinese and English**, then **the keys that
-    actually work for it** (derived from ``KEY_TABLE``, so it can never advertise a
-    dead key), then **the suggested thing to try**. The version handle stays on the
-    second line because it is the only link to the checkpoint, its hash and its
-    changelog entry.
+_OVERLAY_FONT: str | None = None
+_OVERLAY_FONT_LOOKED = False
 
-    Returns ``None`` when this MuJoCo build has no viewer overlay API, so the caller
-    can fall back to the terminal.
+
+def overlay_font_path() -> str | None:
+    """A CJK-capable TTF/OTC on this machine, or None (then the overlay stays ASCII)."""
+    global _OVERLAY_FONT, _OVERLAY_FONT_LOOKED
+    if _OVERLAY_FONT_LOOKED:
+        return _OVERLAY_FONT
+    _OVERLAY_FONT_LOOKED = True
+    for path in OVERLAY_FONT_CANDIDATES:
+        if os.path.isfile(path):
+            _OVERLAY_FONT = path
+            return path
+    import glob as _glob
+    for pattern in ("/usr/share/fonts/**/*CJK*", "/usr/share/fonts/**/wqy*",
+                    "/usr/share/fonts/**/DroidSansFallback*"):
+        hits = sorted(_glob.glob(pattern, recursive=True))
+        if hits:
+            _OVERLAY_FONT = hits[0]
+            return _OVERLAY_FONT
+    return None
+
+
+def overlay_rows(bot: "Wamoduck", selected: str) -> list[tuple[str, str]]:
+    """The top-left block, as (style, text) rows. Styles: title/sub/label/zh/en.
+
+    The order is deliberate: **what the policy does** (both languages), then **which
+    keys actually work right now** (filtered from KEY_TABLE, so a dead key can never be
+    advertised), then **what to try**. The version handle is on the second line, small,
+    because it is the link to the checkpoint/hash/changelog rather than a description.
     """
+    spec = bot.spec
+    terrain = "平地 flat" if bot.terrain_level == 0 else \
+        f"{bot.terrain_level} 个 1 cm 台阶 curbs"
+    idx = POLICY_ORDER.index(spec.name) + 1
+    rows = [
+        ("title", f"[{idx}/5]  {spec.label}"),
+        ("sub", f"{spec.name} = {spec.run_id}    obs {spec.obs_dim}-D    {terrain}"),
+        ("label", "可用按键 keys  (typed in the terminal, not this window)"),
+        ("zh", overlay_keys_line(spec)),
+        ("label", "建议流程 try this"),
+        ("zh", spec.flow_zh),
+        ("en", spec.flow_en),
+    ]
+    if selected != spec.name:
+        rows.append(("warn",
+                     f"⚠ 你按了 {selected}，但窗口里跑的仍是 {spec.name}（这次切换被拒绝）  "
+                     f"you asked for {selected}; still running {spec.name}"))
+    return rows
+
+
+def render_overlay_image(rows: list[tuple[str, str]], width_px: int = 980,
+                         scale: float = 1.0, font_path: str | None = None):
+    """Render the block to an RGB array (or None when Pillow / a CJK font is missing)."""
+    try:
+        from PIL import Image, ImageDraw, ImageFont
+    except Exception:
+        return None
+    path = font_path or overlay_font_path()
+    if path is None:
+        return None
+
+    sizes = {"title": 21, "sub": 14, "label": 15, "zh": 16, "en": 15, "warn": 15}
+    colors = {
+        "title": (245, 245, 250), "sub": (165, 172, 185), "label": (120, 200, 255),
+        "zh": (238, 238, 242), "en": (198, 205, 216), "warn": (255, 190, 120),
+    }
+    try:
+        fonts = {k: ImageFont.truetype(path, max(9, int(v * scale))) for k, v in sizes.items()}
+    except Exception:
+        return None
+
+    pad, gap = int(10 * scale), int(4 * scale)
+    max_text_w = max(120, width_px - 2 * pad)
+    probe = ImageDraw.Draw(Image.new("RGB", (8, 8)))
+
+    def wrap(text: str, font) -> list[str]:
+        """Greedy wrap: CJK may break anywhere, ASCII runs (and `a/b`) stay whole."""
+        def atoms(s: str) -> list[str]:
+            out, cur = [], ""
+            for ch in s:
+                if ch.isascii() and (ch.isalnum() or ch in "/._+-"):
+                    cur += ch
+                else:
+                    if cur:
+                        out.append(cur)
+                        cur = ""
+                    out.append(ch)
+            if cur:
+                out.append(cur)
+            return out
+
+        lines: list[str] = []
+        cur = ""
+        for atom in atoms(text):
+            if atom == "\n":
+                lines.append(cur.rstrip())
+                cur = ""
+                continue
+            if cur and probe.textlength(cur + atom, font=font) > max_text_w:
+                lines.append(cur.rstrip())
+                cur = "" if atom == " " else atom
+            else:
+                cur += atom
+        if cur.strip():
+            lines.append(cur.rstrip())
+        return lines or [""]
+
+    laid: list[tuple[str, str]] = []
+    for style, text in rows:
+        if not text:
+            continue
+        for line in wrap(text, fonts[style]):
+            laid.append((style, line))
+
+    # 行高按字体实际高度算，行距固定
+    heights = []
+    for style, line in laid:
+        box = fonts[style].getbbox(line) or (0, 0, 0, sizes[style])
+        heights.append(box[3] - box[1] + int(6 * scale))
+    img_h = pad * 2 + sum(heights) + gap * max(0, len(laid) - 1)
+    img = Image.new("RGB", (width_px, max(img_h, pad * 2 + 8)), (16, 17, 22))
+    draw = ImageDraw.Draw(img)
+    draw.rectangle([0, 0, width_px - 1, img.height - 1], outline=(70, 76, 92))
+
+    y = pad
+    for (style, line), hh in zip(laid, heights):
+        draw.text((pad, y), line, font=fonts[style], fill=colors[style])
+        y += hh + gap
+    return np.asarray(img, dtype=np.uint8)
+
+
+def overlay_corner_rect(viewer, img, corner: str = "top-left", margin: int = 8):
+    """Where to blit the block, in the viewer's screen coordinates (origin bottom-left)."""
+    import mujoco
+
+    vp = getattr(viewer, "viewport", None)
+    if vp is None:
+        return None
+    h, w = int(img.shape[0]), int(img.shape[1])
+    left, bottom = int(vp.left), int(vp.bottom)
+    vw, vh = int(vp.width), int(vp.height)
+    if w > vw or h > vh:
+        return None
+    if corner == "top-left":
+        x, y = left + margin, bottom + vh - h - margin
+    elif corner == "top-right":
+        x, y = left + vw - w - margin, bottom + vh - h - margin
+    elif corner == "bottom-left":
+        x, y = left + margin, bottom + margin
+    else:
+        x, y = left + vw - w - margin, bottom + margin
+    return mujoco.MjrRect(x, y, w, h)
+
+
+def overlay_command_text(bot: "Wamoduck", selected: str) -> list:
+    """The single bottom-left text line: what is running, and the live command."""
     import mujoco
 
     try:
         font = mujoco.mjtFontScale.mjFONTSCALE_150
-        top = mujoco.mjtGridPos.mjGRID_TOPLEFT
-        bottom = mujoco.mjtGridPos.mjGRID_BOTTOMLEFT
-    except AttributeError:                       # very old MuJoCo
-        return None
+        cell = mujoco.mjtGridPos.mjGRID_BOTTOMLEFT
+    except AttributeError:
+        return []
     spec = bot.spec
-    terrain = "平地 flat" if bot.terrain_level == 0 else \
-        f"{bot.terrain_level} 个 1 cm 台阶 / curbs"
+    left = f"running: {spec.name} = {spec.run_id}"
+    if selected != spec.name:
+        left += f"   (you asked for {selected} -- refused)"
+    return [(font, cell, left, describe_command_short(bot))]
+
+
+def overlay_fallback_texts(bot: "Wamoduck", selected: str) -> list:
+    """ASCII-only `set_texts` fallback, one grid cell per line so nothing overlaps."""
+    import mujoco
+
+    try:
+        font = mujoco.mjtFontScale.mjFONTSCALE_150
+        cells = [mujoco.mjtGridPos.mjGRID_TOPLEFT, mujoco.mjtGridPos.mjGRID_TOPCENTER,
+                 mujoco.mjtGridPos.mjGRID_TOPRIGHT, mujoco.mjtGridPos.mjGRID_MIDRIGHT]
+    except AttributeError:
+        return []
+    spec = bot.spec
+    terrain = "flat" if bot.terrain_level == 0 else f"{bot.terrain_level} x 1 cm curbs"
     idx = POLICY_ORDER.index(spec.name) + 1
+    lines = [
+        (f"[{idx}/5] {spec.label_en}", f"{spec.name} = {spec.run_id}  obs {spec.obs_dim}-D  {terrain}"),
+        ("keys that work now", overlay_keys_line(spec)),
+        ("try this", spec.flow_en),
+        ("", ""),
+    ]
+    texts = [(font, cell, left, right) for (left, right), cell in zip(lines, cells)]
+    texts.extend(overlay_command_text(bot, selected))
+    return texts
+
+
+def viewer_status_texts(bot: "Wamoduck", selected: str) -> list | None:
+    """Deprecated shim kept for callers that only want the ASCII text overlay."""
+    spec = bot.spec
+    try:
+        import mujoco
+    except Exception:
+        return None
+    try:
+        font = mujoco.mjtFontScale.mjFONTSCALE_150
+        top = mujoco.mjtGridPos.mjGRID_TOPLEFT
+    except AttributeError:
+        return None
+    terrain = "flat" if bot.terrain_level == 0 else f"{bot.terrain_level} x 1 cm curbs"
     return [
-        # 1 -- 这是哪个策略：先"它能干什么"（中英），版本号跟在后面便于溯源
-        (font, top,
-         f"[{idx}/5] {spec.label}",
-         f"{spec.name} = {spec.run_id}   obs {spec.obs_dim}-D   {terrain}"),
-        # 2 -- 现在按哪些键有用（只列对该策略真的有效的键）
-        (font, top,
-         "可用按键 keys", overlay_keys_line(spec)),
-        # 3 -- 建议怎么玩
-        (font, top,
-         "建议流程 try this", spec.flow_zh),
-        (font, top,
-         "", spec.flow_en),
-        # 底部：策略是否被 'k' 冻结、切换是否被拒绝、以及当前指令值
-        (font, bottom,
-         f"running: {spec.name}"
-         + ("" if selected == spec.name else f"   (you asked for {selected} -- refused)"),
-         describe_command_short(bot)),
+        (font, top, f"[{POLICY_ORDER.index(spec.name) + 1}/5] {spec.label_en}",
+         f"{spec.name} = {spec.run_id}  obs {spec.obs_dim}-D  {terrain}"),
     ]
 
 
@@ -996,21 +1185,21 @@ def overlay_keys_line(spec: PolicySpec) -> str:
     English, for the viewer overlay's top-left block.
     """
     short = {
-        "1 2 3 4 5": "1-5 换策略/policy",
-        "Tab / n": "Tab 下一个/next",
-        "up / w": "↑ 前进/fwd",
-        "down / s": "↓ 后退/back",
-        "left / a": "← 左移/left",
-        "right / d": "→ 右移/right",
-        "e": "e 左转/turn+",
-        "z": "z 右转/turn-",
-        "space": "空格 清零/zero",
-        "m": "m 坐/站 sit·stand",
-        "r": "r 重新出生/respawn",
-        "k": "k 冻结策略/freeze",
-        "q": "q 推一把/push",
-        "h / ?": "h 键表/keys",
-        "x": "x 退出/quit",
+        "1 2 3 4 5": "1-5 换策略 policy",
+        "Tab / n": "Tab 下一个 next",
+        "up / w": "↑ 前进 fwd",
+        "down / s": "↓ 后退 back",
+        "left / a": "← 左移 left",
+        "right / d": "→ 右移 right",
+        "e": "e 左转 turn+",
+        "z": "z 右转 turn-",
+        "space": "空格 清零 zero",
+        "m": "m 坐站 sit/stand",
+        "r": "r 重出生 respawn",
+        "k": "k 冻结 freeze",
+        "q": "q 推一把 push",
+        "h / ?": "h 键表 keys",
+        "x": "x 退出 quit",
     }
     parts = [short[keys] for keys, _, kind, _ in KEY_TABLE if key_applies(kind, spec)]
     return "  ·  ".join(parts)
@@ -1050,31 +1239,50 @@ def list_policies() -> int:
     return 0
 
 
-def overlay_preview() -> int:
-    """Print the viewer overlay block for every policy, without opening a window.
+def overlay_preview(png_out: str | None = None, width: int = 980,
+                    scale: float = 1.0) -> int:
+    """Print the viewer's top-left block for every policy, without opening a window.
 
-    The overlay is drawn by MuJoCo, so it cannot be inspected from a headless run --
-    which is exactly how a wrong or stale line would reach the user unnoticed. This
-    renders the same block as plain text, so `--overlay-preview` can be run in CI and
-    before a release.
+    The block is *drawn* by the viewer, so it cannot be inspected from a headless run --
+    which is exactly how a wrong, stale or overlapping line reaches a user unnoticed
+    (2026-09-17: it did). This prints the same rows as text, and with ``--overlay-png``
+    also writes the pixels it would blit, so the layout can be checked before a release.
     """
+    font = overlay_font_path()
+    if scale <= 0:                    # 0 = "auto" for the live window; here there is no
+        scale = 1.0                   # window, so the preview renders at 1.0
+        print("[overlay] preview: no window, so --overlay-scale 0 (auto) renders at 1.0")
+    print(f"[overlay] corner default top-left; CJK font: {font or 'NOT FOUND -> ASCII fallback'}")
+    print(f"[overlay] Pillow: ", end="")
+    try:
+        import PIL
+        print(f"yes ({PIL.__version__})")
+    except Exception as exc:
+        print(f"no ({exc})")
     for key, name in POLICY_KEYS.items():
         spec = POLICIES[name]
-        # The overlay is built from a live bot; only the fields it reads are faked here.
         bot = SimpleNamespace(spec=spec, terrain_level=0 if name != "rough" else 3,
                               command=[0.3, 0.0, 0.0], height_command=TALL_HEIGHT,
                               onnx_path=POLICY_DIR / spec.onnx)
-        block = viewer_status_texts(bot, name)
-        print(f"===== key {key}: {name} ({spec.run_id}) =====")
-        if block is None:
-            print("  (this MuJoCo build has no overlay API)")
+        rows = overlay_rows(bot, name)
+        print(f"\n===== key {key}: {name} ({spec.run_id}) =====")
+        for style, text in rows:
+            print(f"  {style:6s}| {text}")
+        img = render_overlay_image(rows, width_px=int(width * scale), scale=scale)
+        if img is None:
+            print("  (no image: Pillow or a CJK font is missing -> ASCII text fallback)")
             continue
-        for _font, pos, left, right in block:
-            where = "左上/top-left" if "TOP" in str(pos) else "左下/bottom-left"
-            print(f"  [{where}] {left}")
-            if right:
-                print(f"  {'':<{len(where) + 2}}  {right}")
-        print()
+        print(f"  image: {img.shape[1]} x {img.shape[0]} px, rgb")
+        if png_out:
+            try:
+                from PIL import Image
+                stem = Path(png_out)
+                out = stem.with_name(f"{stem.stem}_{name}{stem.suffix}") if len(POLICY_KEYS) > 1 \
+                    else stem
+                Image.fromarray(img).save(out)
+                print(f"  written: {out}")
+            except Exception as exc:
+                print(f"  could not write {png_out}: {exc}")
     return 0
 
 
@@ -1308,12 +1516,24 @@ def main() -> int:
     ap.add_argument("--overlay-preview", action="store_true",
                     help="print the viewer's top-left status block for every policy "
                          "as plain text and exit (for tests; needs no window)")
+    ap.add_argument("--overlay-corner", default="top-left",
+                    choices=["top-left", "top-right", "bottom-left", "bottom-right"],
+                    help="where the status block is drawn inside the viewer (default top-left)")
+    ap.add_argument("--overlay-width", type=int, default=980,
+                    help="width of the status block in window pixels (default 980)")
+    ap.add_argument("--overlay-scale", type=float, default=0.0,
+                    help="text scale of the status block; 0 (default) = automatic from the "
+                         "window height (height/1200, clamped to 1.0 .. 1.6; the 2560x1440 "
+                         "framebuffer on the reference machine lands on 1.2). Set 1.6 to "
+                         "force it bigger, or 1.0 for the smallest")
+    ap.add_argument("--overlay-png", default=None,
+                    help="with --overlay-preview: also write the rendered block to this PNG")
     args = ap.parse_args()
 
     if args.list:
         return list_policies()
     if args.overlay_preview:
-        return overlay_preview()
+        return overlay_preview(args.overlay_png, args.overlay_width, args.overlay_scale)
     if args.policy not in POLICIES:
         raise SystemExit(f"unknown --policy {args.policy!r}; choose from {', '.join(POLICIES)}")
 
@@ -1597,6 +1817,9 @@ def run_viewer(demo: Demo) -> int:
             launched_once = True
             status_shown: list | None = None
             overlay_missing = False
+            overlay_key: tuple | None = None
+            overlay_img = None
+            overlay_rgb = None
             with viewer:
                 n = 0
                 while viewer.is_running() and not demo.quit and not demo.restart_viewer:
@@ -1614,15 +1837,46 @@ def run_viewer(demo: Demo) -> int:
                     # Keep the policy name on screen: the window is where the user is
                     # looking while pressing 1-5, and a switch that reloads the MJCF
                     # reopens the window, so this is refreshed per window.
-                    texts = viewer_status_texts(bot, demo.selected)
-                    if texts is None or getattr(viewer, "set_texts", None) is None:
+                    #
+                    # 左上角那块用**图片**（中文要能显示、多行要真的换行 —— 见
+                    # `overlay_rows` 上方的说明）；图片画不出来时退回 ASCII 文本，
+                    # 并把几行分散到不同 gridpos，避免互相覆盖。
+                    # 字号按**窗口高度**自适应：2560x1440 的帧缓冲上 1.0 倍会偏小，
+                    # 4K 屏更小 ⇒ 高度 / 900 作为倍率（`--overlay-scale` 可覆盖）。
+                    vp_h = int(getattr(viewer.viewport, "height", 0) or 0)
+                    scale = args.overlay_scale if args.overlay_scale > 0 else \
+                        min(1.6, max(1.0, round(vp_h / 1200.0, 2)))
+                    scale_key = (round(scale, 2),)
+                    key = (bot.spec.name, bot.terrain_level, demo.selected) + scale_key
+                    if key != overlay_key:
+                        overlay_key = key
+                        overlay_img = render_overlay_image(
+                            overlay_rows(bot, demo.selected),
+                            width_px=int(args.overlay_width * scale), scale=scale)
+                        overlay_rgb = None
+                    key = (bot.spec.name, bot.terrain_level, demo.selected) + scale_key
+                    rect, rgb = None, None
+                    if overlay_img is not None and getattr(viewer, "set_images", None):
+                        rect = overlay_corner_rect(viewer, overlay_img, args.overlay_corner)
+                        if rect is not None:
+                            # set_images 会自己上下翻转，所以我们每次都要给**正向**的数组
+                            rgb = np.ascontiguousarray(overlay_img)
+                    if rect is not None and rgb is not None:
+                        viewer.set_images([(rect, rgb)])
+                    cmd_line = overlay_command_text(bot, demo.selected)
+                    if getattr(viewer, "set_texts", None) is None:
                         if not overlay_missing:
                             overlay_missing = True
                             print("[viewer] this MuJoCo build has no viewer text overlay -- "
                                   "the policy name is printed in this terminal instead")
-                    elif texts != status_shown:
-                        viewer.set_texts(texts)
-                        status_shown = texts
+                    else:
+                        # 图片已经承担左上角的内容 ⇒ 文本只留底部那行（且它要跟着指令值刷新）；
+                        # 画不出图片时，文本兜底把几行分散到不同 gridpos，避免互相覆盖。
+                        want = [cmd_line] if rect is not None else \
+                            overlay_fallback_texts(bot, demo.selected)
+                        if want != status_shown:
+                            viewer.set_texts(want)
+                            status_shown = want
                     viewer.sync()
                     n += 1
                     if n % int(CONTROL_HZ * 5) == 0:
