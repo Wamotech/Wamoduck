@@ -1528,6 +1528,10 @@ def main() -> int:
                          "force it bigger, or 1.0 for the smallest")
     ap.add_argument("--overlay-png", default=None,
                     help="with --overlay-preview: also write the rendered block to this PNG")
+    ap.add_argument("--viewer-smoke", action="store_true",
+                    help="open a real window and walk all five policies through the "
+                         "overlay code, then exit (needs a display; this is the only "
+                         "test that exercises set_images/set_texts)")
     args = ap.parse_args()
 
     if args.list:
@@ -1569,6 +1573,8 @@ def main() -> int:
 
     if args.cycle_test:
         return run_cycle_test(demo, args)
+    if args.viewer_smoke:
+        return viewer_smoke(demo)
     if args.headless:
         return run_headless(bot, args.steps)
     return run_viewer(demo)
@@ -1789,6 +1795,100 @@ def run_cycle_test(demo: Demo, args: argparse.Namespace) -> int:
 
 
 # --------------------------------------------------------------- viewer -------
+class OverlayState:
+    """Draws the status block, and remembers what it last drew.
+
+    One `apply()` entry point so the interactive loop and `--viewer-smoke` exercise
+    **the same code**: the two bugs found on 2026-09-17 (an `args` name that only
+    exists in `main`, and a list nested one level too deep) both lived on the "a
+    window is open" path, which `--check` and `--cycle-test` never take.
+    """
+
+    def __init__(self) -> None:
+        self.key: tuple | None = None
+        self.img = None
+        self.shown: list | None = None
+        self.missing_reported = False
+        self.drew_image = False
+
+    def apply(self, viewer, bot, selected: str, opts) -> None:
+        vp_h = int(getattr(getattr(viewer, "viewport", None), "height", 0) or 0)
+        scale = opts.overlay_scale if opts.overlay_scale > 0 else \
+            min(1.6, max(1.0, round(vp_h / 1200.0, 2)))
+        key = (bot.spec.name, bot.terrain_level, selected, round(scale, 2))
+        if key != self.key:
+            self.key = key
+            self.img = render_overlay_image(overlay_rows(bot, selected),
+                                            width_px=int(opts.overlay_width * scale),
+                                            scale=scale)
+        rect = None
+        if self.img is not None and getattr(viewer, "set_images", None) is not None:
+            rect = overlay_corner_rect(viewer, self.img, opts.overlay_corner)
+            if rect is not None:
+                # set_images 自己会上下翻转，所以每次都给它**正向**的数组
+                viewer.set_images([(rect, np.ascontiguousarray(self.img))])
+        self.drew_image = rect is not None
+
+        if getattr(viewer, "set_texts", None) is None:
+            if not self.missing_reported:
+                self.missing_reported = True
+                print("[viewer] this MuJoCo build has no viewer text overlay -- the policy "
+                      "name is printed in this terminal instead")
+            return
+        # 图片已经承担左上角的内容 ⇒ 文本只留底部那行（且要跟着指令值刷新）；
+        # 画不出图片（缺 Pillow / 没有中文字体 / 窗口太小）⇒ 文本兜底，几行分散到
+        # 不同 gridpos，避免像第一版那样互相覆盖。
+        want = overlay_command_text(bot, selected) if rect is not None else \
+            overlay_fallback_texts(bot, selected)
+        if want != self.shown:
+            viewer.set_texts(want)
+            self.shown = want
+
+
+def viewer_smoke(demo: "Demo") -> int:
+    """Open a real window, then walk all five policies through the overlay code.
+
+    Needs a display, so it is not in the default test set -- but it is the only test
+    that exercises `set_images`/`set_texts` at all, and that is exactly where the
+    overlay bugs were.
+    """
+    import mujoco.viewer
+
+    state = OverlayState()
+    opts = demo.args
+    failures = 0
+    for key, name in POLICY_KEYS.items():
+        demo.on_key(key)
+        bot = demo.bot
+        try:
+            viewer = mujoco.viewer.launch_passive(bot.model, bot.data, show_left_ui=False,
+                                                  show_right_ui=False)
+        except Exception as exc:
+            print(f"[smoke] {name}: could not open a window ({exc})")
+            return 1
+        with viewer:
+            for _ in range(40):
+                if bot.policy_on:
+                    bot.apply(bot.act(bot.observe()))
+                bot.step()
+                state.apply(viewer, bot, demo.selected, opts)
+                viewer.sync()
+                time.sleep(0.01)
+        if state.img is None:
+            print(f"[smoke] {name} ({bot.spec.run_id}): TEXT FALLBACK only "
+                  f"(no Pillow or no CJK font)")
+            continue
+        print(f"[smoke] {name} ({bot.spec.run_id}): image "
+              f"{state.img.shape[1]}x{state.img.shape[0]} px, "
+              f"drew_image={state.drew_image}, rows={len(overlay_rows(bot, demo.selected))}")
+        if not state.drew_image:
+            failures += 1
+            print("[smoke]   the image was built but could not be placed (window too small?)")
+    print("[smoke] " + ("OK -- every policy drew its overlay" if not failures
+                        else f"{failures} problem(s)"))
+    return 0 if not failures else 1
+
+
 def run_viewer(demo: Demo) -> int:
     """Interactive loop. The viewer is relaunched when a switch reloads the MJCF."""
     import mujoco.viewer
@@ -1815,11 +1915,7 @@ def run_viewer(demo: Demo) -> int:
                       f"model, or keep using --headless / --cycle-test")
                 return 1
             launched_once = True
-            status_shown: list | None = None
-            overlay_missing = False
-            overlay_key: tuple | None = None
-            overlay_img = None
-            overlay_rgb = None
+            overlay = OverlayState()
             with viewer:
                 n = 0
                 while viewer.is_running() and not demo.quit and not demo.restart_viewer:
@@ -1839,44 +1935,9 @@ def run_viewer(demo: Demo) -> int:
                     # reopens the window, so this is refreshed per window.
                     #
                     # 左上角那块用**图片**（中文要能显示、多行要真的换行 —— 见
-                    # `overlay_rows` 上方的说明）；图片画不出来时退回 ASCII 文本，
-                    # 并把几行分散到不同 gridpos，避免互相覆盖。
-                    # 字号按**窗口高度**自适应：2560x1440 的帧缓冲上 1.0 倍会偏小，
-                    # 4K 屏更小 ⇒ 高度 / 900 作为倍率（`--overlay-scale` 可覆盖）。
-                    vp_h = int(getattr(viewer.viewport, "height", 0) or 0)
-                    scale = args.overlay_scale if args.overlay_scale > 0 else \
-                        min(1.6, max(1.0, round(vp_h / 1200.0, 2)))
-                    scale_key = (round(scale, 2),)
-                    key = (bot.spec.name, bot.terrain_level, demo.selected) + scale_key
-                    if key != overlay_key:
-                        overlay_key = key
-                        overlay_img = render_overlay_image(
-                            overlay_rows(bot, demo.selected),
-                            width_px=int(args.overlay_width * scale), scale=scale)
-                        overlay_rgb = None
-                    key = (bot.spec.name, bot.terrain_level, demo.selected) + scale_key
-                    rect, rgb = None, None
-                    if overlay_img is not None and getattr(viewer, "set_images", None):
-                        rect = overlay_corner_rect(viewer, overlay_img, args.overlay_corner)
-                        if rect is not None:
-                            # set_images 会自己上下翻转，所以我们每次都要给**正向**的数组
-                            rgb = np.ascontiguousarray(overlay_img)
-                    if rect is not None and rgb is not None:
-                        viewer.set_images([(rect, rgb)])
-                    cmd_line = overlay_command_text(bot, demo.selected)
-                    if getattr(viewer, "set_texts", None) is None:
-                        if not overlay_missing:
-                            overlay_missing = True
-                            print("[viewer] this MuJoCo build has no viewer text overlay -- "
-                                  "the policy name is printed in this terminal instead")
-                    else:
-                        # 图片已经承担左上角的内容 ⇒ 文本只留底部那行（且它要跟着指令值刷新）；
-                        # 画不出图片时，文本兜底把几行分散到不同 gridpos，避免互相覆盖。
-                        want = [cmd_line] if rect is not None else \
-                            overlay_fallback_texts(bot, demo.selected)
-                        if want != status_shown:
-                            viewer.set_texts(want)
-                            status_shown = want
+                    # `overlay_rows` 上方的说明）；画不出图片时退回 ASCII 文本。
+                    # 逻辑全在 OverlayState 里，`--viewer-smoke` 走的是同一段代码。
+                    overlay.apply(viewer, bot, demo.selected, demo.args)
                     viewer.sync()
                     n += 1
                     if n % int(CONTROL_HZ * 5) == 0:
