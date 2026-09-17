@@ -104,15 +104,21 @@ cd Wamoduck
 python wamoduck_sim.py
 ```
 
-One window opens, and all five policies run inside it. Press a number key to switch:
+One window opens, and all five policies run inside it. Press a number key to switch — and the window itself
+tells you what the current policy does and which keys work for it, in plain words and in both languages:
 
 | Key | Policy | What you should see |
 | --- | --- | --- |
-| `1` | `stand` | Standing still. Drag it with the mouse and it finds its balance again. |
-| `2` | `getup` | Starts lying on the ground, then stands up. |
-| `3` | `sitstand` | Press `m` to crouch down and stand back up. |
-| `4` | `walk` | Arrow keys (or `w` `a` `s` `d`) drive it; `e` and `z` turn. |
-| `5` | `rough` | The same walking, over 1 cm curbs. |
+| `1` | `stand` — 站立抗推 | Standing still. Drag it with the mouse and it finds its balance again. |
+| `2` | `getup` — 起身 | Starts lying on the ground, then stands up **and settles into the nominal pose**. |
+| `3` | `sitstand` — 坐下与站起 | Press `m` to sit down (0.11241 m) and again to stand back up. |
+| `4` | `walk` — 平地行走 | Arrow keys (or `w` `a` `s` `d`) drive it; `e` and `z` turn. Below 0.20 m/s it does not walk. |
+| `5` | `rough` — 越障行走 | The same walking, over 1 cm curbs. It starts on three of them. |
+
+The version handle (`getup_v20`, `sit_stand_v3`, …) is shown next to the plain name: it is what ties the file
+you are running to a checkpoint, a hash and a changelog entry. Top-left in the window you get the policy, the
+version, the keys that do something *for that policy*, and a suggested thing to try; bottom-left, the live
+command values.
 
 The runner needs only `mujoco`, `onnxruntime`, and `numpy` — no mjlab, no torch, no CUDA. A few useful
 flags:

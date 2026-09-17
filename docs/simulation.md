@@ -59,10 +59,29 @@ Controls are typed into the terminal that launched the script, not into the view
 | `h` / `?` | print the key table again | every policy |
 | `x` | quit | every policy |
 
-**The viewer window names the policy too.** Top-left it writes `policy: walk` — the policy that is running —
-and bottom-left `selected: walk`, the one that was last asked for, beside the observation size, the MJCF and
-terrain, and the live command values, so "what is it doing right now" is on screen and not only in the
-terminal. The two names differ only when a switch was refused, which is exactly when seeing it matters.
+**The viewer window names the policy too, in plain words and in both languages.** Top-left it draws a panel with
+four things: **what the policy does** (`[3/5] 坐下与站起 Sit down and stand up`), the **version handle** that ties
+the running file to a checkpoint and a hash (`sitstand = sit_stand_v3 · obs 49-D · 平地 flat`), **the keys that
+actually do something for this policy right now**, and **what to try**. Bottom-left the live command values
+appear (`cmd vx +0.30 …`), and the two names differ only when a switch was refused — which is exactly when
+seeing it matters.
+
+The keys line is derived from the same table as the terminal key list, filtered by the running policy, so a key
+that does nothing for it is never advertised. Move or resize the panel with `--overlay-corner {top-left,
+top-right,bottom-left,bottom-right}`, `--overlay-width N`, and `--overlay-scale N` (0, the default, scales from
+the window height). Print or export it without opening a window:
+
+```bash
+python wamoduck_sim.py --overlay-preview                 # the rows, for all five policies
+python wamoduck_sim.py --overlay-preview --overlay-png ov.png   # the pixels it would blit
+python wamoduck_sim.py --viewer-smoke                    # open a window and draw all five (needs a display)
+```
+
+Why the panel is an **image** rather than viewer text: MuJoCo's HUD font is bitmap ASCII, so Chinese comes out
+as boxes, and `set_texts` draws entries that share a grid position *on top of each other* rather than wrapping.
+The panel is rendered with Pillow using a system CJK font and blitted with `set_images`. That does **not** add a
+dependency: the three imports above are still the only ones required, and without Pillow or a CJK font the
+overlay falls back to English text placed in separate grid cells.
 
 **No key is ignored in silence.** The twist keys only exist in the observation of `walk` and `rough`, and `m`
 only exists for `sitstand`; pressing a key the current policy has no channel for prints what the key would
