@@ -1158,9 +1158,9 @@
       "path": "wamoduck_sim.py",
       "source_set": "trained_policy",
       "source_file": "wamoduck_sim.py",
-      "bytes": 72952,
-      "sha256": "8438cef5344f4c4217239eff602f76a9ef457e4e72d3c02284fd307bd5c6f78b",
-      "source_sha256": "8438cef5344f4c4217239eff602f76a9ef457e4e72d3c02284fd307bd5c6f78b",
+      "bytes": 80853,
+      "sha256": "a2d3a453c650326887f829782841d5a734307ed2561981517fe2210b673dc418",
+      "source_sha256": "a2d3a453c650326887f829782841d5a734307ed2561981517fe2210b673dc418",
       "transformation": "Authored for this repository; no external source. Text line endings are LF."
     },
     {

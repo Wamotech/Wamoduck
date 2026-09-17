@@ -87,6 +87,7 @@ import threading
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
+from types import SimpleNamespace
 
 import numpy as np
 
@@ -150,11 +151,37 @@ class PolicySpec:
     default_spawn: str
     kind: str             # "walk" | "groundcontact"
     summary: str
+    # Descriptive names, in both languages and in ordinary words. The internal run
+    # name (`getup_v20`, `sit_stand_v3`, ...) is a *version*, not a description: it
+    # says which training round produced the file, not what the robot does. Both are
+    # shown together -- the plain name first, the version second -- so a reader is not
+    # left guessing what "sit_stand_v3" is supposed to do.
+    label_zh: str = ""
+    label_en: str = ""
+    # The suggested way to exercise this policy: what to press, in what order, and
+    # what to watch for. Shown in the viewer overlay and in the startup banner.
+    flow_zh: str = ""
+    flow_en: str = ""
     extra_obs: list[str] = field(default_factory=list)
 
     @property
     def terms(self) -> list[str]:
         return OBS_GROUPS + self.extra_obs
+
+    @property
+    def label(self) -> str:
+        """`坐 / 站 Sit and stand` -- the plain description, both languages."""
+        return f"{self.label_zh} {self.label_en}"
+
+    @property
+    def run_id(self) -> str:
+        """`sit_stand_v3`: the training round, parsed from the ONNX file name.
+
+        Kept visible everywhere, because it is the only handle that ties the running
+        file to a checkpoint, a changelog entry and a hash in `policies/README.md`.
+        """
+        stem = Path(self.onnx).stem            # wamoduck-sitstand-sit_stand_v3
+        return stem.split("-", 2)[-1] if stem.count("-") >= 2 else stem
 
 
 POLICIES: dict[str, PolicySpec] = {
@@ -167,6 +194,10 @@ POLICIES: dict[str, PolicySpec] = {
         default_spawn="nominal",
         kind="walk",
         summary="hold the nominal stance and recover from pushes",
+        label_zh="站立抗推",
+        label_en="Stand and resist pushes",
+        flow_zh="先看它站得稳不稳（应几乎不动），再按 q 随机推它一把，看它自己站回来",
+        flow_en="watch it hold still, then press q to shove it and watch it recover",
     ),
     "getup": PolicySpec(
         name="getup",
@@ -181,6 +212,10 @@ POLICIES: dict[str, PolicySpec] = {
         default_spawn="lie-back",
         kind="groundcontact",
         summary="start lying down and get back on its feet",
+        label_zh="起身",
+        label_en="Get up after a fall",
+        flow_zh="按 r 让它重新躺下，看它自己站起来并回到标称站姿（末态不应歪着）",
+        flow_en="press r to lie it down again, watch it stand up and settle into the nominal pose",
     ),
     "sitstand": PolicySpec(
         name="sitstand",
@@ -197,6 +232,10 @@ POLICIES: dict[str, PolicySpec] = {
         default_spawn="nominal",
         kind="walk",
         summary="crouch to a commanded body height and stand back up",
+        label_zh="坐下与站起",
+        label_en="Sit down and stand up",
+        flow_zh="按 m 坐下 → 看躯干是否直立、左右两腿是否对称（坐高 0.112 m）→ 按 e/z 调高度 → 再按 m 站回",
+        flow_en="press m to sit (0.112 m), check the trunk is upright and the legs symmetric, e/z change the height, m again to stand",
         extra_obs=["height_command"],
     ),
     "walk": PolicySpec(
@@ -208,6 +247,10 @@ POLICIES: dict[str, PolicySpec] = {
         default_spawn="nominal",
         kind="walk",
         summary="walk on flat ground from a (vx, vy, wz) command",
+        label_zh="平地行走",
+        label_en="Walk on flat ground",
+        flow_zh="按 ↑ 给 0.3 m/s 看直行；再按 ← → 与 e/z 试边走边转。注意：速度低于 0.20 m/s 它不会走",
+        flow_en="press up for 0.3 m/s, then add left/right and e/z to turn while walking; below 0.20 m/s it does not walk at all",
         extra_obs=["command"],
     ),
     "rough": PolicySpec(
@@ -219,6 +262,10 @@ POLICIES: dict[str, PolicySpec] = {
         default_spawn="nominal",
         kind="walk",
         summary="walk over 1 cm curbs from a (vx, vy, wz) command",
+        label_zh="越障行走",
+        label_en="Walk over 1 cm curbs",
+        flow_zh="开局就在 3 个 1 cm 台阶上；按 ↑ 给 0.3 m/s 看它跨过去（越障地形与平地的差别只有约 4 %）",
+        flow_en="it starts on 3 one-centimetre curbs; press up for 0.3 m/s and watch it step over them",
         extra_obs=["command"],
     ),
 }
@@ -834,7 +881,11 @@ def print_policy_state(bot: "Wamoduck", tag: str = "policy") -> None:
     """Say which policy is loaded, what it observes, and what it can be told."""
     spec = bot.spec
     terrain = "flat floor" if bot.terrain_level == 0 else f"{bot.terrain_level} x 1 cm curbs"
-    print(f"[{tag}] current   : {spec.name} -- {spec.summary}")
+    print(f"[{tag}] current   : {spec.label}   ({spec.name} = {spec.run_id})")
+    print(f"[{tag}] does      : {spec.summary}")
+    print(f"[{tag}] try       : {spec.flow_zh}")
+    print(f"[{tag}]             {spec.flow_en}")
+    print(f"[{tag}] keys      : {overlay_keys_line(spec)}")
     print(f"[{tag}] obs       : {describe_obs(spec)}")
     print(f"[{tag}] command   : {describe_command(spec, bot)}")
     print(f"[{tag}] model     : {spec.mjcf}  terrain: {terrain}  "
@@ -852,13 +903,20 @@ def describe_command_short(bot: "Wamoduck") -> str:
 
 
 def viewer_status_texts(bot: "Wamoduck", selected: str) -> list | None:
-    """The status lines drawn *inside* the viewer window.
+    """The status block drawn *inside* the viewer window, top-left.
 
-    Top row: the policy that is running, and its observation size. Bottom row: the
-    policy that was selected (they differ only if a switch was refused, which is
-    exactly when it is worth seeing), the key hint, and the command values. Returns
-    ``None`` when this MuJoCo build has no viewer overlay API, so the caller can
-    fall back to the terminal.
+    Why it looks like this (2026-09-17, user feedback): the old overlay said
+    ``policy: sitstand``, which is an internal *version handle* (``sit_stand_v3``),
+    not a description -- "sit / stand" does not tell a reader that pressing ``m`` is
+    how you use it, nor which keys do anything at all right now. The block now leads
+    with **what the policy does, in Chinese and English**, then **the keys that
+    actually work for it** (derived from ``KEY_TABLE``, so it can never advertise a
+    dead key), then **the suggested thing to try**. The version handle stays on the
+    second line because it is the only link to the checkpoint, its hash and its
+    changelog entry.
+
+    Returns ``None`` when this MuJoCo build has no viewer overlay API, so the caller
+    can fall back to the terminal.
     """
     import mujoco
 
@@ -868,37 +926,61 @@ def viewer_status_texts(bot: "Wamoduck", selected: str) -> list | None:
         bottom = mujoco.mjtGridPos.mjGRID_BOTTOMLEFT
     except AttributeError:                       # very old MuJoCo
         return None
-    terrain = "flat" if bot.terrain_level == 0 else f"{bot.terrain_level} x 1 cm curbs"
+    spec = bot.spec
+    terrain = "平地 flat" if bot.terrain_level == 0 else \
+        f"{bot.terrain_level} 个 1 cm 台阶 / curbs"
+    idx = POLICY_ORDER.index(spec.name) + 1
     return [
-        (font, top, f"policy: {bot.spec.name}",
-         f"obs {bot.spec.obs_dim}-D   act {N_ACT}-D   {bot.spec.mjcf}   terrain: {terrain}"),
-        (font, bottom, f"selected: {selected}   (1-5 / Tab / n switches policy)",
+        # 1 -- 这是哪个策略：先"它能干什么"（中英），版本号跟在后面便于溯源
+        (font, top,
+         f"[{idx}/5] {spec.label}",
+         f"{spec.name} = {spec.run_id}   obs {spec.obs_dim}-D   {terrain}"),
+        # 2 -- 现在按哪些键有用（只列对该策略真的有效的键）
+        (font, top,
+         "可用按键 keys", overlay_keys_line(spec)),
+        # 3 -- 建议怎么玩
+        (font, top,
+         "建议流程 try this", spec.flow_zh),
+        (font, top,
+         "", spec.flow_en),
+        # 底部：策略是否被 'k' 冻结、切换是否被拒绝、以及当前指令值
+        (font, bottom,
+         f"running: {spec.name}"
+         + ("" if selected == spec.name else f"   (you asked for {selected} -- refused)"),
          describe_command_short(bot)),
     ]
 
 
 # Which keys the runner binds, and which policies each one can act on. This is the
-# single source of the key table: it is printed at startup, again on `h`, and it is
-# what the "no effect with this policy" notes are derived from.
-KEY_TABLE: list[tuple[str, str, str]] = [
-    ("1 2 3 4 5", "switch policy: 1=stand 2=getup 3=sitstand 4=walk 5=rough", "always"),
-    ("Tab / n", "switch to the next policy in that order", "always"),
-    ("up / w", f"vx += {CMD_STEP['vx']:.1f} m/s", "twist"),
-    ("down / s", f"vx -= {CMD_STEP['vx']:.1f} m/s", "twist"),
-    ("left / a", f"vy += {CMD_STEP['vy']:.1f} m/s", "twist"),
-    ("right / d", f"vy -= {CMD_STEP['vy']:.1f} m/s", "twist"),
-    ("e", f"wz += {CMD_STEP['wz']:.1f} rad/s", "twist"),
-    ("z", f"wz -= {CMD_STEP['wz']:.1f} rad/s", "twist"),
-    ("space", "zero the twist command", "twist"),
-    ("m", f"sit / stand toggle ({SIT_HEIGHT:.3f} / {TALL_HEIGHT:.3f} m)", "height"),
-    ("r", "reset (re-spawn the current policy)", "always"),
-    ("k", "toggle the policy (hold the zero action instead)", "always"),
-    ("q", "reset with a random push", "always"),
-    ("h / ?", "print this key table", "always"),
-    ("x", "quit", "always"),
+# single source of the key table: it is printed at startup, again on `h`, it is what
+# the "no effect with this policy" notes are derived from, and it is what the viewer
+# overlay's "keys that work right now" line is built from -- so the overlay can never
+# advertise a key the running policy cannot use. Each row is
+#   (keys, what it does in English, scope, what it does in Chinese).
+KEY_TABLE: list[tuple[str, str, str, str]] = [
+    ("1 2 3 4 5", "switch policy: 1=stand 2=getup 3=sitstand 4=walk 5=rough", "always",
+     "切换策略：1=站立 2=起身 3=坐站 4=行走 5=越障"),
+    ("Tab / n", "switch to the next policy in that order", "always",
+     "按顺序切到下一个策略"),
+    ("up / w", f"vx += {CMD_STEP['vx']:.1f} m/s", "twist", f"前进 +{CMD_STEP['vx']:.1f} m/s"),
+    ("down / s", f"vx -= {CMD_STEP['vx']:.1f} m/s", "twist", f"前进 -{CMD_STEP['vx']:.1f} m/s"),
+    ("left / a", f"vy += {CMD_STEP['vy']:.1f} m/s", "twist", f"左移 +{CMD_STEP['vy']:.1f} m/s"),
+    ("right / d", f"vy -= {CMD_STEP['vy']:.1f} m/s", "twist", f"右移 -{CMD_STEP['vy']:.1f} m/s"),
+    ("e", f"wz += {CMD_STEP['wz']:.1f} rad/s", "twist", f"左转 +{CMD_STEP['wz']:.1f} rad/s"),
+    ("z", f"wz -= {CMD_STEP['wz']:.1f} rad/s", "twist", f"右转 -{CMD_STEP['wz']:.1f} rad/s"),
+    ("space", "zero the twist command", "twist", "速度指令清零"),
+    ("m", f"sit / stand toggle ({SIT_HEIGHT:.3f} / {TALL_HEIGHT:.3f} m)", "height",
+     f"坐/站切换（{SIT_HEIGHT:.3f} / {TALL_HEIGHT:.3f} m）"),
+    ("r", "reset (re-spawn the current policy)", "always", "重新出生（按该策略自己的出生点）"),
+    ("k", "toggle the policy (hold the zero action instead)", "always",
+     "暂时停用策略（改为保持零动作）"),
+    ("q", "reset with a random push", "always", "重新出生并随机推一把"),
+    ("h / ?", "print this key table", "always", "再打印这张键表"),
+    ("x", "quit", "always", "退出"),
 ]
 
 KEY_SCOPE = {"twist": "walk, rough", "height": "sitstand"}
+KEY_SCOPE_ZH = {"twist": "行走/越障", "height": "坐站"}
 
 
 def key_applies(kind: str, spec: PolicySpec) -> bool:
@@ -907,34 +989,92 @@ def key_applies(kind: str, spec: PolicySpec) -> bool:
     return spec.command == kind
 
 
+def overlay_keys_line(spec: PolicySpec) -> str:
+    """`↑↓ 前进 · ←→ 侧移 · e/z 偏航 · 空格 清零 · m 坐/站 · r 出生 · q 推 · h 键表 · x 退出`
+
+    Only the keys that actually do something for *this* policy, in Chinese and
+    English, for the viewer overlay's top-left block.
+    """
+    short = {
+        "1 2 3 4 5": "1-5 换策略/policy",
+        "Tab / n": "Tab 下一个/next",
+        "up / w": "↑ 前进/fwd",
+        "down / s": "↓ 后退/back",
+        "left / a": "← 左移/left",
+        "right / d": "→ 右移/right",
+        "e": "e 左转/turn+",
+        "z": "z 右转/turn-",
+        "space": "空格 清零/zero",
+        "m": "m 坐/站 sit·stand",
+        "r": "r 重新出生/respawn",
+        "k": "k 冻结策略/freeze",
+        "q": "q 推一把/push",
+        "h / ?": "h 键表/keys",
+        "x": "x 退出/quit",
+    }
+    parts = [short[keys] for keys, _, kind, _ in KEY_TABLE if key_applies(kind, spec)]
+    return "  ·  ".join(parts)
+
+
 def print_keys(spec: PolicySpec) -> None:
     """Print the key table, marking every key the current policy cannot use."""
     print("[keys] keys are typed into the terminal that launched this script, "
           "not into the viewer window")
-    for keys, action, kind in KEY_TABLE:
+    for keys, action, kind, action_zh in KEY_TABLE:
         scope = KEY_SCOPE.get(kind, "every policy")
         if key_applies(kind, spec):
             status = "active"
         else:
             status = f"NO EFFECT with '{spec.name}' -- it has no such command"
         print(f"[keys]   {keys:<12s} {action:<48s} ({scope:<12s}) {status}")
+        print(f"[keys]   {'':<12s} {action_zh}")
     print("[keys] switch policies with 1-5 or Tab/n; the runner prints what changed "
           "on every switch. Press h for this table again.")
 
 
 def list_policies() -> int:
     print(f"Control rate: {CONTROL_HZ:.0f} Hz  (decimation {DECIMATION} x timestep {TIMESTEP})")
-    print(f"{'name':10s} {'obs':>4s} {'MJCF':24s} {'ONNX':38s} present")
-    for spec in POLICIES.values():
+    print(f"{'key':>3s} {'name':10s} {'run':18s} {'obs':>4s} {'ONNX':38s} present")
+    for i, spec in enumerate(POLICIES.values(), start=1):
         p = POLICY_DIR / spec.onnx
         xml = MJCF_DIR / spec.mjcf
         present = "yes" if (p.is_file() and xml.is_file()) else "NO"
-        print(f"{spec.name:10s} {spec.obs_dim:4d} {spec.mjcf:24s} {spec.onnx:38s} {present}")
-        print(f"{'':10s} {'':4s} {spec.summary}")
+        print(f"{i:3d} {spec.name:10s} {spec.run_id:18s} {spec.obs_dim:4d} "
+              f"{spec.onnx:38s} {present}")
+        print(f"{'':3s} {spec.label}")
+        print(f"{'':3s} {spec.summary}")
     print("\nKeys '1'..'5' switch between these five policies inside one running demo:")
     for key, name in POLICY_KEYS.items():
-        print(f"  {key} = {name:9s} {POLICIES[name].summary}")
+        print(f"  {key} = {name:9s} {POLICIES[name].label}   [{POLICIES[name].run_id}]")
     print("  Tab / n = the next one in that order")
+    return 0
+
+
+def overlay_preview() -> int:
+    """Print the viewer overlay block for every policy, without opening a window.
+
+    The overlay is drawn by MuJoCo, so it cannot be inspected from a headless run --
+    which is exactly how a wrong or stale line would reach the user unnoticed. This
+    renders the same block as plain text, so `--overlay-preview` can be run in CI and
+    before a release.
+    """
+    for key, name in POLICY_KEYS.items():
+        spec = POLICIES[name]
+        # The overlay is built from a live bot; only the fields it reads are faked here.
+        bot = SimpleNamespace(spec=spec, terrain_level=0 if name != "rough" else 3,
+                              command=[0.3, 0.0, 0.0], height_command=TALL_HEIGHT,
+                              onnx_path=POLICY_DIR / spec.onnx)
+        block = viewer_status_texts(bot, name)
+        print(f"===== key {key}: {name} ({spec.run_id}) =====")
+        if block is None:
+            print("  (this MuJoCo build has no overlay API)")
+            continue
+        for _font, pos, left, right in block:
+            where = "左上/top-left" if "TOP" in str(pos) else "左下/bottom-left"
+            print(f"  [{where}] {left}")
+            if right:
+                print(f"  {'':<{len(where) + 2}}  {right}")
+        print()
     return 0
 
 
@@ -1165,10 +1305,15 @@ def main() -> int:
     ap.add_argument("--settle", type=int, default=40, help=argparse.SUPPRESS)
     ap.add_argument("--check", action="store_true", help="run the observation/action contract self-test")
     ap.add_argument("--list", action="store_true", help="list the published policies and exit")
+    ap.add_argument("--overlay-preview", action="store_true",
+                    help="print the viewer's top-left status block for every policy "
+                         "as plain text and exit (for tests; needs no window)")
     args = ap.parse_args()
 
     if args.list:
         return list_policies()
+    if args.overlay_preview:
+        return overlay_preview()
     if args.policy not in POLICIES:
         raise SystemExit(f"unknown --policy {args.policy!r}; choose from {', '.join(POLICIES)}")
 
